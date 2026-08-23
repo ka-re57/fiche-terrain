@@ -1,0 +1,2031 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fiche terrain KA-RÉ</title>
+<meta name="description" content="Relevé d'intervention KA-RÉ — chaudière, PAC, clim, adoucisseur, VMC, chauffe-eau thermodynamique.">
+<meta name="theme-color" content="#0D3B66">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="KA-RÉ">
+<style>
+:root{
+  --fond:#EEF2F6; --carte:#FFFFFF; --carte2:#F5F8FB;
+  --trait:#C9D6E2; --trait2:#E2EAF2;
+  --texte:#0E1A26; --texte2:#3D5468; --texte3:#6B8199;
+  --marque:#0D3B66; --surmarque:#FFFFFF;
+  --ok:#146B3A; --okf:#E0F2E7;
+  --att:#9A5B00; --attf:#FCEEDA;
+  --mal:#A31D14; --malf:#FAE4E1;
+  --ui:'Barlow Semi Condensed','Arial Narrow',Arial,sans-serif;
+  --corps:'Barlow',system-ui,-apple-system,'Segoe UI',Arial,sans-serif;
+  --num:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --fond:#080F16; --carte:#101B26; --carte2:#16232F;
+    --trait:#28394B; --trait2:#1D2C3A;
+    --texte:#E9F0F6; --texte2:#A8BCCD; --texte3:#7A92A7;
+    --marque:#84B6DC; --surmarque:#08131D;
+    --ok:#5FCB8D; --okf:#0D2C1D;
+    --att:#E9AC52; --attf:#33230B;
+    --mal:#F27C6E; --malf:#371310;
+  }
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{margin:0; background:var(--fond); color:var(--texte); font-family:var(--corps); font-size:16px; line-height:1.45}
+:focus-visible{outline:3px solid var(--marque); outline-offset:2px}
+input,select,textarea,button{font:inherit; color:inherit}
+
+/* ---------- barre ---------- */
+.barre{position:sticky; top:0; z-index:30; background:var(--carte); border-bottom:1px solid var(--trait); padding:8px 12px; display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+.barre .logo{font-family:var(--ui); font-weight:700; font-size:17px; letter-spacing:.08em; color:var(--marque); margin-right:auto}
+.pastille{font-family:var(--ui); font-size:12.5px; font-weight:600; letter-spacing:.03em; padding:3px 9px; border-radius:999px; background:var(--carte2); color:var(--texte2); border:1px solid var(--trait2); white-space:nowrap}
+.pastille.ok{background:var(--okf); color:var(--ok); border-color:transparent}
+.pastille.att{background:var(--attf); color:var(--att); border-color:transparent}
+.pastille.mal{background:var(--malf); color:var(--mal); border-color:transparent}
+
+/* ---------- onglets ---------- */
+.onglets{position:sticky; top:45px; z-index:29; background:var(--fond); border-bottom:1px solid var(--trait2); display:flex; gap:6px; padding:7px 12px; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none}
+.onglets::-webkit-scrollbar{display:none}
+.ong{flex:0 0 auto; font-family:var(--ui); font-weight:600; font-size:14.5px; letter-spacing:.02em; padding:8px 13px; min-height:40px; border-radius:999px; border:1.5px solid var(--trait); background:var(--carte); color:var(--texte2); cursor:pointer; display:flex; align-items:center; gap:6px}
+.ong[aria-selected="true"]{background:var(--marque); border-color:var(--marque); color:var(--surmarque)}
+.ong .pc{font-family:var(--num); font-size:11px; opacity:.75}
+
+/* ---------- structure ---------- */
+main{max-width:900px; margin:0 auto; padding:12px 12px 120px}
+.carte{background:var(--carte); border:1px solid var(--trait2); border-radius:var(--r); padding:13px 14px; margin-bottom:11px}
+.carte > h2{font-family:var(--ui); font-weight:700; font-size:13px; letter-spacing:.11em; text-transform:uppercase; color:var(--marque); margin:0 0 10px; display:flex; align-items:center; gap:8px}
+.carte > h2 .cpt{margin-left:auto; font-family:var(--num); font-size:11.5px; font-weight:400; letter-spacing:0; color:var(--texte3); text-transform:none}
+.g2{display:grid; grid-template-columns:1fr 1fr; gap:9px}
+@media (max-width:560px){ .g2{grid-template-columns:1fr} }
+.champ{display:flex; flex-direction:column; gap:3px; min-width:0}
+.champ.plein{grid-column:1/-1}
+.champ > label{font-family:var(--ui); font-weight:600; font-size:13px; letter-spacing:.02em; color:var(--texte2); display:flex; align-items:baseline; gap:5px}
+.champ > label .u{font-family:var(--num); font-size:11px; color:var(--texte3)}
+.champ .aide{font-size:11.5px; color:var(--texte3); line-height:1.35}
+input[type=text],input[type=number],input[type=date],select,textarea{
+  width:100%; min-height:46px; padding:9px 11px; border:1.5px solid var(--trait); border-radius:8px;
+  background:var(--carte2); color:var(--texte); font-size:16px;
+}
+textarea{min-height:78px; resize:vertical; line-height:1.45}
+input[type=number]{font-family:var(--num); font-variant-numeric:tabular-nums}
+select{appearance:none; background-image:linear-gradient(45deg,transparent 50%,var(--texte3) 50%),linear-gradient(135deg,var(--texte3) 50%,transparent 50%); background-position:calc(100% - 17px) 21px,calc(100% - 12px) 21px; background-size:5px 5px,5px 5px; background-repeat:no-repeat; padding-right:34px}
+.verdict{font-family:var(--ui); font-weight:700; font-size:12px; letter-spacing:.04em; padding:2px 8px; border-radius:5px; align-self:flex-start}
+.verdict.ok{background:var(--okf); color:var(--ok)}
+.verdict.att{background:var(--attf); color:var(--att)}
+.verdict.mal{background:var(--malf); color:var(--mal)}
+.calc{font-family:var(--num); font-weight:600; font-size:17px; min-height:46px; display:flex; align-items:center; padding:9px 11px; border:1.5px dashed var(--trait); border-radius:8px; background:transparent}
+
+/* ---------- puces / chips ---------- */
+.chips{display:flex; gap:7px; flex-wrap:wrap}
+.chip{font-family:var(--ui); font-weight:600; font-size:14.5px; padding:9px 14px; min-height:44px; border-radius:999px; border:1.5px solid var(--trait); background:var(--carte2); color:var(--texte2); cursor:pointer; display:flex; align-items:center; gap:6px}
+.chip[aria-pressed="true"]{background:var(--marque); border-color:var(--marque); color:var(--surmarque)}
+
+/* ---------- points de contrôle ---------- */
+.pc-ligne{display:flex; gap:9px; align-items:flex-start; padding:8px 0; border-bottom:1px solid var(--trait2)}
+.pc-ligne:last-child{border-bottom:0}
+.pc-lib{flex:1; font-size:14.5px; line-height:1.4; min-width:0}
+.pc-etats{flex:0 0 auto; display:flex; gap:5px}
+.et{width:40px; height:40px; border-radius:8px; border:1.5px solid var(--trait); background:var(--carte2); color:var(--texte3); font-family:var(--ui); font-weight:700; font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center}
+.et[aria-pressed="true"][data-v="ok"]{background:var(--ok); border-color:var(--ok); color:#fff}
+.et[aria-pressed="true"][data-v="non"]{background:var(--mal); border-color:var(--mal); color:#fff}
+.et[aria-pressed="true"][data-v="np"]{background:var(--texte3); border-color:var(--texte3); color:var(--carte)}
+.legende{font-size:12px; color:var(--texte3); margin-bottom:8px; display:flex; gap:12px; flex-wrap:wrap}
+
+/* ---------- sous-machines ---------- */
+.sm{border:1px solid var(--trait2); border-radius:9px; padding:10px; margin-bottom:9px; background:var(--carte2)}
+.sm-tete{display:flex; align-items:center; gap:8px; margin-bottom:8px}
+.sm-tete .n{font-family:var(--ui); font-weight:700; font-size:13px; letter-spacing:.05em; color:var(--marque); text-transform:uppercase}
+.case{width:44px; height:44px; border-radius:8px; border:1.5px solid var(--trait); background:var(--carte); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:19px; color:transparent}
+.case[aria-pressed="true"]{background:var(--ok); border-color:var(--ok); color:#fff}
+
+/* ---------- machines de la visite ---------- */
+.mach{display:flex; align-items:center; gap:10px; padding:11px; border:1.5px solid var(--trait); border-radius:9px; margin-bottom:8px; background:var(--carte2); width:100%; text-align:left; cursor:pointer}
+.mach .ic{font-size:22px; flex:0 0 auto}
+.mach .txt{flex:1; min-width:0}
+.mach .t1{font-family:var(--ui); font-weight:700; font-size:15px}
+.mach .t2{font-size:12.5px; color:var(--texte3); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+
+/* ---------- boutons ---------- */
+.btn{font-family:var(--ui); font-weight:700; font-size:15px; letter-spacing:.03em; padding:11px 16px; min-height:48px; border-radius:9px; border:1.5px solid var(--trait); background:var(--carte); color:var(--texte); cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:7px}
+.btn.p{background:var(--marque); border-color:var(--marque); color:var(--surmarque)}
+.btn.d{border-color:var(--mal); color:var(--mal)}
+.btn.mini{min-height:38px; padding:6px 12px; font-size:13.5px; border-radius:7px}
+.btn:disabled{opacity:.45; cursor:not-allowed}
+.piedbar{position:fixed; left:0; right:0; bottom:0; z-index:28; background:var(--carte); border-top:1px solid var(--trait); padding:9px 12px calc(9px + env(safe-area-inset-bottom)); display:flex; gap:8px; justify-content:center; flex-wrap:wrap}
+.piedbar .btn{flex:1 1 140px; max-width:250px}
+
+/* ---------- divers ---------- */
+.alerte{border-radius:8px; padding:10px 12px; font-size:13.5px; line-height:1.45; margin-bottom:10px; border:1px solid}
+.alerte.att{background:var(--attf); color:var(--att); border-color:var(--att)}
+.alerte.mal{background:var(--malf); color:var(--mal); border-color:var(--mal)}
+.alerte.info{background:var(--carte2); color:var(--texte2); border-color:var(--trait)}
+.alerte b{font-family:var(--ui)}
+.vide{text-align:center; color:var(--texte3); font-size:14px; padding:18px 10px; line-height:1.5}
+.toast{position:fixed; left:50%; bottom:86px; transform:translateX(-50%); z-index:60; background:var(--texte); color:var(--fond); padding:11px 17px; border-radius:9px; font-family:var(--ui); font-weight:600; font-size:14.5px; box-shadow:0 6px 24px -8px rgba(0,0,0,.5); max-width:92vw; text-align:center}
+.toast.mal{background:var(--mal); color:#fff}
+.toast.ok{background:var(--ok); color:#fff}
+dialog{border:0; border-radius:14px; padding:0; background:var(--carte); color:var(--texte); max-width:520px; width:calc(100vw - 24px)}
+dialog::backdrop{background:rgba(8,15,22,.6)}
+.dlg-tete{padding:14px 16px; border-bottom:1px solid var(--trait2); font-family:var(--ui); font-weight:700; font-size:15px; letter-spacing:.04em; text-transform:uppercase; color:var(--marque)}
+.dlg-corps{padding:14px 16px; max-height:64vh; overflow:auto}
+.dlg-pied{padding:12px 16px; border-top:1px solid var(--trait2); display:flex; gap:8px; justify-content:flex-end}
+details.repl{border:1px solid var(--trait2); border-radius:8px; margin-bottom:8px; background:var(--carte2)}
+details.repl > summary{padding:10px 12px; cursor:pointer; font-family:var(--ui); font-weight:600; font-size:13.5px; color:var(--texte2); list-style:none; display:flex; align-items:center; gap:7px}
+details.repl > summary::-webkit-details-marker{display:none}
+details.repl > summary::before{content:"▸"; color:var(--texte3)}
+details.repl[open] > summary::before{content:"▾"}
+details.repl > div{padding:0 12px 12px; font-size:13px; line-height:1.5; color:var(--texte2)}
+.mono{font-family:var(--num); font-size:12px; word-break:break-all}
+
+@media print{
+  .barre,.onglets,.piedbar,.btn,.toast,.noprint{display:none !important}
+  body{background:#fff; font-size:10pt}
+  main{max-width:none; padding:0}
+  .carte{border:0; border-bottom:1px solid #ccc; border-radius:0; padding:6px 0; margin:0; break-inside:auto}
+  .pc-ligne{break-inside:avoid}
+  .carte > h2{color:#0D3B66; font-size:10pt; break-after:avoid}
+}
+
+</style>
+</head>
+<body>
+<div class="barre">
+  <span class="logo">KA-RÉ</span>
+  <span class="pastille" id="pEtat">—</span>
+  <span class="pastille" id="pReseau">—</span>
+  <span class="pastille noprint" id="pFile" hidden>0 en attente</span>
+  <button type="button" class="btn mini noprint" id="bReglages">Réglages</button>
+</div>
+
+<div class="onglets noprint" id="onglets" role="tablist"></div>
+
+<main id="app"></main>
+
+<div class="piedbar noprint">
+  <button type="button" class="btn" id="bImprimer">Imprimer</button>
+  <button type="button" class="btn" id="bFichier">Fichier</button>
+  <button type="button" class="btn p" id="bEnvoyer">Envoyer</button>
+</div>
+
+<dialog id="dlgMachine">
+  <div class="dlg-tete">Ajouter une machine</div>
+  <div class="dlg-corps" id="listeTechnos"></div>
+  <div class="dlg-pied"><button type="button" class="btn" data-fermer>Annuler</button></div>
+</dialog>
+
+<dialog id="dlgReglages">
+  <div class="dlg-tete">Réglages</div>
+  <div class="dlg-corps">
+    <div class="alerte info">Ces réglages restent sur cette tablette. Ils ne sont jamais publiés avec l'application.</div>
+    <div class="champ plein" style="margin-bottom:10px">
+      <label for="cfgFichier">Fichier de configuration KA-RÉ</label>
+      <div class="aide">Le fichier <b>config_KA-RE.json</b> contient le parc clients, l'adresse d'envoi et la clé. À importer une seule fois.</div>
+      <input type="file" id="cfgFichier" accept=".json,application/json" style="margin-top:6px">
+    </div>
+    <div class="champ plein" style="margin-bottom:10px">
+      <label for="cfgWebhook">Adresse d'envoi (Make)</label>
+      <input type="text" id="cfgWebhook" placeholder="collée depuis le fichier de configuration" autocomplete="off">
+    </div>
+    <div class="champ plein" style="margin-bottom:10px">
+      <label for="cfgSecret">Clé partagée</label>
+      <input type="text" id="cfgSecret" placeholder="clé" autocomplete="off">
+    </div>
+    <div class="champ plein" style="margin-bottom:10px">
+      <label for="cfgTech">Nom du technicien</label>
+      <input type="text" id="cfgTech" placeholder="Rémi KATA" autocomplete="off">
+    </div>
+    <details class="repl">
+      <summary>Parc clients embarqué</summary>
+      <div id="infoParc">—</div>
+    </details>
+    <details class="repl">
+      <summary>Fiches enregistrées sur cette tablette</summary>
+      <div id="infoVisites">—</div>
+    </details>
+    <details class="repl">
+      <summary>Sources et réserves réglementaires</summary>
+      <div id="infoSources"></div>
+    </details>
+    <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap">
+      <button type="button" class="btn mini" id="bTester">Tester l'envoi</button>
+      <button type="button" class="btn mini" id="bVider">Vider la file d'attente</button>
+      <button type="button" class="btn mini d" id="bReset">Effacer cette visite</button>
+    </div>
+  </div>
+  <div class="dlg-pied"><button type="button" class="btn p" data-fermer>Fermer</button></div>
+</dialog>
+
+<script>
+(function(){
+/* ============================================================
+   CATALOGUE DES TECHNOLOGIES — KA-RÉ
+   Chaque technologie décrit : son cadre réglementaire, ses champs
+   d'identification, ses points de contrôle par type d'intervention,
+   ses mesures avec seuils, ses conseils obligatoires.
+   Sources et réserves : voir la page "Sources" de l'application.
+   ============================================================ */
+var TECHNOS = {};
+
+/* ---------- CLIMATISATION AIR/AIR ---------- */
+TECHNOS.clim_air_air = {
+  label: "Climatisation air/air",
+  court: "Clim air/air",
+  icone: "❄",
+  famille: "thermo",
+  regl: {
+    obligatoire: true,
+    plage: "4 à 70 kW (puissance la plus élevée entre chaud et froid)",
+    cadre: "Décret n° 2020-912 du 28 juillet 2020 et arrêté du 24 juillet 2020, modifié par l'arrêté du 21 novembre 2022. Code de l'environnement, art. R224-44 et suivants.",
+    periodicite: "Tous les 2 ans",
+    delai: "15 jours",
+    conserv: "Copie conservée 2 ans par l'entreprise",
+    doc: "Attestation d'entretien",
+    alerte: "Sous 4 kW, l'entretien reste utile et facturable mais N'EST PAS réglementaire : le document devient un compte rendu d'entretien contractuel."
+  },
+  ident: [
+    {k:"marque", l:"Marque et modèle (unité extérieure)"},
+    {k:"serie", l:"N° de série"},
+    {k:"puiss", l:"Puissance nominale", u:"kW", type:"num", aide:"la plus élevée entre chaud et froid"},
+    {k:"nbui", l:"Nombre d'unités intérieures", type:"num"},
+    {k:"fluide", l:"Fluide frigorigène", type:"liste", opts:["R32","R410A","R290","R454B","R407C","autre"]},
+    {k:"charge", l:"Charge de fluide", u:"kg", type:"num"},
+    {k:"mes", l:"Date de mise en service", type:"date"},
+    {k:"dernier", l:"Date du dernier entretien connu", type:"date"},
+    {k:"local", l:"Local desservi"}
+  ],
+  ctrl: {
+    entretien: [
+      "Vérification générale du système thermodynamique et de son bon fonctionnement",
+      "Relevé des températures aux unités intérieures et à l'unité extérieure",
+      "Vérification de l'inversion de cycle (lorsque l'installation le permet)",
+      "Vérification de l'enclenchement des appoints",
+      "Mesure des tensions statique et dynamique",
+      "Vérification et nettoyage de l'échangeur de l'unité extérieure",
+      "Nettoyage et décrassage de l'unité intérieure et de ses filtres",
+      "Désinfection de l'unité intérieure et du bac à condensats",
+      "Vérification de l'écoulement des condensats et de la pompe de relevage",
+      "État des gaines accessibles et fonctionnement du ventilateur (systèmes gainables)",
+      "Contrôle d'étanchéité du circuit de fluide frigorigène (sauf équipements relevant du règlement UE n° 517/2014)",
+      "Vérification du voyant de fluide frigorigène (lorsqu'il est présent)",
+      "Relevé des pressions à l'entrée et à la sortie du compresseur",
+      "Présence d'un système de commande manuelle ou de régulation automatique de la température, par pièce ou par zone",
+      "Vérification du fonctionnement des sondes de température",
+      "Programmation horaire cohérente avec l'usage des locaux, selon les modes disponibles",
+      "Serrage et état des connexions électriques",
+      "État du calorifuge et des supports de liaisons frigorifiques"
+    ],
+    mes: [
+      "Contrôle de l'implantation de l'unité extérieure : dégagements, support antivibratile, évacuation des condensats",
+      "Contrôle du raccordement électrique : section, protection différentielle, calibre, mise à la terre",
+      "Tirage au vide et contrôle d'étanchéité des liaisons frigorifiques réalisées sur site",
+      "Complément de charge selon la longueur de liaison (g/m de la notice constructeur)",
+      "Contrôle du sens de rotation et du bon fonctionnement des ventilateurs",
+      "Essai du dégivrage et de l'inversion de cycle",
+      "Réglage des consignes, de la programmation et des modes disponibles",
+      "Relevé complet des mesures de mise en service, à archiver comme point zéro",
+      "Fiche d'intervention fluides frigorigènes (CERFA 15497*04) si manipulation de fluide",
+      "Remise de la notice, formation de l'utilisateur, démarrage de la garantie"
+    ],
+    dep: [
+      "Relevé du symptôme, de l'historique et du code défaut affiché",
+      "Contrôle de l'alimentation électrique et des protections",
+      "Contrôle de l'encrassement des échangeurs et des filtres",
+      "Contrôle du circuit frigorifique : pressions, surchauffe, sous-refroidissement",
+      "Recherche de fuite (détecteur électronique, bulleur, traceur)",
+      "Contrôle des sondes de température et de leur valeur",
+      "Contrôle de l'écoulement des condensats et de la pompe de relevage",
+      "Fiche d'intervention fluides frigorigènes si manipulation de fluide",
+      "Relevé des mesures avant et après intervention"
+    ]
+  },
+  mes: [
+    {k:"text", l:"Température extérieure", u:"°C", type:"num"},
+    {k:"mode", l:"Mode d'essai", type:"liste", opts:["froid","chaud"]},
+    {k:"ue_rep", l:"Unité extérieure — reprise", u:"°C", type:"num"},
+    {k:"ue_souf", l:"Unité extérieure — soufflage", u:"°C", type:"num"},
+    {k:"bp", l:"Pression BP (aspiration)", u:"bar", type:"num"},
+    {k:"hp", l:"Pression HP (refoulement)", u:"bar", type:"num"},
+    {k:"sh", l:"Surchauffe", u:"K", type:"num", min:5, max:8, nature:"professionnel", aide:"5 à 8 K en froid, 5 à 10 K en chaud"},
+    {k:"sr", l:"Sous-refroidissement", u:"K", type:"num", min:3, max:8, nature:"professionnel"},
+    {k:"tstat", l:"Tension statique", u:"V", type:"num", min:207, max:253, nature:"réglementaire", aide:"230 V ±10 % — mesure exigée par l'annexe 1"},
+    {k:"tdyn", l:"Tension dynamique", u:"V", type:"num", min:207, max:253, nature:"réglementaire", aide:"une chute de plus de 5 % révèle une section de câble insuffisante"},
+    {k:"intens", l:"Intensité absorbée", u:"A", type:"num", nature:"professionnel", aide:"comparer à l'intensité de plaque"},
+    {k:"voyant", l:"Voyant de fluide frigorigène", type:"liste", opts:["absent","clair","bullage"]},
+    {k:"etanch", l:"Contrôle d'étanchéité", type:"liste", opts:["réalisé, aucune fuite","fuite localisée","non réalisé"]}
+  ],
+  sousMachines: {
+    label: "Unités intérieures",
+    singulier: "unité",
+    champs: [
+      {k:"piece", l:"Repère / pièce"},
+      {k:"rep", l:"Reprise", u:"°C", type:"num"},
+      {k:"souf", l:"Soufflage", u:"°C", type:"num"},
+      {k:"dt", l:"ΔT", u:"K", type:"calc", calc:"absdiff:rep,souf"},
+      {k:"f", l:"Filtres nettoyés", type:"case"},
+      {k:"d", l:"Désinfection", type:"case"},
+      {k:"c", l:"Condensats testés", type:"case"}
+    ]
+  },
+  conseils: [
+    "Bon usage du système thermodynamique et réglage des consignes",
+    "Fluide frigorigène : obligations d'étanchéité et suivi",
+    "Régulation et contrôle de la température des locaux",
+    "État et entretien du réseau de distribution d'air",
+    "Adéquation entre les émetteurs et le générateur",
+    "Réduction des besoins de chauffage et de refroidissement du bâtiment",
+    "Améliorations possibles de l'installation",
+    "Opportunité d'un remplacement du système ou de composants"
+  ]
+};
+
+/* ---------- PAC AIR/EAU ---------- */
+TECHNOS.pac_air_eau = {
+  label: "Pompe à chaleur air/eau",
+  court: "PAC air/eau",
+  icone: "♨",
+  famille: "thermo",
+  regl: {
+    obligatoire: true,
+    plage: "4 à 70 kW",
+    cadre: "Décret n° 2020-912 du 28 juillet 2020 et arrêté du 24 juillet 2020, modifié par l'arrêté du 21 novembre 2022. Code de l'environnement, art. R224-44 et suivants.",
+    periodicite: "Tous les 2 ans",
+    delai: "15 jours",
+    conserv: "Copie conservée 2 ans par l'entreprise",
+    doc: "Attestation d'entretien",
+    alerte: "L'obligation légale est BIENNALE, pas annuelle. Un contrat d'entretien annuel se vend très bien, mais comme prestation contractuelle : le présenter comme une obligation réglementaire serait une pratique commerciale trompeuse."
+  },
+  ident: [
+    {k:"marque", l:"Marque et modèle (unité extérieure)"},
+    {k:"modele_ui", l:"Module hydraulique / unité intérieure"},
+    {k:"serie", l:"N° de série"},
+    {k:"puiss", l:"Puissance nominale", u:"kW", type:"num"},
+    {k:"fluide", l:"Fluide frigorigène", type:"liste", opts:["R32","R410A","R290","R454C","autre"]},
+    {k:"charge", l:"Charge de fluide", u:"kg", type:"num"},
+    {k:"circuit", l:"Circuit frigorifique", type:"liste", opts:["préchargé et scellé en usine","réalisé sur site"]},
+    {k:"mes", l:"Date de mise en service", type:"date"},
+    {k:"emetteurs", l:"Émetteurs", type:"liste", opts:["plancher chauffant","radiateurs basse température","ventilo-convecteurs","mixte"]},
+    {k:"appoint", l:"Appoint", type:"liste", opts:["résistance électrique","chaudière (relève)","aucun"]},
+    {k:"ecs", l:"Production ECS", type:"liste", opts:["ballon intégré","ballon séparé","aucune"]},
+    {k:"regulateur", l:"Régulateur (marque, modèle, classe)"},
+    {k:"dernier", l:"Date du dernier entretien connu", type:"date"}
+  ],
+  ctrl: {
+    entretien: [
+      "Relevé des températures de l'unité intérieure et de l'unité extérieure, vérification du bon fonctionnement",
+      "Vérification du fonctionnement de l'inversion de cycle (lorsque c'est possible)",
+      "Vérification de l'enclenchement des appoints",
+      "Mesure des tensions électriques statique et dynamique",
+      "Vérification de l'échangeur de l'unité extérieure et nettoyage si nécessaire",
+      "Nettoyage et décrassage de l'unité intérieure et du filtre",
+      "Vérification du voyant de fluide frigorigène, le cas échéant",
+      "Relevé des pressions à l'entrée et à la sortie du compresseur, le cas échéant",
+      "Boucle d'eau : contrôle de l'embouement lié au phénomène d'hydrolyse",
+      "Boucle d'eau : purge des bulles d'air lorsque le purgeur est fonctionnel et accessible",
+      "Boucle d'eau : contrôle de la pression",
+      "Boucle d'eau : vérification du fonctionnement des circulateurs",
+      "Boucle d'eau : vérification et nettoyage du filtre si nécessaire",
+      "Boucle d'eau : contrôle de la pression de gonflage du vase d'expansion, regonflage si nécessaire",
+      "Boucle d'eau : contrôle de la présence et de l'état de l'isolation des réseaux situés hors du volume chauffé",
+      "Pilotage : présence et bon fonctionnement d'une régulation automatique de la température, par pièce ou par zone",
+      "Pilotage : commande manuelle et programmation des allures confort, réduit, hors gel et arrêt",
+      "Pilotage : régulateur relevant des classes IV à VIII (communication 2014/C 207/02, règlement UE 813/2013)",
+      "Pilotage : vérification de la température de départ d'eau sur l'affichage de l'installation",
+      "Pilotage : vérification du fonctionnement des sondes de température",
+      "Pilotage : positionnement et fonctionnement des robinets thermostatiques",
+      "Pilotage : cohérence de la température de départ d'eau selon les modes disponibles",
+      "Ballon à accumulation : vérification des anodes et des accessoires fournis par le constructeur"
+    ],
+    mes: [
+      "Contrôle de l'implantation de l'unité extérieure et de l'évacuation des condensats hors gel",
+      "Contrôle du raccordement électrique : section, protection, terre, délestage",
+      "Tirage au vide et contrôle d'étanchéité du circuit frigorifique (liaisons sur site)",
+      "Rinçage, désembouage préventif et contrôle de la qualité d'eau (pH, TH) selon NF EN 12828",
+      "Pose d'un pot à boues magnétique et d'un filtre",
+      "Purge complète, réglage de la pression de service et du vase d'expansion",
+      "Contrôle du débit d'eau et du volume minimal du circuit, besoin d'un ballon tampon",
+      "Équilibrage des émetteurs",
+      "Paramétrage de la loi d'eau, des consignes chauffage et ECS, de la programmation",
+      "Vérification que le régulateur relève des classes IV à VIII",
+      "Isolation des réseaux situés hors volume chauffé",
+      "Essais : cycle chauffage, cycle ECS, dégivrage, enclenchement et coupure des appoints",
+      "Relevé complet des mesures de mise en service, à archiver comme point zéro",
+      "Fiche d'intervention fluides frigorigènes si manipulation de fluide",
+      "Remise du dossier technique et formation de l'utilisateur"
+    ],
+    dep: [
+      "Relevé des codes défaut et de l'historique des alarmes",
+      "Contrôle de l'alimentation électrique, des tensions et de l'intensité absorbée",
+      "Contrôle hydraulique : pression, air, circulateur, filtre ou pot à boues colmaté, débit insuffisant",
+      "Contrôle de l'échangeur extérieur : encrassement, givrage anormal, ventilateur, sonde de dégivrage",
+      "Contrôle frigorifique : pressions HP et BP, surchauffe, sous-refroidissement, détendeur",
+      "Recherche de fuite",
+      "Contrôle des sondes (extérieure, départ, retour, ballon, ambiance) et de leur valeur ohmique",
+      "Contrôle du fonctionnement des appoints et de la logique de relève",
+      "Contrôle de la régulation : loi d'eau, consignes, court-cyclage du compresseur",
+      "Fiche d'intervention fluides frigorigènes si manipulation de fluide"
+    ]
+  },
+  mes: [
+    {k:"text", l:"Température extérieure", u:"°C", type:"num", aide:"indispensable pour interpréter toutes les autres mesures"},
+    {k:"tdep", l:"Température de départ d'eau", u:"°C", type:"num", max:55, nature:"professionnel", aide:"30-35 °C plancher, 40-50 °C radiateurs BT. Au-delà de 55 °C le COP s'effondre"},
+    {k:"tret", l:"Température de retour d'eau", u:"°C", type:"num"},
+    {k:"dt_eau", l:"ΔT départ / retour", u:"K", type:"calc", calc:"absdiff:tdep,tret", min:4, max:10, nature:"professionnel", aide:"4-6 K plancher, 5-8 K radiateurs. Trop faible : débit excessif. Trop élevé : débit insuffisant, filtre colmaté, circuit embouè"},
+    {k:"ue_rep", l:"Unité extérieure — air aspiré", u:"°C", type:"num"},
+    {k:"ue_souf", l:"Unité extérieure — air soufflé", u:"°C", type:"num"},
+    {k:"pcirc", l:"Pression du circuit à froid", u:"bar", type:"num", min:1, max:2, nature:"professionnel"},
+    {k:"pvase", l:"Pression de gonflage du vase", u:"bar", type:"num", min:0.8, max:1.5, nature:"professionnel", aide:"pression statique moins 0,3 bar, vase isolé et vidé côté eau"},
+    {k:"bp", l:"Pression BP", u:"bar", type:"num", aide:"le cas échéant : ne jamais percer un circuit scellé"},
+    {k:"hp", l:"Pression HP", u:"bar", type:"num", aide:"le cas échéant"},
+    {k:"sh", l:"Surchauffe", u:"K", type:"num", min:4, max:8, nature:"professionnel"},
+    {k:"sr", l:"Sous-refroidissement", u:"K", type:"num", min:3, max:8, nature:"professionnel"},
+    {k:"tstat", l:"Tension statique", u:"V", type:"num", min:207, max:253, nature:"réglementaire"},
+    {k:"tdyn", l:"Tension dynamique", u:"V", type:"num", min:207, max:253, nature:"réglementaire"},
+    {k:"intens", l:"Intensité absorbée", u:"A", type:"num", nature:"professionnel"},
+    {k:"ph", l:"pH de l'eau du circuit", u:"pH", type:"num", min:8.2, max:10, nature:"professionnel", aide:"NF EN 12828, installations sans aluminium"},
+    {k:"th", l:"Dureté de l'eau (TH)", u:"°f", type:"num", max:15, nature:"professionnel"},
+    {k:"emboue", l:"Embouement constaté", type:"liste", opts:["non","léger","marqué"]},
+    {k:"classe_reg", l:"Classe du régulateur", type:"liste", opts:["IV","V","VI","VII","VIII","inférieure ou absente"], nature:"réglementaire", aide:"doit relever des classes IV à VIII"},
+    {k:"isol", l:"Isolation des réseaux hors volume chauffé", type:"liste", opts:["présente et en bon état","dégradée","absente","sans objet"], nature:"réglementaire"}
+  ],
+  sousMachines: null,
+  conseils: [
+    "Bon usage du système et réglage des consignes ; ne pas couper la PAC en période de gel",
+    "Fluide frigorigène : nature, PRG, conduite à tenir en cas de suspicion de fuite",
+    "Régulation et contrôle de la température des locaux, mise à niveau du régulateur",
+    "Réseau de distribution : désembouage, rééquilibrage, pot à boues, traitement d'eau",
+    "Isolation des réseaux situés hors volume chauffé",
+    "Adéquation entre les émetteurs et le générateur : abaisser la température de départ améliore le rendement",
+    "Gestion des apports solaires et internes",
+    "Réduction des besoins de chauffage du bâtiment",
+    "Améliorations possibles de l'installation",
+    "Opportunité d'un remplacement du système ou de composants"
+  ]
+};
+/* ---------- CHAUDIÈRE GAZ ---------- */
+TECHNOS.chaudiere_gaz = {
+  label: "Chaudière gaz",
+  court: "Chaudière gaz",
+  icone: "🔥",
+  famille: "combustion",
+  regl: {
+    obligatoire: true,
+    plage: "4 à 400 kW",
+    cadre: "Code de l'environnement, art. R224-41-4 à R224-41-9. Arrêté du 15 septembre 2009 modifié (arrêtés du 12 juin 2014, du 24 juillet 2020 et du 21 novembre 2022). L'annexe 1 renvoie au § 3.1 de la norme NF X 50-010.",
+    periodicite: "Annuelle, par année civile",
+    delai: "15 jours",
+    conserv: "2 ans par le commanditaire",
+    doc: "Attestation d'entretien",
+    alerte: "Au-delà de 70 kW en tertiaire s'ajoute l'inspection périodique du système de chauffage et la vérification de la GTB."
+  },
+  ident: [
+    {k:"marque", l:"Marque et modèle"},
+    {k:"serie", l:"N° de série"},
+    {k:"puiss", l:"Puissance nominale utile", u:"kW", type:"num"},
+    {k:"combustible", l:"Combustible", type:"liste", opts:["gaz naturel","propane","butane"]},
+    {k:"techno", l:"Technologie", type:"liste", opts:["condensation","basse température","standard","atmosphérique ancienne"]},
+    {k:"bruleur", l:"Type de brûleur", type:"liste", opts:["prémélange total","prémélange partiel","atmosphérique","air soufflé"]},
+    {k:"evac", l:"Type et évacuation", type:"liste", opts:["C étanche ventouse","B1 raccordé non étanche","B22 / B23","VMC gaz"]},
+    {k:"annee", l:"Année de fabrication", type:"num", aide:"sert au calcul du rendement forfaitaire"},
+    {k:"mes", l:"Date de mise en service", type:"date"},
+    {k:"ecs", l:"Production ECS", type:"liste", opts:["instantanée","micro-accumulée","ballon (anode à vérifier)","aucune"]},
+    {k:"ramonage", l:"Date du dernier ramonage", type:"date"},
+    {k:"dernier", l:"Date du dernier entretien connu", type:"date"}
+  ],
+  ctrl: {
+    entretien: [
+      "Nettoyage du corps de chauffe, du brûleur, de la veilleuse et de l'extracteur",
+      "Vérification du circulateur incorporé",
+      "Vérification et réglage des organes de régulation incorporés",
+      "Vérification des dispositifs de sécurité de l'appareil",
+      "Vérification de l'état, de la nature et de la géométrie du conduit de raccordement",
+      "Vérification des débits de gaz et réglage éventuel selon la procédure du fabricant",
+      "Remplacement des joints des raccords mécaniques rendus nécessaires",
+      "VMC gaz : vérification fonctionnelle de la sécurité individuelle et nettoyage du conduit de raccordement",
+      "Ballon à accumulation : vérification des anodes et des accessoires du constructeur",
+      "Brûleur à air soufflé : mesure de la température des fumées",
+      "Brûleur à air soufflé : mesure de la teneur en CO2 ou en O2",
+      "Chaudière de type B : mesure de la teneur en CO dans l'ambiance, à proximité de l'appareil",
+      "Contrôle de l'embouement du circuit hydraulique de distribution",
+      "Purge des bulles d'air du circuit hydraulique",
+      "Vérification de la pression du circuit hydraulique",
+      "Vérification du bon fonctionnement du circulateur",
+      "Vérification de la pression de gonflage du vase d'expansion, regonflage si nécessaire",
+      "Évaluation du dimensionnement de la chaudière au regard des besoins du bâtiment",
+      "Détermination de la classe énergétique et des principales solutions de remplacement",
+      "Présence et bon fonctionnement d'une régulation automatique de la température, par pièce ou par zone, avec allures confort, réduit, hors gel et arrêt",
+      "Présence et état de l'isolation des réseaux de distribution situés hors du volume chauffé",
+      "Vérification que le ramonage du conduit a été effectué (justificatif) et contrôle de vacuité pour les appareils étanches",
+      "Évaluation du rendement et comparaison au rendement de référence",
+      "Évaluation des émissions de NOx et comparaison à la valeur de référence"
+    ],
+    mes: [
+      "Contrôle d'étanchéité de l'installation gaz après travaux",
+      "Vérification de l'adéquation puissance / besoins et du dimensionnement",
+      "Vérification de l'amenée d'air et de la ventilation du local (appareils de type B)",
+      "Vérification du conduit d'évacuation : nature, section, longueur, pente, terminal, compatibilité 3CE",
+      "Rinçage ou désembouage du circuit avant raccordement, mise en eau, purge, réglage de la pression",
+      "Contrôle du vase d'expansion (volume, pression de gonflage)",
+      "Réglage de la pression gaz à l'entrée et au brûleur, contrôle du débit au compteur, adaptation au gaz distribué",
+      "Réglage de la combustion et analyse des fumées",
+      "Mesure du CO ambiant",
+      "Réglage de la régulation : courbe de chauffe, sonde extérieure, programmation, allures",
+      "Réglage de la température d'ECS (consigne 60 °C maximum)",
+      "Contrôle des sécurités : surchauffe, manque d'eau, contrôle de flamme, pressostat fumées",
+      "Remise de la notice et explication du fonctionnement",
+      "Établissement du certificat de conformité gaz modèle 2",
+      "Procès-verbal de mise en service et démarrage de la garantie"
+    ],
+    dep: [
+      "Recueil du symptôme, de l'historique et du code défaut",
+      "Contrôle de l'alimentation électrique, du raccordement gaz et de la pression d'alimentation",
+      "Contrôle de la pression du circuit hydraulique et du vase d'expansion",
+      "Contrôle du circuit d'évacuation des fumées, de l'amenée d'air et du siphon de condensats",
+      "Contrôle de la chaîne d'allumage et du contrôle de flamme (électrodes, courant d'ionisation)",
+      "Contrôle des organes de sécurité et de régulation",
+      "Contrôle du circulateur, des vannes et du corps de chauffe",
+      "Mesure du CO ambiant à l'arrivée et après remise en service",
+      "Analyse de combustion après réparation",
+      "En cas de danger grave et immédiat : arrêt et consignation de l'appareil, information écrite du client"
+    ]
+  },
+  mes: [
+    {k:"co_amb", l:"CO ambiant", u:"ppm", type:"num", max:10, nature:"réglementaire", paliers:"co", aide:"appareil en fonctionnement, autres appareils à combustion arrêtés, balayage lent à 50 cm"},
+    {k:"co_fum", l:"CO dans les fumées (à 0 % O2)", u:"ppm", type:"num", max:100, nature:"professionnel", aide:"aucun seuil réglementaire — repère d'usage, à faire valider par la CAPEB"},
+    {k:"tfum", l:"Température des fumées", u:"°C", type:"num", nature:"professionnel", aide:"40-80 °C en condensation, 100-180 °C en standard"},
+    {k:"co2", l:"Teneur en CO2 des fumées", u:"%", type:"num", nature:"professionnel", aide:"prémélange 8,5-10 %, atmosphérique 5-7 % (gaz naturel)"},
+    {k:"o2", l:"Teneur en O2 des fumées", u:"%", type:"num", nature:"professionnel", aide:"prémélange 4-6 %, atmosphérique 8-11 %"},
+    {k:"rdt_mes", l:"Rendement de combustion lu à l'analyseur", u:"%", type:"num", aide:"valeur de réglage — ce n'est PAS le rendement à porter sur l'attestation"},
+    {k:"rdt", l:"Rendement à porter sur l'attestation", u:"% PCI", type:"calc", calc:"rendement_gaz", nature:"réglementaire", aide:"valeur forfaitaire calculée à partir de la technologie, de l'année et de la puissance"},
+    {k:"rdt_ref", l:"Rendement de référence", u:"% PCI", type:"calc", calc:"rendement_ref_gaz", nature:"réglementaire"},
+    {k:"nox", l:"NOx évalués", u:"mg/kWh", type:"calc", calc:"nox_gaz", nature:"réglementaire", aide:"valeur forfaitaire selon le type de brûleur — les NOx ne se mesurent pas en entretien courant"},
+    {k:"nox_ref", l:"NOx de référence", u:"mg/kWh", type:"fixe", valeur:35, nature:"réglementaire"},
+    {k:"classe_nox", l:"Classe NOx de l'appareil", type:"liste", opts:["1","2","3","4","5","6","non déterminée"], aide:"déclarée par le fabricant : plaque, notice ou fiche produit ErP. Ne se mesure pas"},
+    {k:"classe_ener", l:"Classe énergétique", type:"liste", opts:["A+++","A++","A+","A","B","C","D","E","F","G","non déterminée"], nature:"réglementaire", aide:"tables de l'annexe 5 — à recaler sur le modèle CAPEB"},
+    {k:"tirage", l:"Dépression / tirage du conduit", u:"Pa", type:"num", nature:"professionnel"},
+    {k:"pcirc", l:"Pression du circuit à froid", u:"bar", type:"num", min:1, max:1.5, nature:"professionnel"},
+    {k:"pvase", l:"Pression de gonflage du vase", u:"bar", type:"num", min:0.8, max:1.5, nature:"professionnel", aide:"régler 0,2 à 0,5 bar sous la pression de remplissage à froid, vase isolé et vidangé côté eau"},
+    {k:"emboue", l:"Embouement constaté", type:"liste", opts:["non","léger","marqué"], nature:"réglementaire"},
+    {k:"isol", l:"Isolation des réseaux hors volume chauffé", type:"liste", opts:["présente et en bon état","dégradée","absente","sans objet"], nature:"réglementaire"},
+    {k:"dimension", l:"Dimensionnement au regard des besoins", type:"liste", opts:["adapté","surdimensionné","sous-dimensionné"], nature:"réglementaire"}
+  ],
+  sousMachines: null,
+  conseils: [
+    "Bon usage : entretien annuel et ventilation permanente du local, ne jamais obstruer les entrées d'air",
+    "Bon usage : programmer la température selon l'occupation (confort, réduit, hors gel)",
+    "Bon usage : régler l'eau chaude sanitaire sans dépasser 60 °C",
+    "Bon usage : faire ramoner le conduit et conserver le certificat de ramonage",
+    "Bon usage : surveiller la pression du circuit et signaler tout appoint d'eau répété",
+    "Améliorations : calorifuger les réseaux situés hors du volume chauffé",
+    "Améliorations : désembouage et rééquilibrage du réseau si embouement constaté",
+    "Améliorations : installer ou compléter la régulation automatique de la température",
+    "Améliorations : optimiser la courbe de chauffe pour permettre la condensation",
+    "Améliorations : remplacer un circulateur non modulant par un circulateur à vitesse variable",
+    "Remplacement : écart entre le rendement évalué et le rendement de référence",
+    "Remplacement : classe énergétique de l'appareil et des solutions de remplacement"
+  ],
+  sortie: {certificat:"Certificat de conformité gaz modèle 2 (arrêté du 23 février 2018) en cas de pose neuve, de modification ou de remplacement de la chaudière."}
+};
+
+/* ---------- CHAUDIÈRE FIOUL ---------- */
+TECHNOS.chaudiere_fioul = {
+  label: "Chaudière fioul",
+  court: "Chaudière fioul",
+  icone: "🛢",
+  famille: "combustion",
+  regl: {
+    obligatoire: true,
+    plage: "4 à 400 kW",
+    cadre: "Code de l'environnement, art. R224-41-4 à R224-41-9. Arrêté du 15 septembre 2009 modifié (arrêtés du 12 juin 2014, du 24 juillet 2020 et du 21 novembre 2022).",
+    periodicite: "Annuelle",
+    delai: "15 jours",
+    conserv: "2 ans par le commanditaire",
+    doc: "Attestation d'entretien",
+    alerte: "L'entretien et la réparation d'une chaudière fioul existante restent autorisés. Le décret 2022-8 interdit l'installation d'un équipement neuf émettant plus de 300 gCO2/kWh PCI, ce qui exclut le fioul domestique classique — mais il n'existe aucune obligation de dépose."
+  },
+  ident: [
+    {k:"marque", l:"Marque et modèle de la chaudière"},
+    {k:"serie", l:"N° de série"},
+    {k:"puiss", l:"Puissance nominale", u:"kW", type:"num"},
+    {k:"techno", l:"Type", type:"liste", opts:["condensation","basse température","standard"]},
+    {k:"combustible", l:"Combustible", type:"liste", opts:["FOD","biofioul F10","biofioul F30"]},
+    {k:"annee", l:"Année de mise en service", type:"num"},
+    {k:"bruleur", l:"Marque et modèle du brûleur"},
+    {k:"gicleur", l:"Gicleur : débit, angle, type", aide:"ex. 0,60 gal/h — 60° — S"},
+    {k:"cuve_type", l:"Cuve", type:"liste", opts:["aérienne simple paroi","aérienne double paroi","enterrée double paroi","enterrée simple paroi"]},
+    {k:"cuve_vol", l:"Volume de la cuve", u:"L", type:"num"},
+    {k:"ramonage", l:"Date du dernier ramonage", type:"date"},
+    {k:"dernier", l:"Date du dernier entretien connu", type:"date"}
+  ],
+  ctrl: {
+    entretien: [
+      "Démontage et nettoyage complet du brûleur (gueulard, tête de combustion, turbine, volet d'air)",
+      "Contrôle et remplacement du gicleur, relevé du débit, de l'angle et du type",
+      "Mesure et réglage de la pression de pulvérisation de la pompe fioul",
+      "Réglage de la tête de combustion et du débit d'air comburant",
+      "Nettoyage ou remplacement du pré-filtre fioul, sinon nettoyage du filtre de pompe",
+      "Contrôle et réglage des électrodes, du transformateur d'allumage et de la cellule photorésistante",
+      "Nettoyage du corps de chauffe et des surfaces d'échange (turbulateurs)",
+      "Condensation : nettoyage du siphon de condensats et contrôle du neutralisateur",
+      "Vérification des dispositifs de sécurité (coffret, aquastat, thermostat de sécurité, soupape, manomètre)",
+      "Vérification du conduit de raccordement, du conduit de fumée, du débouché et du tirage",
+      "Vérification de l'amenée d'air et de la ventilation du local chaufferie",
+      "Mesure du CO dans l'ambiance pour les chaudières non étanches",
+      "Mesures de combustion : température des fumées, CO2 ou O2, CO, indice de noircissement",
+      "Évaluation du rendement et comparaison aux valeurs de référence, classement énergétique",
+      "Évaluation des émissions de NOx",
+      "Évaluation du dimensionnement par rapport aux besoins du bâtiment",
+      "Circuit hydraulique : pression, vase d'expansion, circulateurs, purge, filtre, embouement",
+      "Présence et état de l'isolation des réseaux situés hors volume chauffé",
+      "Présence et bon fonctionnement d'une régulation automatique de la température, par pièce ou par zone",
+      "Cuve : état apparent, jaugeage, évent, limiteur de remplissage, rétention, eau ou boues en fond"
+    ],
+    mes: [
+      "Contrôle de la conformité hydraulique et du raccordement fioul (clapets, vanne de barrage, coupe-feu)",
+      "Rinçage, remplissage, mise en pression, purge, contrôle de la qualité d'eau",
+      "Contrôle du conduit de fumée et du tubage, du débouché et du tirage",
+      "Vérification de la ventilation haute et basse du local",
+      "Amorçage et purge de la ligne fioul, contrôle d'étanchéité",
+      "Réglage initial du brûleur : gicleur, pression de pompe, tête de combustion, volet d'air",
+      "Réglage de la combustion et relevé des mesures de référence",
+      "Paramétrage de la régulation, des courbes de chauffe et des consignes ECS",
+      "Essai des sécurités",
+      "Vérification de la cuve, du limiteur de remplissage et de la rétention",
+      "Remise du dossier technique et formation de l'utilisateur"
+    ],
+    dep: [
+      "Relevé du code défaut et de l'historique du coffret de sécurité",
+      "Contrôle de l'alimentation électrique et des sécurités",
+      "Contrôle de l'alimentation fioul : niveau, filtre colmaté, prise d'air, dépression, amorçage",
+      "Contrôle du gicleur, de la pression de pompe et de la pulvérisation",
+      "Contrôle des électrodes, du transformateur et de la cellule photorésistante",
+      "Contrôle du corps de chauffe, du conduit et du tirage",
+      "Contrôle hydraulique : pression, circulateur, vase, purge, vanne 3 voies, sonde extérieure",
+      "Mesure du CO ambiant en cas de suspicion de refoulement",
+      "Mesures de combustion après réparation"
+    ]
+  },
+  mes: [
+    {k:"co_amb", l:"CO ambiant", u:"ppm", type:"num", max:10, nature:"réglementaire", paliers:"co"},
+    {k:"co_fum", l:"CO dans les fumées (à 0 % O2)", u:"ppm", type:"num", max:100, nature:"professionnel", aide:"viser moins de 50 ppm sur un brûleur bien réglé"},
+    {k:"noircissement", l:"Indice de noircissement (Bacharach)", type:"liste", opts:["0","1","2","3","4","5","6","7","8","9"], max:1, nature:"professionnel", aide:"détermination obligatoire, sans seuil réglementaire. Viser 0 ou 1"},
+    {k:"tfum", l:"Température des fumées", u:"°C", type:"num", nature:"professionnel", aide:"160-220 °C en standard, 60-90 °C en condensation"},
+    {k:"co2", l:"Teneur en CO2 des fumées", u:"%", type:"num", min:11, max:13, nature:"professionnel"},
+    {k:"o2", l:"Teneur en O2 des fumées", u:"%", type:"num", min:3, max:6, nature:"professionnel"},
+    {k:"rdt_mes", l:"Rendement de combustion lu à l'analyseur", u:"%", type:"num", min:90, nature:"professionnel"},
+    {k:"nox", l:"NOx évalués", u:"mg/kWh", type:"num", nature:"réglementaire", aide:"évaluation forfaitaire selon l'annexe 3 — à recaler sur le modèle COSTIC"},
+    {k:"classe_ener", l:"Classe énergétique", type:"liste", opts:["A+++","A++","A+","A","B","C","D","E","F","G","non déterminée"], nature:"réglementaire"},
+    {k:"ppulv", l:"Pression de pulvérisation", u:"bar", type:"num", min:10, max:14, nature:"professionnel"},
+    {k:"tirage", l:"Dépression au foyer / tirage", u:"Pa", type:"num", min:10, max:30, nature:"professionnel"},
+    {k:"pcirc", l:"Pression du circuit à froid", u:"bar", type:"num", min:1, max:2, nature:"professionnel"},
+    {k:"pvase", l:"Pression de gonflage du vase", u:"bar", type:"num", min:0.8, max:1.5, nature:"professionnel"},
+    {k:"tdep", l:"Température de départ d'eau", u:"°C", type:"num"},
+    {k:"tret", l:"Température de retour d'eau", u:"°C", type:"num", aide:"en condensation, un retour au-delà de 55 °C empêche la condensation"},
+    {k:"cuve_etat", l:"État de la cuve et de la rétention", type:"liste", opts:["conforme","à surveiller","non conforme"]},
+    {k:"cuve_eau", l:"Eau ou boues en fond de cuve", type:"liste", opts:["non","traces","présence"]},
+    {k:"emboue", l:"Embouement constaté", type:"liste", opts:["non","léger","marqué"], nature:"réglementaire"},
+    {k:"isol", l:"Isolation des réseaux hors volume chauffé", type:"liste", opts:["présente et en bon état","dégradée","absente","sans objet"], nature:"réglementaire"}
+  ],
+  sousMachines: null,
+  conseils: [
+    "Bon usage : réglage des consignes, programmation, allures réduit et hors gel, aération quotidienne",
+    "Améliorations : équilibrage et désembouage du réseau, isolation des réseaux hors volume chauffé",
+    "Améliorations : régulation automatique par pièce ou par zone, robinets thermostatiques, sonde extérieure",
+    "Remplacement : rendement, classement énergétique et dimensionnement au regard des besoins réels",
+    "Autres modes de chauffage et recours aux énergies renouvelables",
+    "Risque d'intoxication au monoxyde de carbone : ne jamais obstruer les grilles, intérêt d'un détecteur de CO",
+    "Rappel du caractère annuel et obligatoire de l'entretien, conservation de l'attestation 2 ans",
+    "Cuve : maintenir la rétention en état, faire vérifier le limiteur de remplissage et l'évent",
+    "Cuve hors service : ne jamais la laisser en place sans dégazage et neutralisation"
+  ],
+  sortie: {certificat:"Certificat de ramonage si le ramonage est réalisé au cours de la même intervention. En cas de mise hors service d'une cuve : attestation de dégazage et de neutralisation."}
+};
+/* ---------- ADOUCISSEUR ---------- */
+TECHNOS.adoucisseur = {
+  label: "Adoucisseur d'eau",
+  court: "Adoucisseur",
+  icone: "💧",
+  famille: "eau",
+  regl: {
+    obligatoire: false,
+    plage: "Toutes tailles",
+    cadre: "Aucun texte n'impose l'entretien d'un adoucisseur. Le cadre porte sur la qualité de l'eau et la conformité du matériel : code de la santé publique art. R1321-1 et suivants et R1321-57 ; arrêté du 29 mai 1997 modifié (attestation de conformité sanitaire, résines de l'annexe IV) ; arrêté du 11 janvier 2007 (sodium 200 mg/L, équilibre calcocarbonique).",
+    periodicite: "Contractuelle — 1 visite complète par an en pratique",
+    delai: "Remis sur place ou par mail",
+    conserv: "Copie conservée 2 ans par l'entreprise",
+    doc: "Compte rendu d'entretien contractuel",
+    alerte: "ENTRETIEN NON RÉGLEMENTAIRE. Le document ne doit jamais se présenter comme une attestation réglementaire. La garantie constructeur, elle, conditionne très souvent sa validité à un entretien annuel tracé : c'est le vrai argument de vente."
+  },
+  ident: [
+    {k:"marque", l:"Marque et modèle"},
+    {k:"serie", l:"N° de série"},
+    {k:"annee", l:"Année de pose", type:"num"},
+    {k:"regen", l:"Type de régénération", type:"liste", opts:["volumétrique","chronométrique","statistique"]},
+    {k:"resine", l:"Volume de résine", u:"L", type:"num"},
+    {k:"bypass", l:"By-pass présent et manœuvrable", type:"liste", opts:["oui","non","grippé"]},
+    {k:"protection", l:"Protection anti-retour amont", type:"liste", opts:["clapet EA","disconnecteur CA","absente"]},
+    {k:"eau_boisson", l:"Point d'eau froide non adoucie pour la boisson", type:"liste", opts:["oui","non"], aide:"si non, le mentionner explicitement par écrit"},
+    {k:"index", l:"Index du compteur volumétrique", u:"m³", type:"num"},
+    {k:"dernier", l:"Date du dernier entretien connu", type:"date"}
+  ],
+  ctrl: {
+    entretien: [
+      "Entretien avec le client : goût et odeur de l'eau, traces de calcaire, consommation de sel, incidents depuis la dernière visite",
+      "Relevé de l'index du compteur volumétrique et calcul du volume traité depuis la dernière visite",
+      "Examen visuel : corrosion, fuites aux raccords, état des flexibles, propreté du local",
+      "Contrôle du by-pass : manœuvre complète des vannes, vérification que le client sait s'en servir",
+      "Contrôle de la protection contre les retours d'eau en amont",
+      "Contrôle et nettoyage ou remplacement du filtre amont",
+      "Mesure du TH de l'eau brute au piquage amont",
+      "Mesure du TH de l'eau adoucie au point de puisage le plus proche en aval",
+      "Mesure du TH en sortie de colonne avant mélange (doit être proche de 0 °f)",
+      "Réglage de la vanne de mélange pour viser un TH résiduel de 8 à 15 °f",
+      "Mesure de la pression d'entrée et contrôle du réducteur de pression",
+      "Bac à sel : niveau, recherche de pont de sel, présence de boue saline ou d'insolubles",
+      "Nettoyage du bac à sel, du puits à saumure et de la crépine ; contrôle du flotteur et du clapet de sécurité",
+      "Démontage, nettoyage et remontage de l'injecteur (venturi) et de son filtre",
+      "Contrôle du corps de vanne et des joints de piston, recherche d'une fuite interne vers l'égout",
+      "Régénération manuelle complète : détassage, aspiration de saumure, rinçage lent, renvoi d'eau, rinçage rapide",
+      "Contrôle de l'écoulement à l'égout et de la garde d'air",
+      "Nouvelle mesure du TH après régénération",
+      "Désinfection des résines et du bac à sel avec un produit compatible eau de consommation, puis rinçage complet",
+      "Contrôle du paramétrage : dureté d'entrée, dureté de sortie, volume, heure, régénération forcée tous les 4 à 7 jours",
+      "Contrôle de la pile de sauvegarde, remise à l'heure, effacement des alarmes",
+      "Vérification qu'un point d'eau froide non adoucie reste disponible pour la boisson",
+      "Alerte écrite si un membre du foyer suit un régime pauvre en sodium (environ 8 mg/L de sodium par °f éliminé)",
+      "Contrôle de la température de l'ECS en aval et recherche de bras morts",
+      "Recharge en sel, remise en service, purge, contrôle final d'absence de fuite"
+    ],
+    mes: [
+      "Vérification préalable : TH du réseau, pression et débit disponibles, dimensionnement selon le nombre d'occupants",
+      "Contrôle du local : hors gel, ventilé, évacuation à l'égout avec garde d'air, accessibilité",
+      "Vérification que le matériel dispose d'une attestation de conformité sanitaire",
+      "Pose du by-pass, du filtre amont et de la protection contre les retours d'eau",
+      "Pose ou contrôle d'un réducteur de pression si le réseau dépasse 5 bar",
+      "Conservation ou création d'un piquage d'eau froide non adoucie pour l'évier de cuisine",
+      "Raccordement de l'évacuation et du trop-plein avec garde d'air, sans contre-pente",
+      "Mise en eau, purge, contrôle d'étanchéité",
+      "Remplissage du bac, première désinfection des résines et rinçage complet",
+      "Programmation complète et régénération de mise en service",
+      "Mesure du TH en sortie et réglage du mélange",
+      "Explication au client : sel, by-pass, absence prolongée, entretien annuel"
+    ],
+    dep: [
+      "Relevé du symptôme : eau redevenue dure, sel non consommé, écoulement permanent à l'égout, débordement, alarme",
+      "Contrôle de l'alimentation électrique et de la pile de sauvegarde",
+      "Mesure du TH brut et du TH adouci pour situer le défaut",
+      "Contrôle de l'injecteur et de son filtre (première cause d'aspiration de saumure défaillante)",
+      "Recherche de pont de sel dans le bac",
+      "Contrôle du corps de vanne, du piston et des joints",
+      "Contrôle du compteur volumétrique et de la turbine",
+      "Contrôle du paramétrage et de la cohérence de la dureté programmée",
+      "Régénération manuelle de diagnostic avec chronométrage des phases"
+    ]
+  },
+  mes: [
+    {k:"th_brut", l:"TH eau brute", u:"°f", type:"num"},
+    {k:"th_adouci", l:"TH eau adoucie", u:"°f", type:"num", min:8, max:15, nature:"professionnel", aide:"cible professionnelle : une eau totalement adoucie devient agressive (équilibre calcocarbonique)"},
+    {k:"th_colonne", l:"TH sortie de colonne avant mélange", u:"°f", type:"num", max:2, nature:"professionnel", aide:"doit être proche de 0 — sinon la résine est en cause, pas le mélange"},
+    {k:"pression", l:"Pression d'entrée", u:"bar", type:"num", max:5, nature:"professionnel"},
+    {k:"sel", l:"Niveau de sel", type:"liste", opts:["correct","bas","pont de sel","boue saline"]},
+    {k:"sodium", l:"Sodium apporté estimé", u:"mg/L", type:"calc", calc:"sodium", aide:"environ 8 mg/L par °f éliminé — référence de qualité 200 mg/L"},
+    {k:"regen_ok", l:"Régénération de contrôle", type:"liste", opts:["cycle complet conforme","aspiration de saumure faible","fuite permanente à l'égout","cycle incomplet"]},
+    {k:"desinfection", l:"Désinfection des résines", type:"liste", opts:["réalisée","non réalisée"]},
+    {k:"temp_ecs", l:"Température ECS en aval", u:"°C", type:"num", min:50, nature:"sanitaire", aide:"une eau adoucie tiède favorise la prolifération microbienne"}
+  ],
+  sousMachines: null,
+  conseils: [
+    "Contrôler le niveau de sel toutes les 4 à 8 semaines et n'utiliser que du sel en pastilles NF EN 973 type A",
+    "Manœuvrer le by-pass en cas d'absence prolongée et faire une régénération manuelle au retour",
+    "Ne jamais boire ni cuisiner avec l'eau adoucie si un membre du foyer suit un régime pauvre en sodium",
+    "Conserver un point d'eau froide non adoucie pour la boisson et la préparation des aliments",
+    "Maintenir l'ECS à température suffisante : une eau adoucie tiède favorise le développement bactérien",
+    "Faire réaliser l'entretien annuel : la garantie constructeur en dépend le plus souvent",
+    "Prévoir le remplacement des résines selon l'âge de l'appareil et la qualité de l'eau"
+  ]
+};
+
+/* ---------- VMC DOUBLE FLUX ---------- */
+TECHNOS.vmc_df = {
+  label: "VMC double flux",
+  court: "VMC double flux",
+  icone: "🌀",
+  famille: "air",
+  regl: {
+    obligatoire: false,
+    plage: "Logement individuel et collectif",
+    cadre: "Aucun texte n'impose l'entretien périodique d'une VMC double flux en logement. L'arrêté du 24 mars 1982 fixe des débits à la conception, pas une maintenance. L'obligation de vérification et d'entretien annuels de l'arrêté du 25 avril 1985 ne vise QUE les VMC-gaz collectives.",
+    periodicite: "Contractuelle — filtres 2 fois par an, visite complète annuelle",
+    delai: "Remis sur place ou par mail",
+    conserv: "Copie conservée 2 ans par l'entreprise",
+    doc: "Compte rendu d'entretien contractuel",
+    alerte: "ENTRETIEN NON RÉGLEMENTAIRE en logement. Deux obligations à ne pas confondre : en locaux de travail, le code du travail impose un contrôle au moins annuel ; en construction neuve, la RE2020 impose une vérification unique à l'achèvement par un opérateur reconnu compétent — c'est un contrôle de réception, pas un entretien."
+  },
+  ident: [
+    {k:"marque", l:"Marque et modèle de la centrale"},
+    {k:"serie", l:"N° de série"},
+    {k:"annee", l:"Année de pose", type:"num"},
+    {k:"echangeur", l:"Type d'échangeur", type:"liste", opts:["à flux croisés","à contre-courant","rotatif","enthalpique"]},
+    {k:"filtres", l:"Classe des filtres", type:"liste", opts:["ISO Coarse (G4)","ePM10 (M5)","ePM1 (F7)","ePM1 (F9)"]},
+    {k:"bypass", l:"By-pass d'été", type:"liste", opts:["présent automatique","présent manuel","absent"]},
+    {k:"prechauffe", l:"Préchauffage antigel", type:"liste", opts:["électrique","hydraulique","puits climatique","absent"]},
+    {k:"bouches", l:"Nombre de bouches (extraction / soufflage)"},
+    {k:"local", l:"Local d'implantation de la centrale"},
+    {k:"dernier", l:"Date du dernier entretien connu", type:"date"}
+  ],
+  ctrl: {
+    entretien: [
+      "Entretien avec le client : bruit, courants d'air froid, condensation ou moisissures, odeurs, date du dernier changement de filtres",
+      "Contrôle de l'accessibilité et de l'état du caisson : fixation, suspension antivibratile, calorifuge, trappe d'accès",
+      "Mise hors tension et consignation avant ouverture du caisson",
+      "Filtres : relevé de la classe et de l'encrassement, remplacement systématique, pose dans le bon sens, référence et date notées",
+      "Contrôle de l'alarme filtre et remise à zéro du compteur",
+      "Échangeur : extraction, contrôle de l'encrassement et de l'étanchéité entre les deux flux, nettoyage et séchage complet",
+      "Contrôle du joint périphérique et du calorifuge de l'échangeur",
+      "Ventilateurs de soufflage et de reprise : propreté des roues, balourd, jeu et bruit de roulement, resserrage",
+      "Bac et siphon de condensats : nettoyage, amorçage, contrôle de la pente et de la garde d'air",
+      "By-pass d'été : manœuvre complète, contrôle du clapet, du servomoteur et des seuils programmés",
+      "Préchauffage antigel : fonctionnement, sécurité thermique et réarmement, cohérence du seuil",
+      "Réseau de gaines : écrasement, percement, déboîtement, étanchéité des raccords, calorifuge sur air neuf, rejet et volumes non chauffés",
+      "Pièges à son : présence, position, absence d'affaissement",
+      "Bouches d'extraction et de soufflage : dépose, nettoyage, contrôle du repérage et du réglage, remise en place",
+      "Prise d'air neuf et rejet extérieur : grilles dégagées, grillage anti-rongeurs, absence de recyclage entre rejet et prise d'air",
+      "Mesure des débits à chaque bouche au cône et anémomètre, en petite et en grande vitesse",
+      "Comparaison des débits mesurés aux valeurs de référence et, s'il existe, au rapport de vérification du chantier",
+      "Contrôle de l'équilibrage entre insufflation et extraction (écart cible 10 % maximum)",
+      "Relevé des températures air extérieur, soufflage, reprise et rejet ; calcul du rendement apparent de l'échangeur",
+      "Contrôle du transit d'air : détalonnage des portes, absence d'entrée d'air ajoutée en menuiserie",
+      "Régulation et télécommande : horloges, programmes, cohérence des sondes hygro, CO2 ou COV, essai des modes"
+    ],
+    mes: [
+      "Contrôle de l'implantation de la centrale : hors gel, accessible, suspension antivibratile",
+      "Contrôle du réseau : sections, longueurs, calorifuge sur air neuf, rejet et volumes non chauffés",
+      "Contrôle de la prise d'air neuf et du rejet : distance, orientation, absence de recyclage",
+      "Contrôle de l'évacuation des condensats avec siphon amorçable et garde d'air",
+      "Raccordement électrique et mise à la terre",
+      "Réglage et mesure des débits bouche par bouche, en petite et grande vitesse",
+      "Équilibrage insufflation / extraction",
+      "Relevé des températures et calcul du rendement de l'échangeur",
+      "Paramétrage de la régulation, des modes et des seuils de by-pass",
+      "Contrôle du détalonnage des portes et du transit d'air",
+      "Remise du dossier, de la notice et formation du client au changement des filtres",
+      "Le cas échéant : vérification RE2020 à l'achèvement par un opérateur reconnu compétent (prestation distincte)"
+    ],
+    dep: [
+      "Relevé du symptôme : bruit, condensation, odeurs, débit faible, arrêt",
+      "Contrôle de l'alimentation électrique et des sécurités",
+      "Contrôle de l'encrassement des filtres et de l'échangeur",
+      "Contrôle des ventilateurs : roulements, balourd, condensateur, variateur",
+      "Contrôle du siphon de condensats (désamorçage = odeurs et reflux)",
+      "Contrôle du réseau : gaine écrasée, déboîtée, percée, obstruée",
+      "Contrôle du by-pass et du préchauffage antigel",
+      "Mesure des débits pour situer la perte de charge",
+      "Contrôle des sondes et de la régulation"
+    ]
+  },
+  mes: [
+    {k:"t_ext", l:"Température air extérieur", u:"°C", type:"num"},
+    {k:"t_souf", l:"Température air soufflé", u:"°C", type:"num"},
+    {k:"t_rep", l:"Température air repris", u:"°C", type:"num"},
+    {k:"t_rej", l:"Température air rejeté", u:"°C", type:"num"},
+    {k:"rdt_ech", l:"Rendement apparent de l'échangeur", u:"%", type:"calc", calc:"rendement_echangeur", min:70, nature:"professionnel", aide:"(soufflé − extérieur) / (repris − extérieur). Comparer à la valeur certifiée du fabricant"},
+    {k:"debit_ext", l:"Débit total extrait", u:"m³/h", type:"num"},
+    {k:"debit_souf", l:"Débit total soufflé", u:"m³/h", type:"num"},
+    {k:"equilibrage", l:"Écart d'équilibrage", u:"%", type:"calc", calc:"equilibrage", max:10, nature:"professionnel", aide:"au-delà de 10 %, le logement est mis en surpression ou en dépression"},
+    {k:"filtres_etat", l:"État des filtres à la dépose", type:"liste", opts:["propres","encrassés","colmatés"]},
+    {k:"filtres_ref", l:"Référence des filtres posés"},
+    {k:"siphon", l:"Siphon de condensats", type:"liste", opts:["amorcé et écoulement correct","désamorcé","contre-pente","bouché"]},
+    {k:"calorifuge", l:"Calorifuge air neuf et rejet", type:"liste", opts:["présent et continu","incomplet","absent"], aide:"première cause de condensation dans les combles"}
+  ],
+  sousMachines: {
+    label: "Bouches",
+    singulier: "bouche",
+    champs: [
+      {k:"piece", l:"Pièce"},
+      {k:"sens", l:"Sens", type:"liste", opts:["extraction","soufflage"]},
+      {k:"debit_mes", l:"Débit mesuré", u:"m³/h", type:"num"},
+      {k:"debit_att", l:"Débit attendu", u:"m³/h", type:"num"},
+      {k:"nett", l:"Nettoyée", type:"case"}
+    ]
+  },
+  conseils: [
+    "Ne jamais arrêter la ventilation, même en hiver ou en cas d'absence",
+    "Ne jamais obstruer une bouche d'extraction ou de soufflage",
+    "Ne pas ajouter d'entrée d'air en menuiserie : elle court-circuite l'échangeur",
+    "Maintenir le détalonnage des portes intérieures pour le transit d'air",
+    "Faire changer les filtres deux fois par an, ou dès l'alarme filtre",
+    "Utiliser le by-pass d'été pour rafraîchir la nuit",
+    "Signaler toute condensation, odeur ou bruit inhabituel sans attendre la visite annuelle"
+  ]
+};
+
+/* ---------- CHAUFFE-EAU THERMODYNAMIQUE ---------- */
+TECHNOS.cet = {
+  label: "Chauffe-eau thermodynamique",
+  court: "CET",
+  icone: "🚿",
+  famille: "thermo",
+  regl: {
+    obligatoire: false,
+    plage: "Production d'eau chaude sanitaire seule, pour un seul logement",
+    cadre: "L'art. R224-44 du code de l'environnement EXCLUT expressément les systèmes thermodynamiques destinés uniquement à la production d'eau chaude pour un seul logement. L'art. R224-42 vise les systèmes qui réchauffent ou refroidissent l'air intérieur — ce qu'un CET ne fait pas. Un CET domestique est de surcroît sous le plancher de 4 kW (1,5 à 3 kW en général).",
+    periodicite: "Contractuelle — 1 visite par an",
+    delai: "Remis sur place ou par mail",
+    conserv: "Copie conservée 2 ans par l'entreprise",
+    doc: "Compte rendu d'entretien contractuel",
+    alerte: "ENTRETIEN NON RÉGLEMENTAIRE. En revanche, dès qu'une machine est DOUBLE SERVICE (eau chaude ET chauffage des locaux) et atteint 4 kW, l'entretien devient obligatoire : basculer alors sur la fiche PAC air/eau."
+  },
+  ident: [
+    {k:"marque", l:"Marque et modèle"},
+    {k:"serie", l:"N° de série"},
+    {k:"volume", l:"Volume du ballon", u:"L", type:"num"},
+    {k:"puiss", l:"Puissance calorifique", u:"kW", type:"num"},
+    {k:"config", l:"Configuration", type:"liste", opts:["sur air ambiant","sur air extérieur (gainé)","split","double service"]},
+    {k:"fluide", l:"Fluide frigorigène", type:"liste", opts:["R134a","R290","R513A","R744","autre"]},
+    {k:"charge", l:"Charge de fluide", u:"kg", type:"num", aide:"vérifier sur la plaque : au-delà des seuils F-Gas, contrôle d'étanchéité obligatoire"},
+    {k:"anode", l:"Type d'anode", type:"liste", opts:["magnésium","titane (courant imposé)","hybride"]},
+    {k:"mes", l:"Date de mise en service", type:"date"},
+    {k:"dernier", l:"Date du dernier entretien connu", type:"date"}
+  ],
+  ctrl: {
+    entretien: [
+      "Entretien avec le client : confort en eau chaude, temps de chauffe, bruit, consommation, incidents",
+      "Contrôle de l'implantation : volume du local, ventilation, température ambiante d'exploitation",
+      "Contrôle du groupe de sécurité : manœuvre, écoulement libre, absence d'entartrage, siphon et garde d'air",
+      "Vérification de l'anode et remplacement si nécessaire, ou contrôle du courant imposé",
+      "Contrôle et détartrage du corps de chauffe électrique d'appoint si accessible",
+      "Nettoyage du filtre à air et de l'évaporateur",
+      "Contrôle de l'écoulement des condensats et nettoyage du bac",
+      "Contrôle du ventilateur : propreté, bruit, débit",
+      "Contrôle des gaines d'air et de leur calorifuge (configuration gainée)",
+      "Contrôle du circuit frigorifique : pressions le cas échéant, absence de trace d'huile, givrage anormal",
+      "Contrôle des sondes de température et de leur cohérence",
+      "Contrôle du fonctionnement de l'appoint électrique et de sa logique d'enclenchement",
+      "Contrôle de la température de consigne et du cycle anti-légionelle",
+      "Contrôle du mitigeur thermostatique en sortie et de la limitation à 50 °C aux points de puisage des pièces destinées à la toilette",
+      "Contrôle du raccordement électrique, de la terre et de la protection différentielle",
+      "Contrôle du réglage horaire et de l'asservissement heures creuses ou photovoltaïque",
+      "Vidange partielle et contrôle de l'état intérieur si prévu par le constructeur"
+    ],
+    mes: [
+      "Contrôle du local : volume minimal, ventilation, température d'exploitation, hors gel",
+      "Contrôle du support et de la reprise de charge (un ballon plein pèse lourd)",
+      "Pose du groupe de sécurité neuf avec écoulement libre et siphon",
+      "Pose d'un réducteur de pression si le réseau dépasse la pression admissible",
+      "Raccordement des gaines d'air et calorifuge (configuration gainée)",
+      "Raccordement de l'évacuation des condensats avec pente et garde d'air",
+      "Raccordement électrique dédié, terre, protection différentielle",
+      "Remplissage, purge complète, contrôle d'étanchéité",
+      "Paramétrage : consigne, cycle anti-légionelle, plage horaire, mode de fonctionnement",
+      "Pose et réglage du mitigeur thermostatique",
+      "Cycle de chauffe complet et relevé des mesures de mise en service",
+      "Explication au client et remise du dossier",
+      "Le cas échéant : attestation pour la prime CEE ou MaPrimeRénov'"
+    ],
+    dep: [
+      "Relevé du symptôme et du code défaut",
+      "Contrôle de l'alimentation électrique et de l'asservissement heures creuses",
+      "Contrôle de la température de consigne et du paramétrage",
+      "Contrôle de l'encrassement du filtre et de l'évaporateur",
+      "Contrôle du ventilateur et du débit d'air",
+      "Contrôle du circuit frigorifique et recherche de fuite",
+      "Contrôle des sondes et de leur valeur",
+      "Contrôle de l'appoint électrique et du thermostat de sécurité",
+      "Contrôle du groupe de sécurité (un écoulement permanent vide le ballon d'eau chaude)",
+      "Contrôle de l'entartrage et de l'état de l'anode"
+    ]
+  },
+  mes: [
+    {k:"t_air", l:"Température de l'air à l'aspiration", u:"°C", type:"num", aide:"conditionne le COP et la plage de fonctionnement"},
+    {k:"t_souf", l:"Température de l'air soufflé", u:"°C", type:"num"},
+    {k:"dt_air", l:"ΔT sur l'air", u:"K", type:"calc", calc:"absdiff:t_air,t_souf", min:4, max:8, nature:"professionnel"},
+    {k:"t_ballon", l:"Température du ballon", u:"°C", type:"num"},
+    {k:"consigne", l:"Température de consigne", u:"°C", type:"num", min:50, nature:"sanitaire", aide:"compromis légionelle / entartrage / brûlure"},
+    {k:"antilegio", l:"Cycle anti-légionelle", type:"liste", opts:["actif et programmé","actif non programmé","désactivé","absent"], nature:"sanitaire"},
+    {k:"t_puisage", l:"Température au point de puisage (salle d'eau)", u:"°C", type:"num", max:50, nature:"réglementaire", aide:"limitation à 50 °C dans les pièces destinées à la toilette"},
+    {k:"pression", l:"Pression du réseau d'eau", u:"bar", type:"num"},
+    {k:"groupe_secu", l:"Groupe de sécurité", type:"liste", opts:["manœuvré, écoulement correct","entartré","fuite permanente","inaccessible"]},
+    {k:"anode_etat", l:"État de l'anode", type:"liste", opts:["bon","usure moyenne","à remplacer","remplacée ce jour","courant imposé conforme"]},
+    {k:"appoint", l:"Enclenchement de l'appoint électrique", type:"liste", opts:["conforme","permanent (à investiguer)","inopérant"]},
+    {k:"cop", l:"COP relevé ou affiché", type:"num", aide:"facultatif — non exigé, et rarement mesurable sans comptage"},
+    {k:"intens", l:"Intensité absorbée", u:"A", type:"num"}
+  ],
+  sousMachines: null,
+  conseils: [
+    "Maintenir la consigne à un niveau suffisant et laisser le cycle anti-légionelle actif",
+    "Ne pas obstruer les grilles d'aspiration et de rejet d'air",
+    "Respecter le volume minimal du local en configuration sur air ambiant",
+    "Faire contrôler l'anode chaque année : c'est elle qui protège la cuve",
+    "Manœuvrer le groupe de sécurité une fois par mois",
+    "Signaler tout écoulement permanent au groupe de sécurité : le ballon se vide en continu",
+    "Prévoir un détartrage périodique selon la dureté de l'eau"
+  ]
+};
+
+"use strict";
+var VERSION = "1.0";
+
+/* ============ stockage ============ */
+var CLE_VISITE = "kare.visite.v1", CLE_CFG = "kare.cfg.v1", CLE_PARC = "kare.parc.v1", CLE_FILE = "kare.file.v1";
+var STOCK_OK = (function(){ try{ localStorage.setItem("_t","1"); localStorage.removeItem("_t"); return true; }catch(e){ return false; } })();
+function lire(cle, def){ try{ var v = localStorage.getItem(cle); return v===null ? def : JSON.parse(v); }catch(e){ return def; } }
+function ecrire(cle, val){ try{ localStorage.setItem(cle, JSON.stringify(val)); return true; }catch(e){ return false; } }
+
+/* ============ utilitaires ============ */
+function $(s, r){ return (r||document).querySelector(s); }
+function el(tag, cls, txt){ var n=document.createElement(tag); if(cls) n.className=cls; if(txt!==undefined && txt!==null) n.textContent=txt; return n; }
+function estNb(v){ return typeof v==="number" && isFinite(v); }
+function nb(v){
+  if(v===undefined||v===null||v==="") return NaN;
+  var s=String(v).replace(",",".").trim(); if(!s) return NaN;
+  var n=parseFloat(s); return isFinite(n)?n:NaN;
+}
+function fmt(n,d){ return estNb(n) ? n.toFixed(d===undefined?1:d).replace(".",",") : "—"; }
+function txt(v){ v=(v===undefined||v===null)?"":String(v).trim(); return v||null; }
+function n0(v){ var x=nb(v); return estNb(x)?x:null; }
+function slug(v){ return String(v||"").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^A-Za-z0-9]+/g,"_").replace(/^_+|_+$/g,"").slice(0,42) || "fiche"; }
+function aujourdhui(){ var d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function idUnique(p){ return (p||"id")+"_"+Date.now().toString(36)+"_"+Math.random().toString(36).slice(2,8); }
+
+/* ============ configuration ============ */
+var cfg = lire(CLE_CFG, {webhook:"", secret:"", technicien:"Rémi KATA"});
+var parc = lire(CLE_PARC, []);
+function sauverCfg(){ ecrire(CLE_CFG, cfg); }
+
+/* ============ état de la visite ============ */
+var INTERV = [
+  {c:"entretien", l:"Entretien", cle:"entretien"},
+  {c:"mes",       l:"Mise en service", cle:"mise_en_service"},
+  {c:"dep",       l:"Dépannage", cle:"depannage"}
+];
+function visiteVierge(){
+  return {
+    id: idUnique("visite"),
+    client:"", adresse:"", contact:"", present:"",
+    interv:"entretien",
+    date: aujourdhui(),
+    appareils:"",
+    machines:[],
+    envoye:{}
+  };
+}
+var V = lire(CLE_VISITE, null);
+if(!V || !Array.isArray(V.machines)) V = visiteVierge();
+
+var minuteur=null, dernierEtat="";
+function sauver(){
+  clearTimeout(minuteur);
+  minuteur = setTimeout(function(){
+    var ok = ecrire(CLE_VISITE, V);
+    majEtat(ok ? "enregistré" : "non enregistré", ok?"ok":"mal");
+  }, 250);
+}
+function sauverTout(){ clearTimeout(minuteur); var ok=ecrire(CLE_VISITE,V); majEtat(ok?"enregistré":"non enregistré", ok?"ok":"mal"); return ok; }
+function majEtat(t, k){
+  var p=$("#pEtat"); if(!p) return;
+  p.textContent = t; p.className = "pastille "+(k||"");
+}
+
+/* ============ machines ============ */
+function machineVierge(cle){
+  var t = TECHNOS[cle];
+  var m = {mid: idUnique("m"), tech: cle, ident:{}, ctrl:{}, mes:{}, sous:[], anomalies:"", actions:"", conseils:{}, note:""};
+  if(t && t.sousMachines) m.sous = [{}];
+  return m;
+}
+function ajouterMachine(cle){
+  var m = machineVierge(cle);
+  V.machines.push(m); sauver(); return m;
+}
+function machineParId(mid){
+  for(var i=0;i<V.machines.length;i++) if(V.machines[i].mid===mid) return V.machines[i];
+  return null;
+}
+function techDe(m){ return TECHNOS[m.tech] || null; }
+function listeCtrl(m){
+  var t=techDe(m); if(!t) return [];
+  return t.ctrl[V.interv] || t.ctrl.entretien || [];
+}
+function libelleMachine(m){
+  var t=techDe(m); if(!t) return "Machine";
+  var d=[]; if(m.ident.marque) d.push(m.ident.marque);
+  if(m.ident.serie) d.push("n° "+m.ident.serie);
+  if(m.ident.puiss) d.push(m.ident.puiss+" kW");
+  return d.length ? d.join(" · ") : t.label;
+}
+
+/* ============ calculs ============ */
+function valeurCalc(m, champ, source){
+  source = source || m.mes;
+  var c = champ.calc || "";
+  if(c.indexOf("absdiff:")===0){
+    var p=c.slice(8).split(","), a=nb(source[p[0]]), b=nb(source[p[1]]);
+    return (estNb(a)&&estNb(b)) ? Math.round(Math.abs(b-a)*10)/10 : NaN;
+  }
+  if(c==="rendement_gaz")      return rendementGaz(m);
+  if(c==="rendement_ref_gaz")  return rendementRefGaz(m);
+  if(c==="nox_gaz")            return noxGaz(m);
+  if(c==="sodium"){ var thb=nb(source.th_brut), tha=nb(source.th_adouci);
+    return (estNb(thb)&&estNb(tha)&&thb>=tha) ? Math.round((thb-tha)*8) : NaN; }
+  if(c==="rendement_echangeur"){
+    var te=nb(source.t_ext), ts=nb(source.t_souf), tr=nb(source.t_rep);
+    if(!estNb(te)||!estNb(ts)||!estNb(tr)||Math.abs(tr-te)<0.1) return NaN;
+    return Math.round((ts-te)/(tr-te)*1000)/10;
+  }
+  if(c==="equilibrage"){
+    var de=nb(source.debit_ext), ds=nb(source.debit_souf);
+    if(!estNb(de)||!estNb(ds)||de<=0) return NaN;
+    return Math.round(Math.abs(ds-de)/de*1000)/10;
+  }
+  return NaN;
+}
+
+/* Rendement forfaitaire gaz — annexe 2 de l'arrêté du 15/09/2009.
+   ATTENTION : valeur FORFAITAIRE, pas la lecture de l'analyseur.
+   Formules à recaler sur le modèle CAPEB (voir Sources). */
+function rendementGaz(m){
+  var p = nb(m.ident.puiss), an = nb(m.ident.annee), tech = m.ident.techno || "";
+  if(!estNb(p) || p<=0) return NaN;
+  var L = Math.log(p)/Math.LN10, r;
+  if(tech.indexOf("condensation")===0)        r = 91   + 1.0*L;
+  else if(tech.indexOf("basse")===0)          r = 87.5 + 1.5*L;
+  else if(tech.indexOf("standard")===0)       r = 84   + 2.0*L;
+  else if(estNb(an) && an<1981)               r = 79   + 2.0*L;
+  else if(estNb(an) && an<1986)               r = 82   + 2.0*L;
+  else if(estNb(an) && an<1991)               r = 83   + 2.0*L;
+  else                                        r = 84   + 2.0*L;
+  return Math.round(r*10)/10;
+}
+function rendementRefGaz(m){
+  var p = nb(m.ident.puiss);
+  if(!estNb(p) || p<=0) return NaN;
+  return Math.round((91 + 1.0*(Math.log(p)/Math.LN10))*10)/10;
+}
+/* NOx forfaitaires gaz — annexe 3. Ne se mesurent pas en entretien courant. */
+var NOX_GAZ = {
+  "prémélange total":45, "prémélange partiel":170, "atmosphérique":300, "air soufflé":130
+};
+function noxGaz(m){
+  var b = m.ident.bruleur || "", an = nb(m.ident.annee);
+  if(estNb(an) && an>=2018) return 56;
+  var v = NOX_GAZ[b];
+  return estNb(v) ? v : NaN;
+}
+
+/* ============ verdicts ============ */
+/* Paliers CO ambiant — art. 3 de l'arrêté du 15/09/2009 */
+function verdictCO(v){
+  if(!estNb(v)) return null;
+  if(v < 10)  return {k:"ok",  t:"NORMALE"};
+  if(v < 50)  return {k:"att", t:"ANORMALE — investigations obligatoires"};
+  return {k:"mal", t:"DANGER GRAVE — arrêt et consignation"};
+}
+function verdict(champ, val){
+  if(champ.paliers === "co") return verdictCO(val);
+  if(!estNb(val)) return null;
+  var min = estNb(champ.min)?champ.min:null, max = estNb(champ.max)?champ.max:null;
+  if(min===null && max===null) return null;
+  if(min!==null && val < min) return {k:"att", t:"sous " + fmt(min,min%1?1:0) + (champ.u?" "+champ.u:"")};
+  if(max!==null && val > max) return {k:"att", t:"au-dessus de " + fmt(max,max%1?1:0) + (champ.u?" "+champ.u:"")};
+  return {k:"ok", t:"dans la plage"};
+}
+
+/* ============ avancement ============ */
+function avancement(m){
+  var t=techDe(m); if(!t) return {fait:0, total:0};
+  var lc = listeCtrl(m), fait=0, total=lc.length;
+  for(var i=0;i<lc.length;i++) if(m.ctrl["c"+i]) fait++;
+  var mesFaites=0, mesTotal=0;
+  for(var j=0;j<t.mes.length;j++){
+    var ch=t.mes[j]; if(ch.type==="calc"||ch.type==="fixe") continue;
+    mesTotal++; if(txt(m.mes[ch.k])!==null) mesFaites++;
+  }
+  return {fait:fait+mesFaites, total:total+mesTotal, ctrlFait:fait, ctrlTotal:total};
+}
+function anomaliesDe(m){
+  var t=techDe(m); if(!t) return [];
+  var out=[], lc=listeCtrl(m), i;
+  for(i=0;i<lc.length;i++) if(m.ctrl["c"+i]==="non") out.push({type:"contrôle", lib:lc[i]});
+  for(i=0;i<t.mes.length;i++){
+    var ch=t.mes[i], val = ch.type==="calc" ? valeurCalc(m,ch) : nb(m.mes[ch.k]);
+    var v = verdict(ch, val);
+    if(v && v.k!=="ok") out.push({type:"mesure", lib:ch.l+" : "+fmt(val,1)+(ch.u?" "+ch.u:"")+" — "+v.t, grave:v.k==="mal"});
+  }
+  return out;
+}
+
+/* ============ navigation ============ */
+var vue = "visite";   /* "visite" | mid */
+
+function rendreOnglets(){
+  var o = $("#onglets"); o.innerHTML = "";
+  var b = el("button","ong","Visite");
+  b.type="button"; b.setAttribute("role","tab");
+  b.setAttribute("aria-selected", vue==="visite" ? "true":"false");
+  b.onclick = function(){ aller("visite"); };
+  o.appendChild(b);
+  V.machines.forEach(function(m){
+    var t = techDe(m), a = avancement(m);
+    var x = el("button","ong");
+    x.type="button"; x.setAttribute("role","tab");
+    x.setAttribute("aria-selected", vue===m.mid ? "true":"false");
+    x.appendChild(el("span",null,(t?t.icone+" ":"")+(t?t.court:"?")));
+    var pc = el("span","pc", a.total ? Math.round(a.fait/a.total*100)+"%" : "0%");
+    x.appendChild(pc);
+    x.onclick = function(){ aller(m.mid); };
+    o.appendChild(x);
+  });
+  var plus = el("button","ong","+ machine");
+  plus.type="button"; plus.onclick = ouvrirChoixMachine;
+  o.appendChild(plus);
+}
+function aller(v){ vue=v; rendre(); window.scrollTo(0,0); }
+function rendre(){ rendreOnglets(); var a=$("#app"); a.innerHTML=""; if(vue==="visite") vueVisite(a); else vueMachine(a, machineParId(vue)); }
+
+/* ============ fabriques de champs ============ */
+function champTexte(parent, obj, cle, libelle, opts){
+  opts = opts || {};
+  var d = el("div","champ"+(opts.plein?" plein":""));
+  var lab = el("label", null, libelle);
+  lab.htmlFor = "f_"+cle+"_"+(opts.suffixe||"");
+  if(opts.u){ var u=el("span","u","("+opts.u+")"); lab.appendChild(u); }
+  d.appendChild(lab);
+  var i;
+  if(opts.type==="zone"){ i = el("textarea"); }
+  else if(opts.type==="liste"){
+    i = el("select");
+    i.appendChild(el("option","",""));
+    (opts.opts||[]).forEach(function(o){ var op=el("option",null,o); op.value=o; i.appendChild(op); });
+  } else {
+    i = el("input");
+    i.type = opts.type==="num" ? "number" : (opts.type==="date" ? "date" : "text");
+    if(opts.type==="num"){ i.inputMode="decimal"; i.step="any"; }
+  }
+  i.id = lab.htmlFor;
+  i.value = obj[cle]===undefined||obj[cle]===null ? "" : obj[cle];
+  if(opts.ph) i.placeholder = opts.ph;
+  i.addEventListener("input", function(){
+    obj[cle] = i.value;
+    if(opts.auMaj) opts.auMaj();
+    sauver();
+  });
+  d.appendChild(i);
+  if(opts.aide) d.appendChild(el("div","aide", opts.aide));
+  if(opts.slotVerdict){ var v=el("div"); v.dataset.verdict=cle; d.appendChild(v); }
+  parent.appendChild(d);
+  return i;
+}
+
+function champCalc(parent, libelle, opts, valeurFn){
+  var d = el("div","champ"+(opts.plein?" plein":""));
+  var lab = el("label", null, libelle);
+  if(opts.u) lab.appendChild(el("span","u","("+opts.u+")"));
+  d.appendChild(lab);
+  var c = el("div","calc","—");
+  d.appendChild(c);
+  if(opts.aide) d.appendChild(el("div","aide", opts.aide));
+  var v = el("div"); d.appendChild(v);
+  parent.appendChild(d);
+  return function(){
+    var val = valeurFn();
+    c.textContent = estNb(val) ? fmt(val, Math.abs(val)>=100?0:1) + (opts.u?" "+opts.u:"") : "—";
+    var ver = opts.champ ? verdict(opts.champ, val) : null;
+    v.innerHTML = "";
+    if(ver) v.appendChild(el("span","verdict "+ver.k, ver.t));
+  };
+}
+
+/* ============ écran VISITE ============ */
+function vueVisite(root){
+  /* --- client --- */
+  var c1 = el("div","carte");
+  c1.appendChild(el("h2",null,"Client et chantier"));
+  var g = el("div","g2"); c1.appendChild(g);
+
+  if(parc && parc.length){
+    var d = el("div","champ plein");
+    d.appendChild(el("label",null,"Client du parc"));
+    var s = el("select");
+    s.appendChild(el("option",null,"— saisir à la main —"));
+    var noms = {};
+    parc.forEach(function(p){ if(p.client) noms[p.client]=1; });
+    Object.keys(noms).sort().forEach(function(n){ var o=el("option",null,n); o.value=n; s.appendChild(o); });
+    s.value = V.client || "";
+    s.addEventListener("change", function(){
+      if(!s.value) return;
+      V.client = s.value;
+      var f = parc.filter(function(p){ return p.client===s.value; });
+      if(f.length){ V.adresse = f[0].adresse || V.adresse; V.contact = f[0].contact || V.contact; }
+      sauver(); rendre();
+    });
+    d.appendChild(s);
+    d.appendChild(el("div","aide", parc.length+" machines au parc. Choisir le client pré-remplit l'adresse et propose ses machines."));
+    g.appendChild(d);
+  } else {
+    var av = el("div","alerte info");
+    av.innerHTML = "<b>Parc non chargé.</b> Importe le fichier <b>config_KA-RE.json</b> dans les réglages pour retrouver tes clients et leurs machines hors connexion.";
+    c1.insertBefore(av, g);
+  }
+
+  champTexte(g, V, "client", "Nom du client", {plein:true, ph:"NOM Prénom ou raison sociale", auMaj:rendreOnglets});
+  champTexte(g, V, "adresse", "Adresse du chantier", {plein:true});
+  champTexte(g, V, "contact", "Téléphone / courriel", {});
+  champTexte(g, V, "present", "Personne présente", {});
+  root.appendChild(c1);
+
+  /* --- intervention --- */
+  var c2 = el("div","carte");
+  c2.appendChild(el("h2",null,"Intervention"));
+  var ch = el("div","chips"); c2.appendChild(ch);
+  INTERV.forEach(function(it){
+    var b = el("button","chip",it.l); b.type="button";
+    b.setAttribute("aria-pressed", V.interv===it.c ? "true":"false");
+    b.onclick = function(){ V.interv=it.c; sauver(); rendre(); };
+    ch.appendChild(b);
+  });
+  var g2 = el("div","g2"); g2.style.marginTop="10px"; c2.appendChild(g2);
+  champTexte(g2, V, "date", "Date de la visite", {type:"date"});
+  champTexte(g2, V, "appareils", "Appareils de mesure utilisés", {plein:true, type:"zone",
+    ph:"ex. analyseur Testo 320 n° … (vérifié le …) · détecteur CO Testo 317-3 · manomètre Testo 550s"});
+  root.appendChild(c2);
+
+  /* --- machines --- */
+  var c3 = el("div","carte");
+  var h = el("h2",null,"Machines de la visite");
+  h.appendChild(el("span","cpt", V.machines.length + (V.machines.length>1?" machines":" machine")));
+  c3.appendChild(h);
+
+  if(!V.machines.length){
+    c3.appendChild(el("div","vide","Aucune machine. Ajoute la première : chaudière, PAC, clim, adoucisseur, VMC ou chauffe-eau thermodynamique. Tu peux en mettre plusieurs sur la même visite."));
+  }
+  V.machines.forEach(function(m, i){
+    var t = techDe(m), a = avancement(m), an = anomaliesDe(m);
+    var row = el("div"); row.style.display="flex"; row.style.gap="8px"; row.style.alignItems="stretch"; row.style.marginBottom="8px";
+    var b = el("button","mach"); b.type="button"; b.style.marginBottom="0";
+    b.appendChild(el("span","ic", t?t.icone:"?"));
+    var tx = el("div","txt");
+    tx.appendChild(el("div","t1", t?t.label:"?"));
+    tx.appendChild(el("div","t2", libelleMachine(m)));
+    b.appendChild(tx);
+    var pc = el("span","pastille"+(a.total&&a.fait===a.total?" ok":""), a.total?Math.round(a.fait/a.total*100)+"%":"0%");
+    b.appendChild(pc);
+    if(an.length){
+      var grave = an.some(function(x){return x.grave;});
+      b.appendChild(el("span","pastille "+(grave?"mal":"att"), an.length+(an.length>1?" écarts":" écart")));
+    }
+    b.onclick = function(){ aller(m.mid); };
+    row.appendChild(b);
+    var sup = el("button","btn mini d","×"); sup.type="button"; sup.title="Retirer cette machine";
+    sup.style.flex="0 0 auto";
+    sup.onclick = function(){ retirerMachine(m.mid, sup); };
+    row.appendChild(sup);
+    c3.appendChild(row);
+  });
+  var add = el("button","btn","+ Ajouter une machine"); add.type="button"; add.style.width="100%";
+  add.onclick = ouvrirChoixMachine;
+  c3.appendChild(add);
+  root.appendChild(c3);
+
+  /* --- machines connues du client --- */
+  if(V.client && parc && parc.length){
+    var connues = parc.filter(function(p){ return p.client===V.client; });
+    if(connues.length){
+      var c4 = el("div","carte");
+      c4.appendChild(el("h2",null,"Machines connues chez ce client"));
+      connues.forEach(function(p){
+        var b = el("button","mach"); b.type="button";
+        b.appendChild(el("span","ic", (TECHNOS[p.tech]||{}).icone || "•"));
+        var tx = el("div","txt");
+        tx.appendChild(el("div","t1", (TECHNOS[p.tech]||{}).label || p.tech || "machine"));
+        tx.appendChild(el("div","t2", [p.marque, p.serie?"n° "+p.serie:"", p.local].filter(Boolean).join(" · ")));
+        b.appendChild(tx);
+        b.appendChild(el("span","pastille","reprendre"));
+        b.onclick = function(){
+          var cle = TECHNOS[p.tech] ? p.tech : null;
+          if(!cle){ toast("Technologie inconnue au catalogue","mal"); return; }
+          var m = ajouterMachine(cle);
+          ["marque","serie","puiss","fluide","charge","mes","local","nbui","volume","annee","techno","combustible"].forEach(function(k){
+            if(p[k]!==undefined && p[k]!==null && p[k]!=="") m.ident[k]=String(p[k]);
+          });
+          if(p.dernier) m.ident.dernier = p.dernier;
+          sauver(); aller(m.mid);
+        };
+        c4.appendChild(b);
+      });
+      root.appendChild(c4);
+    }
+  }
+}
+
+function retirerMachine(mid, btn){
+  if(btn.dataset.arme !== "1"){
+    btn.dataset.arme="1"; btn.textContent="Sûr ?";
+    setTimeout(function(){ if(btn.dataset.arme==="1"){ btn.dataset.arme=""; btn.textContent="×"; } }, 6000);
+    return;
+  }
+  V.machines = V.machines.filter(function(m){ return m.mid!==mid; });
+  if(vue===mid) vue="visite";
+  sauver(); rendre(); toast("Machine retirée");
+}
+
+function ouvrirChoixMachine(){
+  var box = $("#listeTechnos"); box.innerHTML="";
+  Object.keys(TECHNOS).forEach(function(cle){
+    var t = TECHNOS[cle];
+    var b = el("button","mach"); b.type="button";
+    b.appendChild(el("span","ic", t.icone));
+    var tx = el("div","txt");
+    tx.appendChild(el("div","t1", t.label));
+    tx.appendChild(el("div","t2", t.regl.obligatoire ? ("Réglementaire — "+t.regl.periodicite.toLowerCase()) : "Entretien contractuel"));
+    b.appendChild(tx);
+    b.appendChild(el("span","pastille"+(t.regl.obligatoire?"":" att"), t.regl.obligatoire?"attestation":"compte rendu"));
+    b.onclick = function(){ $("#dlgMachine").close(); var m=ajouterMachine(cle); aller(m.mid); };
+    box.appendChild(b);
+  });
+  $("#dlgMachine").showModal();
+}
+
+/* ============ écran MACHINE ============ */
+function vueMachine(root, m){
+  if(!m){ vue="visite"; return vueVisite(root); }
+  var t = techDe(m);
+  if(!t){ root.appendChild(el("div","vide","Technologie inconnue.")); return; }
+  var majs = [];
+
+  /* --- cadre réglementaire --- */
+  var c0 = el("div","carte");
+  var h0 = el("h2",null, t.icone+" "+t.label);
+  h0.appendChild(el("span","cpt", INTERV.filter(function(i){return i.c===V.interv;})[0].l));
+  c0.appendChild(h0);
+  var al = el("div","alerte "+(t.regl.obligatoire?"info":"att"));
+  al.innerHTML = "<b>"+ (t.regl.obligatoire ? "Entretien réglementaire" : "Entretien NON réglementaire") + "</b> — "
+    + (t.regl.obligatoire ? ("plage "+t.regl.plage+", "+t.regl.periodicite.toLowerCase()+", attestation sous "+t.regl.delai+".")
+                          : ("le document remis est un <b>"+t.regl.doc.toLowerCase()+"</b>, jamais une attestation réglementaire."));
+  c0.appendChild(al);
+  if(t.regl.alerte){
+    var al2 = el("div","alerte att"); al2.innerHTML = "<b>À savoir :</b> "+t.regl.alerte;
+    c0.appendChild(al2);
+  }
+  var det = el("details","repl");
+  det.appendChild(el("summary",null,"Base réglementaire"));
+  var dd = el("div"); dd.textContent = t.regl.cadre; det.appendChild(dd);
+  c0.appendChild(det);
+  root.appendChild(c0);
+
+  /* --- identification --- */
+  var c1 = el("div","carte");
+  c1.appendChild(el("h2",null,"Identification"));
+  var g1 = el("div","g2"); c1.appendChild(g1);
+  t.ident.forEach(function(f){
+    champTexte(g1, m.ident, f.k, f.l, {type:f.type, opts:f.opts, u:f.u, aide:f.aide, ph:f.ph, suffixe:m.mid,
+      auMaj:function(){ rendreOnglets(); majs.forEach(function(fn){fn();}); }});
+  });
+  root.appendChild(c1);
+
+  /* --- points de contrôle --- */
+  var lc = listeCtrl(m);
+  var c2 = el("div","carte");
+  var h2 = el("h2",null,"Points de contrôle");
+  var cptCtrl = el("span","cpt","");
+  h2.appendChild(cptCtrl); c2.appendChild(h2);
+  var lg = el("div","legende");
+  lg.appendChild(el("span",null,"✓ contrôlé"));
+  lg.appendChild(el("span",null,"✗ non contrôlé"));
+  lg.appendChild(el("span",null,"NP non présent sur l'installation"));
+  c2.appendChild(lg);
+  var toutOk = el("button","btn mini","Tout cocher « contrôlé »"); toutOk.type="button";
+  toutOk.style.marginBottom="10px";
+  toutOk.onclick = function(){ lc.forEach(function(_,i){ m.ctrl["c"+i]="ok"; }); sauver(); rendre(); };
+  c2.appendChild(toutOk);
+
+  function majCpt(){
+    var f=0; lc.forEach(function(_,i){ if(m.ctrl["c"+i]) f++; });
+    cptCtrl.textContent = f+" / "+lc.length;
+  }
+  lc.forEach(function(lib, i){
+    var l = el("div","pc-ligne");
+    l.appendChild(el("div","pc-lib", lib));
+    var e = el("div","pc-etats");
+    [["ok","✓"],["non","✗"],["np","NP"]].forEach(function(p){
+      var b = el("button","et",p[1]); b.type="button"; b.dataset.v=p[0];
+      b.setAttribute("aria-pressed", m.ctrl["c"+i]===p[0] ? "true":"false");
+      b.setAttribute("aria-label", p[0]+" — "+lib);
+      b.onclick = function(){
+        m.ctrl["c"+i] = (m.ctrl["c"+i]===p[0]) ? "" : p[0];
+        Array.prototype.forEach.call(e.children, function(x){
+          x.setAttribute("aria-pressed", m.ctrl["c"+i]===x.dataset.v ? "true":"false");
+        });
+        majCpt(); rendreOnglets(); sauver();
+      };
+      e.appendChild(b);
+    });
+    l.appendChild(e);
+    c2.appendChild(l);
+  });
+  majCpt();
+  root.appendChild(c2);
+
+  /* --- mesures --- */
+  var c3 = el("div","carte");
+  c3.appendChild(el("h2",null,"Mesures et relevés"));
+  var g3 = el("div","g2"); c3.appendChild(g3);
+  t.mes.forEach(function(f){
+    if(f.type==="calc"){
+      var maj = champCalc(g3, f.l, {u:f.u, aide:f.aide, champ:f}, function(){ return valeurCalc(m, f); });
+      majs.push(maj);
+      return;
+    }
+    if(f.type==="fixe"){
+      var d=el("div","champ"); d.appendChild(el("label",null,f.l));
+      d.appendChild(el("div","calc", f.valeur + (f.u?" "+f.u:"")));
+      g3.appendChild(d); return;
+    }
+    var slot = el("div");
+    var inp = champTexte(g3, m.mes, f.k, f.l, {type:f.type, opts:f.opts, u:f.u, aide:f.aide, suffixe:m.mid,
+      auMaj:function(){ majVerdict(); majs.forEach(function(fn){fn();}); rendreOnglets(); }});
+    var box = inp.parentNode;
+    box.appendChild(slot);
+    function majVerdict(){
+      var val = nb(m.mes[f.k]);
+      var v = verdict(f, val);
+      slot.innerHTML="";
+      if(v) slot.appendChild(el("span","verdict "+v.k, v.t));
+    }
+    majVerdict();
+    if(f.nature){
+      var n = el("div","aide"); n.textContent = f.nature==="réglementaire" ? "mesure exigée par le texte" : ("repère "+f.nature);
+      box.appendChild(n);
+    }
+  });
+  root.appendChild(c3);
+
+  /* --- sous-machines --- */
+  if(t.sousMachines){
+    var sm = t.sousMachines;
+    var c4 = el("div","carte");
+    var h4 = el("h2",null, sm.label);
+    h4.appendChild(el("span","cpt", m.sous.length+" "+(m.sous.length>1?sm.singulier+"s":sm.singulier)));
+    c4.appendChild(h4);
+    m.sous.forEach(function(ligne, idx){
+      var bloc = el("div","sm");
+      var tete = el("div","sm-tete");
+      tete.appendChild(el("span","n", sm.singulier.toUpperCase()+" "+(idx+1)));
+      if(m.sous.length>1){
+        var x = el("button","btn mini d","Retirer"); x.type="button";
+        x.style.marginLeft="auto";
+        x.onclick = function(){ m.sous.splice(idx,1); sauver(); rendre(); };
+        tete.appendChild(x);
+      }
+      bloc.appendChild(tete);
+      var gg = el("div","g2"); bloc.appendChild(gg);
+      var majsL = [];
+      sm.champs.forEach(function(f){
+        if(f.type==="calc"){
+          var mj = champCalc(gg, f.l, {u:f.u}, function(){ return valeurCalc(m, f, ligne); });
+          majsL.push(mj); return;
+        }
+        if(f.type==="case"){
+          var d = el("div","champ");
+          d.appendChild(el("label",null,f.l));
+          var b = el("button","case","✓"); b.type="button";
+          b.setAttribute("aria-pressed", ligne[f.k]?"true":"false");
+          b.setAttribute("aria-label", f.l);
+          b.onclick = function(){ ligne[f.k] = ligne[f.k]?0:1; b.setAttribute("aria-pressed", ligne[f.k]?"true":"false"); sauver(); };
+          d.appendChild(b); gg.appendChild(d); return;
+        }
+        champTexte(gg, ligne, f.k, f.l, {type:f.type, opts:f.opts, u:f.u, suffixe:m.mid+"_"+idx,
+          auMaj:function(){ majsL.forEach(function(fn){fn();}); }});
+      });
+      majsL.forEach(function(fn){fn();});
+      c4.appendChild(bloc);
+    });
+    var addSm = el("button","btn","+ Ajouter "+(sm.singulier==="unité"?"une ":"une ")+sm.singulier); addSm.type="button";
+    addSm.style.width="100%";
+    addSm.onclick = function(){ m.sous.push({}); sauver(); rendre(); };
+    c4.appendChild(addSm);
+    root.appendChild(c4);
+  }
+
+  /* --- anomalies, actions --- */
+  var c5 = el("div","carte");
+  c5.appendChild(el("h2",null,"Défauts et actions"));
+  var auto = anomaliesDe(m);
+  if(auto.length){
+    var a5 = el("div","alerte "+(auto.some(function(x){return x.grave;})?"mal":"att"));
+    var ti = el("b", null, "Relevé automatiquement : "+auto.length+(auto.length>1?" écarts":" écart"));
+    a5.appendChild(ti);
+    var ul = el("div"); ul.style.marginTop="6px";
+    auto.forEach(function(x){ var p=el("div",null,"• "+x.lib); p.style.marginTop="3px"; ul.appendChild(p); });
+    a5.appendChild(ul);
+    c5.appendChild(a5);
+  }
+  var g5 = el("div","g2"); c5.appendChild(g5);
+  champTexte(g5, m, "anomalies", "Défauts et anomalies constatés", {plein:true, type:"zone", suffixe:m.mid,
+    ph:"Décrire les défauts, ou porter « Aucune anomalie constatée ». Les causes énoncées sont des causes probables."});
+  champTexte(g5, m, "actions", "Actions correctives réalisées", {plein:true, type:"zone", suffixe:m.mid,
+    ph:"Nettoyages, réglages, remises en état effectués sur place. « Néant » si aucune."});
+  root.appendChild(c5);
+
+  /* --- conseils --- */
+  var c6 = el("div","carte");
+  var h6 = el("h2",null,"Conseils au client");
+  c6.appendChild(h6);
+  c6.appendChild(el("div","legende","Cocher ce qui a été expliqué au client."));
+  t.conseils.forEach(function(lib, i){
+    var l = el("div","pc-ligne");
+    l.appendChild(el("div","pc-lib", lib));
+    var b = el("button","case","✓"); b.type="button";
+    b.setAttribute("aria-pressed", m.conseils["k"+i]?"true":"false");
+    b.setAttribute("aria-label", lib);
+    b.onclick = function(){ m.conseils["k"+i] = m.conseils["k"+i]?0:1; b.setAttribute("aria-pressed", m.conseils["k"+i]?"true":"false"); sauver(); };
+    var w = el("div","pc-etats"); w.appendChild(b);
+    l.appendChild(w);
+    c6.appendChild(l);
+  });
+  champTexte(c6, m, "note", "Précisions propres à cette installation", {plein:true, type:"zone", suffixe:m.mid});
+  var mm = el("div","alerte info");
+  mm.textContent = "Les conseils et recommandations sont donnés à titre indicatif et ont une valeur informative. Aucun investissement proposé ne revêt un caractère obligatoire. Il s'agit de conseils et non de prescriptions ou d'injonctions de faire.";
+  c6.appendChild(mm);
+  root.appendChild(c6);
+
+  majs.forEach(function(fn){fn();});
+}
+
+/* ============ construction du message ============ */
+function etatLisible(v){ return v==="ok" ? "contrôlé" : v==="non" ? "NON CONTRÔLÉ" : v==="np" ? "non présent" : "non renseigné"; }
+
+function payloadMachine(m, idx){
+  var t = techDe(m), lc = listeCtrl(m);
+  var ident = {}, i;
+  t.ident.forEach(function(f){ var v=txt(m.ident[f.k]); if(v!==null) ident[f.l]=v; });
+
+  var ctrl = [], nOk=0, nNon=0, nNp=0;
+  lc.forEach(function(lib, j){
+    var e = m.ctrl["c"+j] || "";
+    if(e==="ok") nOk++; else if(e==="non") nNon++; else if(e==="np") nNp++;
+    ctrl.push({point:lib, etat:etatLisible(e)});
+  });
+
+  var mesures = {};
+  t.mes.forEach(function(f){
+    var val, brut;
+    if(f.type==="calc"){ val = valeurCalc(m,f); brut = estNb(val)?val:null; }
+    else if(f.type==="fixe"){ brut = f.valeur; val = f.valeur; }
+    else { brut = (f.type==="num") ? n0(m.mes[f.k]) : txt(m.mes[f.k]); val = nb(m.mes[f.k]); }
+    if(brut===null || brut===undefined || brut==="") return;
+    var v = verdict(f, estNb(val)?val:NaN);
+    mesures[f.l] = {valeur:brut, unite:f.u||null, verdict:v?v.t:null, alerte:v?(v.k!=="ok"):false};
+  });
+
+  var sous = [];
+  if(t.sousMachines){
+    m.sous.forEach(function(ligne, k){
+      var o = {n:k+1};
+      t.sousMachines.champs.forEach(function(f){
+        var v;
+        if(f.type==="calc"){ var x=valeurCalc(m,f,ligne); v = estNb(x)?x:null; }
+        else if(f.type==="case"){ v = ligne[f.k]?"oui":"non"; }
+        else { v = (f.type==="num") ? n0(ligne[f.k]) : txt(ligne[f.k]); }
+        if(v!==null && v!==undefined && v!=="") o[f.l]=v;
+      });
+      if(Object.keys(o).length>1) sous.push(o);
+    });
+  }
+
+  var conseils = [];
+  t.conseils.forEach(function(lib,k){ if(m.conseils["k"+k]) conseils.push(lib); });
+
+  var ecarts = anomaliesDe(m).map(function(x){ return (x.grave?"[DANGER] ":"")+x.lib; });
+
+  return {
+    secret: cfg.secret || "",
+    visite_id: V.id,
+    fiche_id: m.mid,
+    machine_num: idx+1,
+    machines_total: V.machines.length,
+    date: V.date,
+    type_intervention: (INTERV.filter(function(x){return x.c===V.interv;})[0]||{}).cle || "entretien",
+    technologie: m.tech,
+    technologie_label: t.label,
+    reglementaire: !!t.regl.obligatoire,
+    document_a_produire: t.regl.doc,
+    periodicite: t.regl.periodicite,
+    base_reglementaire: t.regl.cadre,
+    client: {
+      nom: txt(V.client), adresse: txt(V.adresse),
+      contact: txt(V.contact), present: txt(V.present)
+    },
+    technicien: cfg.technicien || "Rémi KATA",
+    appareils_mesure: txt(V.appareils),
+    identification: ident,
+    controles: ctrl,
+    controles_controles: nOk, controles_non: nNon, controles_np: nNp, controles_total: lc.length,
+    mesures: mesures,
+    sous_machines: sous,
+    anomalies: txt(m.anomalies),
+    actions: txt(m.actions),
+    conseils_donnes: conseils,
+    precisions: txt(m.note),
+    ecarts: ecarts,
+    danger: ecarts.some(function(e){ return e.indexOf("[DANGER]")===0; }),
+    application: "fiche-terrain KA-RÉ v"+VERSION,
+    resume: resumeTexte(m, idx)
+  };
+}
+
+function resumeTexte(m, idx){
+  var t = techDe(m), L = [], lc = listeCtrl(m);
+  function ligne(k,v){ if(v!==null && v!==undefined && String(v).trim()!=="") L.push(k+" : "+v); }
+  L.push("=== "+t.label.toUpperCase()+" — machine "+(idx+1)+"/"+V.machines.length+" ===");
+  ligne("Document à produire", t.regl.doc + (t.regl.obligatoire?" (réglementaire)":" (contractuel — PAS réglementaire)"));
+  ligne("Client", V.client); ligne("Adresse", V.adresse);
+  ligne("Date", V.date);
+  ligne("Intervention", (INTERV.filter(function(x){return x.c===V.interv;})[0]||{}).l);
+  ligne("Technicien", cfg.technicien||"Rémi KATA");
+  ligne("Personne présente", V.present);
+  ligne("Appareils de mesure", V.appareils);
+  L.push(""); L.push("-- Identification --");
+  t.ident.forEach(function(f){ ligne(f.l, txt(m.ident[f.k])); });
+  L.push(""); L.push("-- Points de contrôle --");
+  lc.forEach(function(lib,j){ L.push("["+ (m.ctrl["c"+j]==="ok"?"X":m.ctrl["c"+j]==="non"?"!":m.ctrl["c"+j]==="np"?"-":" ") +"] "+lib); });
+  L.push(""); L.push("-- Mesures --");
+  t.mes.forEach(function(f){
+    var val, aff;
+    if(f.type==="calc"){ val=valeurCalc(m,f); aff = estNb(val)?fmt(val,1):null; }
+    else if(f.type==="fixe"){ val=f.valeur; aff=String(f.valeur); }
+    else { aff = txt(m.mes[f.k]); val = nb(m.mes[f.k]); }
+    if(aff===null) return;
+    var v = verdict(f, estNb(val)?val:NaN);
+    ligne(f.l, aff + (f.u?" "+f.u:"") + (v ? "  → "+v.t : ""));
+  });
+  if(t.sousMachines && m.sous.length){
+    L.push(""); L.push("-- "+t.sousMachines.label+" --");
+    m.sous.forEach(function(ligneS, k){
+      var bouts=[];
+      t.sousMachines.champs.forEach(function(f){
+        var v;
+        if(f.type==="calc"){ var x=valeurCalc(m,f,ligneS); v = estNb(x)?fmt(x,1):null; }
+        else if(f.type==="case"){ v = ligneS[f.k]?"oui":null; }
+        else v = txt(ligneS[f.k]);
+        if(v!==null) bouts.push(f.l+" "+v+(f.u?" "+f.u:""));
+      });
+      if(bouts.length) L.push((k+1)+". "+bouts.join(" | "));
+    });
+  }
+  var ec = anomaliesDe(m);
+  if(ec.length){ L.push(""); L.push("-- Écarts relevés --"); ec.forEach(function(x){ L.push((x.grave?"!! ":"- ")+x.lib); }); }
+  if(txt(m.anomalies)){ L.push(""); L.push("-- Défauts constatés --"); L.push(m.anomalies); }
+  if(txt(m.actions)){ L.push(""); L.push("-- Actions réalisées --"); L.push(m.actions); }
+  var cs=[]; t.conseils.forEach(function(lib,k){ if(m.conseils["k"+k]) cs.push(lib); });
+  if(cs.length){ L.push(""); L.push("-- Conseils donnés --"); cs.forEach(function(c){ L.push("- "+c); }); }
+  if(txt(m.note)){ L.push(""); L.push("-- Précisions --"); L.push(m.note); }
+  return L.join("\n");
+}
+
+/* ============ file d'attente ============ */
+function fileLire(){ return lire(CLE_FILE, []); }
+function fileEcrire(f){ ecrire(CLE_FILE, f); majFile(); }
+function fileAjouter(p){ var f=fileLire(); f.push({t:Date.now(), p:p}); fileEcrire(f); }
+function majFile(){
+  var f = fileLire(), p = $("#pFile");
+  if(!p) return;
+  p.hidden = f.length===0;
+  p.textContent = f.length + (f.length>1?" en attente":" en attente");
+  p.className = "pastille "+(f.length?"att":"");
+}
+function majReseau(){
+  var p = $("#pReseau"); if(!p) return;
+  var on = navigator.onLine !== false;
+  p.textContent = on ? "en ligne" : "hors connexion";
+  p.className = "pastille "+(on?"ok":"att");
+}
+
+var envoiEnCours = false;
+function viderFile(manuel){
+  if(envoiEnCours) return;
+  if(navigator.onLine === false){ if(manuel) toast("Pas de réseau — les fiches restent en attente","att"); return; }
+  var f = fileLire();
+  if(!f.length){ if(manuel) toast("Rien en attente"); return; }
+  if(!cfg.webhook){ if(manuel) toast("Adresse d'envoi non renseignée","mal"); return; }
+  envoiEnCours = true;
+  var reste = f.slice(), envoyes = 0;
+  function suivant(){
+    if(!reste.length){
+      envoiEnCours=false; fileEcrire([]);
+      if(envoyes) toast(envoyes+(envoyes>1?" fiches envoyées":" fiche envoyée"),"ok");
+      return;
+    }
+    var item = reste[0];
+    fetch(cfg.webhook, {method:"POST", body: JSON.stringify(item.p)})
+      .then(function(r){
+        if(!r.ok) throw new Error("HTTP "+r.status);
+        return r.text();
+      })
+      .then(function(){
+        reste.shift(); envoyes++;
+        fileEcrire(reste.slice());
+        if(item.p && item.p.fiche_id){ V.envoye[item.p.fiche_id]=Date.now(); sauverTout(); }
+        suivant();
+      })
+      .catch(function(e){
+        envoiEnCours=false;
+        fileEcrire(reste.slice());
+        if(manuel) toast("Envoi impossible : "+e.message+" — gardé en attente","mal");
+      });
+  }
+  suivant();
+}
+
+function envoyer(){
+  if(!V.machines.length){ toast("Aucune machine à envoyer","att"); return; }
+  if(!txt(V.client)){ toast("Renseigne le nom du client d'abord","att"); aller("visite"); return; }
+  if(!cfg.webhook){ toast("Adresse d'envoi non renseignée — voir Réglages","mal"); return; }
+  sauverTout();
+  V.machines.forEach(function(m,i){ fileAjouter(payloadMachine(m,i)); });
+  toast(V.machines.length+(V.machines.length>1?" fiches mises en file":" fiche mise en file"));
+  viderFile(true);
+}
+
+/* ============ fichier ============ */
+function nomFichier(ext){
+  return [slug(V.date), slug(V.client||"client"), "KA-RE"].join("_")+"."+ext;
+}
+function texteVisite(){
+  var L = ["FICHE TERRAIN KA-RÉ — "+(V.client||"client"), "Visite "+V.id, ""];
+  V.machines.forEach(function(m,i){ L.push(resumeTexte(m,i)); L.push(""); L.push(""); });
+  return L.join("\n");
+}
+function telecharger(){
+  if(!V.machines.length){ toast("Aucune machine","att"); return; }
+  var contenu = texteVisite();
+  try{
+    var b = new Blob([contenu], {type:"text/plain;charset=utf-8"});
+    var u = URL.createObjectURL(b);
+    var a = document.createElement("a");
+    a.href=u; a.download=nomFichier("txt");
+    document.body.appendChild(a); a.click();
+    setTimeout(function(){ URL.revokeObjectURL(u); a.remove(); }, 1500);
+    toast("Fichier créé","ok");
+  }catch(e){
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(contenu).then(function(){ toast("Copié dans le presse-papier","ok"); },
+        function(){ toast("Impossible de créer le fichier","mal"); });
+    } else toast("Impossible de créer le fichier","mal");
+  }
+}
+
+/* ============ toast ============ */
+var toastTimer=null;
+function toast(msg, kind){
+  var t = $(".toast");
+  if(t) t.remove();
+  t = el("div","toast"+(kind?" "+kind:""), msg);
+  document.body.appendChild(t);
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ if(t) t.remove(); }, 3600);
+}
+
+/* ============ réglages ============ */
+function ouvrirReglages(){
+  $("#cfgWebhook").value = cfg.webhook || "";
+  $("#cfgSecret").value  = cfg.secret  || "";
+  $("#cfgTech").value    = cfg.technicien || "";
+  var ip = $("#infoParc");
+  if(parc && parc.length){
+    var clients = {}; parc.forEach(function(p){ if(p.client) clients[p.client]=1; });
+    ip.textContent = parc.length+" machines chez "+Object.keys(clients).length+" clients.";
+  } else ip.textContent = "Aucun parc chargé. Importe config_KA-RE.json ci-dessus.";
+
+  var iv = $("#infoVisites");
+  var f = fileLire();
+  iv.textContent = "Visite en cours : "+V.machines.length+" machine(s). File d'attente : "+f.length+" fiche(s). "
+    + (STOCK_OK ? "Enregistrement local actif." : "ATTENTION : l'enregistrement local est indisponible sur ce navigateur.");
+
+  var src = $("#infoSources");
+  if(!src.dataset.rempli){
+    src.innerHTML =
+      "<p><b>Ce que l'application affirme, et ce qu'elle ne garantit pas.</b></p>"+
+      "<p>Les listes de points de contrôle et les mentions réglementaires ont été construites à partir des textes "+
+      "(code de l'environnement, arrêtés du 15/09/2009, du 24/07/2020 et du 21/11/2022) et de sources professionnelles "+
+      "(CAPEB, COSTIC, AIDA/INERIS, GRDF Cegibat, SYNASAV). Légifrance ayant refusé l'accès automatisé, "+
+      "<b>plusieurs libellés proviennent de sources secondaires et non du texte officiel lui-même</b>.</p>"+
+      "<p><b>Points à faire confirmer avant de s'appuyer dessus en cas de litige :</b></p>"+
+      "<ul style='margin:6px 0 0 16px; padding:0'>"+
+      "<li>Chaudière gaz : la formulation officielle renvoie au § 3.1 de la norme NF X 50-010, payante et révisée en 2025.</li>"+
+      "<li>Rendement forfaitaire et NOx : formules de l'annexe 2 et table de l'annexe 3, à recaler sur le modèle CAPEB ou le kit COSTIC.</li>"+
+      "<li>Classe énergétique : tables de l'annexe 5 non récupérées — champ libre pour l'instant.</li>"+
+      "<li>CO dans les fumées : aucun seuil réglementaire. Le repère de 100 ppm est un usage, pas une règle.</li>"+
+      "<li>Cuve fioul : la périodicité du contrôle d'étanchéité est incertaine, à trancher avec la DREAL ou la CAPEB.</li>"+
+      "<li>PAC et clim : l'obligation est <b>biennale</b>, pas annuelle. Un contrat annuel se vend, mais comme prestation contractuelle.</li>"+
+      "<li>Adoucisseur, VMC double flux, CET : <b>aucune obligation d'entretien</b>. Le document est un compte rendu contractuel.</li>"+
+      "</ul>"+
+      "<p style='margin-top:8px'>Le kit gratuit du <b>COSTIC</b> (modèles d'attestation conformes, mis à jour en novembre 2025) "+
+      "est la référence la plus rapide à obtenir pour recaler tout cela.</p>";
+    src.dataset.rempli="1";
+  }
+  $("#dlgReglages").showModal();
+}
+
+function importerConfig(fichier){
+  var r = new FileReader();
+  r.onload = function(){
+    try{
+      var d = JSON.parse(r.result);
+      var n = 0;
+      if(d.webhook){ cfg.webhook = d.webhook; n++; }
+      if(d.secret){ cfg.secret = d.secret; n++; }
+      if(d.technicien){ cfg.technicien = d.technicien; }
+      var liste = d.parc || d.machines || (Array.isArray(d) ? d : null);
+      if(Array.isArray(liste)){ parc = liste; ecrire(CLE_PARC, parc); n++; }
+      sauverCfg();
+      ouvrirReglages(); rendre();
+      toast(n ? "Configuration importée" : "Fichier lu, mais rien de reconnu", n?"ok":"att");
+    }catch(e){ toast("Fichier illisible : "+e.message,"mal"); }
+  };
+  r.onerror = function(){ toast("Lecture impossible","mal"); };
+  r.readAsText(fichier);
+}
+
+/* ============ câblage ============ */
+function cabler(){
+  $("#bReglages").onclick = ouvrirReglages;
+  $("#bEnvoyer").onclick  = envoyer;
+  $("#bFichier").onclick  = telecharger;
+  $("#bImprimer").onclick = function(){ sauverTout(); window.print(); };
+
+  Array.prototype.forEach.call(document.querySelectorAll("[data-fermer]"), function(b){
+    b.onclick = function(){ b.closest("dialog").close(); };
+  });
+
+  $("#cfgWebhook").addEventListener("input", function(){ cfg.webhook=this.value.trim(); sauverCfg(); });
+  $("#cfgSecret").addEventListener("input",  function(){ cfg.secret=this.value.trim(); sauverCfg(); });
+  $("#cfgTech").addEventListener("input",    function(){ cfg.technicien=this.value.trim(); sauverCfg(); });
+  $("#cfgFichier").addEventListener("change", function(){ if(this.files && this.files[0]) importerConfig(this.files[0]); });
+
+  $("#bTester").onclick = function(){
+    if(!cfg.webhook){ toast("Adresse d'envoi non renseignée","mal"); return; }
+    fetch(cfg.webhook, {method:"POST", body: JSON.stringify({secret:cfg.secret||"", test:true, application:"fiche-terrain KA-RÉ v"+VERSION})})
+      .then(function(r){ toast(r.ok ? "Envoi accepté (HTTP "+r.status+")" : "Refusé — HTTP "+r.status, r.ok?"ok":"mal"); })
+      .catch(function(e){ toast("Échec : "+e.message,"mal"); });
+  };
+  $("#bVider").onclick = function(){ fileEcrire([]); toast("File vidée"); };
+  $("#bReset").onclick = function(){
+    if(this.dataset.arme!=="1"){ this.dataset.arme="1"; this.textContent="Confirmer l'effacement"; var b=this;
+      setTimeout(function(){ if(b.dataset.arme==="1"){ b.dataset.arme=""; b.textContent="Effacer cette visite"; } },6000); return; }
+    this.dataset.arme=""; this.textContent="Effacer cette visite";
+    V = visiteVierge(); sauverTout(); vue="visite"; rendre();
+    $("#dlgReglages").close(); toast("Visite effacée");
+  };
+
+  window.addEventListener("online",  function(){ majReseau(); viderFile(false); });
+  window.addEventListener("offline", majReseau);
+  document.addEventListener("visibilitychange", function(){ if(!document.hidden){ majReseau(); viderFile(false); } });
+  window.addEventListener("beforeunload", sauverTout);
+  setInterval(function(){ viderFile(false); }, 60000);
+}
+
+/* ============ démarrage ============ */
+function demarrer(){
+  cabler();
+  majReseau(); majFile();
+  majEtat(STOCK_OK ? "prêt" : "enregistrement indisponible", STOCK_OK ? "" : "mal");
+  rendre();
+  setTimeout(function(){ viderFile(false); }, 2000);
+  if("serviceWorker" in navigator){
+    window.addEventListener("load", function(){
+      navigator.serviceWorker.register("sw.js").catch(function(){});
+    });
+  }
+}
+if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", demarrer);
+else demarrer();
+
+/* Accès de service — utile pour diagnostiquer depuis la console du navigateur.
+   Ne contient aucun secret : la configuration vit dans le stockage local. */
+window.KARE = {
+  version: VERSION,
+  TECHNOS: TECHNOS,
+  get visite(){ return V; },
+  set visite(x){ V = x; },
+  get config(){ return cfg; },
+  get parc(){ return parc; },
+  set parc(x){ parc = x; ecrire(CLE_PARC, parc); },
+  ajouterMachine: ajouterMachine, aller: aller, rendre: rendre,
+  valeurCalc: valeurCalc, verdict: verdict, verdictCO: verdictCO,
+  anomaliesDe: anomaliesDe, avancement: avancement,
+  payloadMachine: payloadMachine, resumeTexte: resumeTexte,
+  fileLire: fileLire, fileEcrire: fileEcrire, viderFile: viderFile,
+  envoyer: envoyer, sauverTout: sauverTout, sauverCfg: sauverCfg,
+  visiteVierge: visiteVierge, majReseau: majReseau, telecharger: telecharger
+};
+
+})();
+</script>
+</body>
+</html>
