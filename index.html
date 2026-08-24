@@ -300,6 +300,17 @@ input.choisi::placeholder{color:var(--texte); opacity:1; font-weight:600}
   <div class="dlg-pied"><button type="button" class="btn" data-fermer>Annuler</button></div>
 </dialog>
 
+<dialog id="dlgApres">
+  <div class="dlg-tete" id="apresTitre">Fiche envoyée</div>
+  <div class="dlg-corps">
+    <p class="aide" id="apresTexte">Tu peux enchaîner sur le client suivant : la visite en cours sera remise à zéro.</p>
+  </div>
+  <div class="dlg-pied">
+    <button type="button" class="btn" data-fermer>Rester sur ce client</button>
+    <button type="button" class="btn p" id="bNouveauClient">Client suivant</button>
+  </div>
+</dialog>
+
 <dialog id="dlgSignClient">
   <div class="dlg-tete">Signature du client</div>
   <div class="dlg-corps" id="signClientCorps"></div>
@@ -1191,7 +1202,7 @@ TECHNOS.cet = {
 };
 
 "use strict";
-var VERSION = "2.8";
+var VERSION = "2.11";
 
 /* ============ stockage ============ */
 var CLE_VISITE = "kare.visite.v1", CLE_CFG = "kare.cfg.v1", CLE_PARC = "kare.parc.v1", CLE_FILE = "kare.file.v1";
@@ -2482,6 +2493,19 @@ function majReseau(){
   p.className = "pastille "+(on?"ok":"att");
 }
 
+/* Envoi vers Make.
+   On poste en formulaire (payload=<json encode>) et non en JSON brut :
+   c'est le seul type de contenu que le navigateur laisse passer sans requete
+   preliminaire CORS, et c'est le seul que Make sait decouper en champs.
+   Le scenario remet le JSON a plat avec un module "Parse JSON". */
+function postMake(url, obj){
+  return fetch(url, {
+    method: "POST",
+    headers: {"Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"},
+    body: "payload=" + encodeURIComponent(JSON.stringify(obj))
+  });
+}
+
 var envoiEnCours = false;
 function viderFile(manuel){
   if(envoiEnCours) return;
@@ -2494,11 +2518,14 @@ function viderFile(manuel){
   function suivant(){
     if(!reste.length){
       envoiEnCours=false; fileEcrire([]);
-      if(envoyes) toast(envoyes+(envoyes>1?" fiches envoyées":" fiche envoyée"),"ok");
+      if(envoyes){
+        toast(envoyes+(envoyes>1?" fiches envoyées":" fiche envoyée"),"ok");
+        if(typeof proposerSuite==="function") proposerSuite(envoyes);
+      }
       return;
     }
     var item = reste[0];
-    fetch(cfg.webhook, {method:"POST", body: JSON.stringify(item.p)})
+    postMake(cfg.webhook, item.p)
       .then(function(r){
         if(!r.ok) throw new Error("HTTP "+r.status);
         return r.text();
@@ -2878,6 +2905,17 @@ function importerConfig(fichier){
   r.readAsText(fichier);
 }
 
+/* ============ enchaîner sur le client suivant ============ */
+function nouvelleVisite(){
+  V = visiteVierge(); sauverTout(); vue="visite"; rendre();
+  window.scrollTo(0,0);
+}
+function proposerSuite(n){
+  var d = $("#dlgApres"); if(!d) return;
+  $("#apresTitre").textContent = n>1 ? (n+" fiches envoyées") : "Fiche envoyée";
+  d.showModal();
+}
+
 /* ============ câblage ============ */
 function cabler(){
   $("#bReglages").onclick = ouvrirReglages;
@@ -2902,7 +2940,7 @@ function cabler(){
 
   $("#bTester").onclick = function(){
     if(!cfg.webhook){ toast("Adresse d'envoi non renseignée","mal"); return; }
-    fetch(cfg.webhook, {method:"POST", body: JSON.stringify({secret:cfg.secret||"", test:true, application:"fiche-terrain KA-RÉ v"+VERSION})})
+    postMake(cfg.webhook, {secret:cfg.secret||"", test:true, application:"fiche-terrain KA-RÉ v"+VERSION})
       .then(function(r){
         if(r.ok) toast("Envoi accepté (HTTP "+r.status+") — Make écoute bien","ok");
         else if(r.status===400 || r.status===410) toast("Make répond "+r.status+" : aucun scénario n'écoute ce webhook","mal");
@@ -2919,8 +2957,10 @@ function cabler(){
     if(this.dataset.arme!=="1"){ this.dataset.arme="1"; this.textContent="Confirmer l'effacement"; var b=this;
       setTimeout(function(){ if(b.dataset.arme==="1"){ b.dataset.arme=""; b.textContent="Effacer cette visite"; } },6000); return; }
     this.dataset.arme=""; this.textContent="Effacer cette visite";
-    V = visiteVierge(); sauverTout(); vue="visite"; rendre();
-    $("#dlgReglages").close(); toast("Visite effacée");
+    nouvelleVisite(); $("#dlgReglages").close(); toast("Visite effacée");
+  };
+  $("#bNouveauClient").onclick = function(){
+    $("#dlgApres").close(); nouvelleVisite(); toast("Nouvelle visite — à toi de jouer","ok");
   };
 
   window.addEventListener("online",  function(){ majReseau(); viderFile(false); });
