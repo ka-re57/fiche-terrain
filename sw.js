@@ -1,5 +1,5 @@
 /* Service worker — fiche terrain KA-RÉ */
-var CACHE = "kare-fiche-v1-0";
+var CACHE = "kare-fiche-v2-8";
 var FICHIERS = ["./","./index.html","./manifest.webmanifest","./icon-192.png","./icon-512.png","./icon-maskable-512.png"];
 
 self.addEventListener("install", function(e){

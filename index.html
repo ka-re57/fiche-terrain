@@ -44,7 +44,9 @@ input,select,textarea,button{font:inherit; color:inherit}
 
 /* ---------- barre ---------- */
 .barre{position:sticky; top:0; z-index:30; background:var(--carte); border-bottom:1px solid var(--trait); padding:8px 12px; display:flex; gap:8px; align-items:center; flex-wrap:wrap}
-.barre .logo{font-family:var(--ui); font-weight:700; font-size:17px; letter-spacing:.08em; color:var(--marque); margin-right:auto}
+.barre .logo{height:22px; width:auto; margin-right:auto; display:block}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .barre .logo{filter:invert(1)}}
+:root[data-theme="dark"] .barre .logo{filter:invert(1)}
 .pastille{font-family:var(--ui); font-size:12.5px; font-weight:600; letter-spacing:.03em; padding:3px 9px; border-radius:999px; background:var(--carte2); color:var(--texte2); border:1px solid var(--trait2); white-space:nowrap}
 .pastille.ok{background:var(--okf); color:var(--ok); border-color:transparent}
 .pastille.att{background:var(--attf); color:var(--att); border-color:transparent}
@@ -59,21 +61,21 @@ input,select,textarea,button{font:inherit; color:inherit}
 
 /* ---------- structure ---------- */
 main{max-width:900px; margin:0 auto; padding:12px 12px 120px}
-.carte{background:var(--carte); border:1px solid var(--trait2); border-radius:var(--r); padding:13px 14px; margin-bottom:11px}
-.carte > h2{font-family:var(--ui); font-weight:700; font-size:13px; letter-spacing:.11em; text-transform:uppercase; color:var(--marque); margin:0 0 10px; display:flex; align-items:center; gap:8px}
+.carte{background:var(--carte); border:1px solid var(--trait2); border-radius:var(--r); padding:11px 12px; margin-bottom:9px}
+.carte > h2{font-family:var(--ui); font-weight:700; font-size:12.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--marque); margin:0 0 8px; display:flex; align-items:center; gap:7px}
 .carte > h2 .cpt{margin-left:auto; font-family:var(--num); font-size:11.5px; font-weight:400; letter-spacing:0; color:var(--texte3); text-transform:none}
 .g2{display:grid; grid-template-columns:1fr 1fr; gap:9px}
 @media (max-width:560px){ .g2{grid-template-columns:1fr} }
 .champ{display:flex; flex-direction:column; gap:3px; min-width:0}
 .champ.plein{grid-column:1/-1}
-.champ > label{font-family:var(--ui); font-weight:600; font-size:13px; letter-spacing:.02em; color:var(--texte2); display:flex; align-items:baseline; gap:5px}
+.champ > label{font-family:var(--ui); font-weight:600; font-size:12.5px; letter-spacing:.02em; color:var(--texte2); display:flex; align-items:baseline; gap:5px}
 .champ > label .u{font-family:var(--num); font-size:11px; color:var(--texte3)}
 .champ .aide{font-size:11.5px; color:var(--texte3); line-height:1.35}
 input[type=text],input[type=number],input[type=date],select,textarea{
-  width:100%; min-height:46px; padding:9px 11px; border:1.5px solid var(--trait); border-radius:8px;
+  width:100%; min-height:44px; padding:8px 11px; border:1.5px solid var(--trait); border-radius:8px;
   background:var(--carte2); color:var(--texte); font-size:16px;
 }
-textarea{min-height:78px; resize:vertical; line-height:1.45}
+textarea{min-height:60px; resize:vertical; line-height:1.4}
 input[type=number]{font-family:var(--num); font-variant-numeric:tabular-nums}
 select{appearance:none; background-image:linear-gradient(45deg,transparent 50%,var(--texte3) 50%),linear-gradient(135deg,var(--texte3) 50%,transparent 50%); background-position:calc(100% - 17px) 21px,calc(100% - 12px) 21px; background-size:5px 5px,5px 5px; background-repeat:no-repeat; padding-right:34px}
 .verdict{font-family:var(--ui); font-weight:700; font-size:12px; letter-spacing:.04em; padding:2px 8px; border-radius:5px; align-self:flex-start}
@@ -88,15 +90,30 @@ select{appearance:none; background-image:linear-gradient(45deg,transparent 50%,v
 .chip[aria-pressed="true"]{background:var(--marque); border-color:var(--marque); color:var(--surmarque)}
 
 /* ---------- points de contrôle ---------- */
-.pc-ligne{display:flex; gap:9px; align-items:flex-start; padding:8px 0; border-bottom:1px solid var(--trait2)}
+.pc-ligne{display:flex; gap:8px; align-items:center; padding:5px 0; border-bottom:1px solid var(--trait2)}
 .pc-ligne:last-child{border-bottom:0}
-.pc-lib{flex:1; font-size:14.5px; line-height:1.4; min-width:0}
+.pc-lib{flex:1; font-size:13.5px; line-height:1.3; min-width:0}
 .pc-etats{flex:0 0 auto; display:flex; gap:5px}
-.et{width:40px; height:40px; border-radius:8px; border:1.5px solid var(--trait); background:var(--carte2); color:var(--texte3); font-family:var(--ui); font-weight:700; font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center}
+.et{width:38px; height:38px; border-radius:7px; border:1.5px solid var(--trait); background:var(--carte2); color:var(--texte3); font-family:var(--ui); font-weight:700; font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center}
 .et[aria-pressed="true"][data-v="ok"]{background:var(--ok); border-color:var(--ok); color:#fff}
 .et[aria-pressed="true"][data-v="non"]{background:var(--mal); border-color:var(--mal); color:#fff}
 .et[aria-pressed="true"][data-v="np"]{background:var(--texte3); border-color:var(--texte3); color:var(--carte)}
-.legende{font-size:12px; color:var(--texte3); margin-bottom:8px; display:flex; gap:12px; flex-wrap:wrap}
+.mini{font-size:11.5px; color:var(--texte3); margin:-2px 0 7px; line-height:1.35}
+.exc{font-size:12.5px; line-height:1.4; color:var(--texte2); padding:1px 0}
+.exc.mal{color:var(--mal); font-weight:600}
+.tag{font-family:var(--ui); font-weight:700; font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; padding:2px 7px; border-radius:4px; background:var(--marque); color:var(--surmarque); margin-left:auto}
+.tag.gris{background:var(--carte2); color:var(--texte3); border:1px solid var(--trait)}
+.cpt.mal{color:var(--mal); font-weight:600}
+.rang{display:flex; gap:6px; align-items:stretch; margin-bottom:6px}
+.rang .mach{margin-bottom:0}
+.mach .plus{font-family:var(--ui); font-weight:700; font-size:20px; color:var(--marque); padding:0 4px}
+.ong .pc{font-family:var(--ui); font-size:11px; font-weight:700; color:var(--mal)}
+.ong[aria-selected="true"] .pc{color:inherit}
+details.repl.ouvert{border:0; background:transparent}
+details.repl.ouvert > summary{display:none}
+details.repl.ouvert > div{padding:0}
+details.repl > summary .cpt{margin-left:auto; font-family:var(--num); font-size:11px; color:var(--texte3)}
+details.repl > summary{justify-content:flex-start}
 
 /* ---------- sous-machines ---------- */
 .sm{border:1px solid var(--trait2); border-radius:9px; padding:10px; margin-bottom:9px; background:var(--carte2)}
@@ -146,6 +163,13 @@ details.repl > div{padding:0 12px 12px; font-size:13px; line-height:1.5; color:v
 
 @media print{
   .barre,.onglets,.piedbar,.btn,.toast,.noprint{display:none !important}
+  /* le document remis au client doit contenir TOUS les points, repliés ou non */
+  details.repl{border:0; background:transparent; margin:0}
+  details.repl > div{display:block !important; padding:0}
+  details.repl > summary{list-style:none; font-family:var(--ui); font-weight:700; font-size:9.5pt;
+    color:#0D3B66; padding:4px 0 2px; text-transform:uppercase; letter-spacing:.06em}
+  details.repl > summary::before{content:none}
+  .mini,.exc{font-size:8.5pt}
   body{background:#fff; font-size:10pt}
   main{max-width:none; padding:0}
   .carte{border:0; border-bottom:1px solid #ccc; border-radius:0; padding:6px 0; margin:0; break-inside:auto}
@@ -153,11 +177,107 @@ details.repl > div{padding:0 12px 12px; font-size:13px; line-height:1.5; color:v
   .carte > h2{color:#0D3B66; font-size:10pt; break-after:avoid}
 }
 
+/* ============ document remis au client ============ */
+#zoneImpression{display:none}
+body.mode-impression > *:not(#zoneImpression){display:none !important}
+body.mode-impression #zoneImpression{display:block}
+.doc{font-family:var(--corps); color:#0E1A26; background:#fff; max-width:190mm; margin:0 auto; padding:6mm 0}
+.doc.saut{page-break-before:always; break-before:page}
+.doc-entete{display:flex; gap:6mm; align-items:flex-start; border-bottom:2.2px solid #0D3B66; padding-bottom:3mm; margin-bottom:4mm}
+.doc-logo{width:42mm; height:auto; flex:0 0 auto}
+.doc-ident{flex:1; min-width:0}
+.doc-ident .slog{font-style:italic; font-size:9.6pt; color:#3D5468; margin-bottom:1mm}
+.doc-ident .coord{font-size:8.6pt; color:#3D5468; line-height:1.45}
+.doc-ident .qualif{font-family:var(--num); font-size:7.2pt; color:#6B8199; margin-top:.8mm}
+.doc h1{font-family:var(--ui); font-weight:700; font-size:14.5pt; letter-spacing:.02em; text-transform:uppercase;
+  margin:0 0 1.5mm; color:#0E1A26; break-after:avoid}
+.doc-sous{font-size:8.2pt; color:#3D5468; line-height:1.45; margin-bottom:4mm; break-after:avoid}
+.doc-sect{margin-bottom:3.5mm; break-inside:auto}
+.doc h2{font-family:var(--ui); font-weight:700; font-size:9.4pt; letter-spacing:.1em; text-transform:uppercase;
+  color:#fff; background:#0D3B66; padding:1.4mm 2.4mm; border-radius:1mm; margin:0 0 1.8mm;
+  break-after:avoid; -webkit-print-color-adjust:exact; print-color-adjust:exact}
+.doc h3{font-family:var(--ui); font-weight:700; font-size:8.6pt; letter-spacing:.05em; text-transform:uppercase;
+  color:#0D3B66; margin:2.5mm 0 1mm; break-after:avoid}
+.dl{display:flex; gap:3mm; font-size:8.8pt; line-height:1.4; padding:.7mm 0; border-bottom:.4px solid #E2EAF2; break-inside:avoid}
+.dk{flex:0 0 52mm; font-weight:600; color:#3D5468}
+.dv{flex:1; min-width:0; white-space:pre-wrap}
+.doc-leg{font-size:7.8pt; color:#6B8199; margin-bottom:1.2mm}
+.doc-tbl{width:100%; border-collapse:collapse; break-inside:auto}
+.doc-tbl td{border:.4px solid #C9D6E2; padding:1.1mm 2mm; font-size:8.4pt; line-height:1.3; vertical-align:top; break-inside:avoid}
+.doc-tbl td.c{width:14mm; text-align:center; font-weight:700}
+.doc-tbl td.c.mal{color:#A31D14}
+.doc-ec{font-size:8.6pt; line-height:1.45; margin-bottom:1.5mm}
+.doc-ec .mal{color:#A31D14; font-weight:600}
+.doc-mention{font-size:7.4pt; color:#6B8199; line-height:1.4; margin-top:1.5mm; font-style:italic}
+.doc-clause{font-size:7.6pt; color:#3D5468; line-height:1.45; font-style:italic;
+  border-left:2px solid #0D3B66; background:#F5F8FB; padding:2mm 2.6mm; margin:3mm 0; break-inside:avoid;
+  -webkit-print-color-adjust:exact; print-color-adjust:exact}
+.doc-sign{display:flex; gap:4mm; margin-top:3mm; break-inside:avoid}
+.doc-sign > div{flex:1 1 0; min-width:0; border:.4px solid #C9D6E2; border-radius:1mm; padding:2mm 2.4mm; min-height:20mm}
+.doc-sign .l{font-family:var(--ui); font-weight:700; font-size:8pt; text-transform:uppercase; letter-spacing:.05em; color:#0D3B66}
+.doc-pied{margin-top:3mm; padding-top:1.6mm; border-top:.4px solid #C9D6E2; font-size:7.2pt; color:#6B8199;
+  text-align:center; line-height:1.5; break-inside:avoid}
+
+@media print{
+  @page{size:A4; margin:10mm 11mm}
+  #zoneImpression{display:block}
+  .doc{max-width:none; padding:0}
+}
+.auto{font-family:var(--ui); font-weight:700; font-size:9.5px; letter-spacing:.05em; text-transform:uppercase;
+  color:var(--ok); background:var(--okf); padding:1px 5px; border-radius:3px; margin-left:6px; vertical-align:1px}
+@media print{ .auto{display:none} }
+.barre-geste{display:flex; gap:7px; margin-bottom:8px}
+.so-btn{font-family:var(--ui); font-weight:600; font-size:11px; letter-spacing:.03em; color:var(--texte3);
+  background:transparent; border:1px dashed var(--trait); border-radius:5px; padding:2px 8px; cursor:pointer; margin-top:2px}
+.so-btn:hover{color:var(--texte2); border-color:var(--texte3)}
+.champ.so > label{opacity:.55}
+.so-box{display:flex; align-items:center; gap:8px; min-height:44px; padding:8px 11px;
+  border:1.5px dashed var(--trait); border-radius:8px; background:transparent}
+.so-txt{flex:1; font-size:12.5px; color:var(--texte3); font-style:italic}
+@media print{ .so-btn{display:none} }
+.chips.petit{gap:5px}
+.chip.mini{font-size:12.5px; padding:6px 11px; min-height:36px; border-radius:7px}
+.sign-toile{width:100%; height:auto; aspect-ratio:3/1; border:1.5px dashed var(--trait); border-radius:8px;
+  background:var(--carte2); touch-action:none; display:block; cursor:crosshair}
+.doc-para{display:block; max-width:52mm; max-height:18mm; margin:1.5mm 0}
+.doc-sign .dt{font-size:7.4pt; color:#6B8199; margin-top:1mm}
+.vignettes{display:grid; grid-template-columns:repeat(auto-fill,minmax(96px,1fr)); gap:7px}
+.vign{position:relative; border:1px solid var(--trait2); border-radius:8px; overflow:hidden; background:var(--carte2)}
+.vign img{width:100%; height:82px; object-fit:cover; display:block}
+.vign .et{position:absolute; left:0; right:0; bottom:0; font-family:var(--ui); font-size:10px; font-weight:600;
+  background:rgba(13,59,102,.86); color:#fff; padding:2px 5px; text-align:center}
+.vign .oter{position:absolute; top:2px; right:2px; background:rgba(255,255,255,.9); border-radius:5px; color:var(--mal); padding:0 6px}
+.doc-vign{display:grid; grid-template-columns:1fr 1fr; gap:4mm; break-inside:avoid}
+.doc-vign figure{margin:0; break-inside:avoid}
+.doc-vign img{width:100%; height:auto; max-height:70mm; object-fit:contain; border:.4px solid #C9D6E2; border-radius:1mm; display:block}
+.doc-vign figcaption{font-size:7.6pt; color:#3D5468; margin-top:.8mm; text-align:center}
+.doc-sign .absent{font-family:var(--ui); font-weight:700; font-size:8.4pt; letter-spacing:.05em;
+  color:#9A5B00; background:#FCEEDA; padding:1.5mm 2mm; border-radius:1mm; margin-top:2mm; display:inline-block;
+  -webkit-print-color-adjust:exact; print-color-adjust:exact}
+.sc-intro{margin-bottom:12px}
+.sc-t{font-family:var(--ui); font-weight:700; font-size:14px; color:var(--marque); margin-bottom:6px}
+.sc-liste{font-size:14.5px; line-height:1.55; margin-bottom:8px}
+.sc-t2{font-size:13.5px; color:var(--texte2); line-height:1.45}
+.sc-mention{font-size:11.5px; color:var(--texte3); line-height:1.4; margin-top:8px; font-style:italic}
+.sc-barre{display:flex; gap:8px; margin-top:10px; flex-wrap:wrap}
+.sc-barre .btn.p{flex:1 1 160px}
+.sc-vu{border:1px solid var(--trait2); border-radius:8px; padding:8px; background:var(--carte2); margin-bottom:8px}
+.sc-vu img{max-width:100%; max-height:70px; display:block}
+input.choisi{font-weight:600}
+input.choisi::placeholder{color:var(--texte); opacity:1; font-weight:600}
+.resultats{display:flex; flex-direction:column; gap:5px; margin-top:6px}
+.res{text-align:left; border:1px solid var(--trait2); border-radius:8px; background:var(--carte2);
+  padding:9px 11px; cursor:pointer; width:100%}
+.res .r1{font-family:var(--ui); font-weight:700; font-size:14.5px; display:flex; align-items:center; gap:7px}
+.res .r2{font-size:12px; color:var(--texte3); margin-top:1px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.tagp{font-family:var(--ui); font-size:9.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase;
+  background:var(--okf); color:var(--ok); padding:1px 5px; border-radius:3px}
+
 </style>
 </head>
 <body>
 <div class="barre">
-  <span class="logo">KA-RÉ</span>
+  <img class="logo" src="data:image/png;base64,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" alt="KA-RÉ">
   <span class="pastille" id="pEtat">—</span>
   <span class="pastille" id="pReseau">—</span>
   <span class="pastille noprint" id="pFile" hidden>0 en attente</span>
@@ -180,6 +300,12 @@ details.repl > div{padding:0 12px 12px; font-size:13px; line-height:1.5; color:v
   <div class="dlg-pied"><button type="button" class="btn" data-fermer>Annuler</button></div>
 </dialog>
 
+<dialog id="dlgSignClient">
+  <div class="dlg-tete">Signature du client</div>
+  <div class="dlg-corps" id="signClientCorps"></div>
+  <div class="dlg-pied"><button type="button" class="btn" data-fermer>Fermer</button></div>
+</dialog>
+
 <dialog id="dlgReglages">
   <div class="dlg-tete">Réglages</div>
   <div class="dlg-corps">
@@ -200,6 +326,36 @@ details.repl > div{padding:0 12px 12px; font-size:13px; line-height:1.5; color:v
     <div class="champ plein" style="margin-bottom:10px">
       <label for="cfgTech">Nom du technicien</label>
       <input type="text" id="cfgTech" placeholder="Rémi KATA" autocomplete="off">
+    </div>
+    <div class="champ plein" style="margin-bottom:10px">
+      <label>Ma signature</label>
+      <div class="mini">Tracée une seule fois, apposée sur tous les documents.</div>
+      <canvas id="cfgSign" class="sign-toile" width="600" height="200"></canvas>
+      <div style="display:flex; gap:7px; margin-top:6px">
+        <button type="button" class="btn mini" id="bSignEffacer">Effacer</button>
+        <button type="button" class="btn mini p" id="bSignGarder">Enregistrer</button>
+        <span class="mini" id="signEtat" style="align-self:center"></span>
+      </div>
+    </div>
+    <div class="champ plein" style="margin-bottom:10px">
+      <label for="cfgSignClient">Bloc de signature du client</label>
+      <select id="cfgSignClient">
+        <option value="oui">Afficher — je le fais signer</option>
+        <option value="non">Ne pas afficher</option>
+      </select>
+    </div>
+    <div class="champ plein" style="margin-bottom:10px">
+      <label for="cfgMode">Points de contrôle</label>
+      <select id="cfgMode">
+        <option value="declare">Tout coché — je pointe les exceptions</option>
+        <option value="aFaire">Rien coché — liste de ce qu'il me reste à faire</option>
+      </select>
+      <div class="mini">Dans les deux cas, un point se coche tout seul dès que la mesure qui le prouve est renseignée.</div>
+    </div>
+    <div class="champ plein" style="margin-bottom:10px">
+      <label for="cfgAppareils">Appareils de mesure</label>
+      <textarea id="cfgAppareils" placeholder="Analyseur Testo 320 n° … · détecteur CO Testo 317-3 · manomètre Testo 550s"></textarea>
+      <div class="mini">Repris automatiquement sur chaque fiche. À ne saisir qu'une fois.</div>
     </div>
     <details class="repl">
       <summary>Parc clients embarqué</summary>
@@ -224,6 +380,7 @@ details.repl > div{padding:0 12px 12px; font-size:13px; line-height:1.5; color:v
 
 <script>
 (function(){
+var LOGO_KARE = "data:image/png;base64,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";
 /* ============================================================
    CATALOGUE DES TECHNOLOGIES — KA-RÉ
    Chaque technologie décrit : son cadre réglementaire, ses champs
@@ -241,6 +398,7 @@ TECHNOS.clim_air_air = {
   famille: "thermo",
   regl: {
     obligatoire: true,
+    pmin: 4, pmax: 70,
     plage: "4 à 70 kW (puissance la plus élevée entre chaud et froid)",
     cadre: "Décret n° 2020-912 du 28 juillet 2020 et arrêté du 24 juillet 2020, modifié par l'arrêté du 21 novembre 2022. Code de l'environnement, art. R224-44 et suivants.",
     periodicite: "Tous les 2 ans",
@@ -253,12 +411,12 @@ TECHNOS.clim_air_air = {
     {k:"marque", l:"Marque et modèle (unité extérieure)"},
     {k:"serie", l:"N° de série"},
     {k:"puiss", l:"Puissance nominale", u:"kW", type:"num", aide:"la plus élevée entre chaud et froid"},
-    {k:"nbui", l:"Nombre d'unités intérieures", type:"num"},
+    {k:"nbui", l:"Nombre d'unités intérieures", type:"num", opt:true},
     {k:"fluide", l:"Fluide frigorigène", type:"liste", opts:["R32","R410A","R290","R454B","R407C","autre"]},
-    {k:"charge", l:"Charge de fluide", u:"kg", type:"num"},
+    {k:"charge", l:"Charge de fluide", u:"kg", type:"num", opt:true},
     {k:"mes", l:"Date de mise en service", type:"date"},
     {k:"dernier", l:"Date du dernier entretien connu", type:"date"},
-    {k:"local", l:"Local desservi"}
+    {k:"local", l:"Local desservi", opt:true}
   ],
   ctrl: {
     entretien: [
@@ -353,6 +511,7 @@ TECHNOS.pac_air_eau = {
   famille: "thermo",
   regl: {
     obligatoire: true,
+    pmin: 4, pmax: 70,
     plage: "4 à 70 kW",
     cadre: "Décret n° 2020-912 du 28 juillet 2020 et arrêté du 24 juillet 2020, modifié par l'arrêté du 21 novembre 2022. Code de l'environnement, art. R224-44 et suivants.",
     periodicite: "Tous les 2 ans",
@@ -363,17 +522,17 @@ TECHNOS.pac_air_eau = {
   },
   ident: [
     {k:"marque", l:"Marque et modèle (unité extérieure)"},
-    {k:"modele_ui", l:"Module hydraulique / unité intérieure"},
+    {k:"modele_ui", l:"Module hydraulique / unité intérieure", opt:true},
     {k:"serie", l:"N° de série"},
     {k:"puiss", l:"Puissance nominale", u:"kW", type:"num"},
     {k:"fluide", l:"Fluide frigorigène", type:"liste", opts:["R32","R410A","R290","R454C","autre"]},
-    {k:"charge", l:"Charge de fluide", u:"kg", type:"num"},
-    {k:"circuit", l:"Circuit frigorifique", type:"liste", opts:["préchargé et scellé en usine","réalisé sur site"]},
+    {k:"charge", l:"Charge de fluide", u:"kg", type:"num", opt:true},
+    {k:"circuit", l:"Circuit frigorifique", type:"liste", opts:["préchargé et scellé en usine","réalisé sur site"], opt:true},
     {k:"mes", l:"Date de mise en service", type:"date"},
-    {k:"emetteurs", l:"Émetteurs", type:"liste", opts:["plancher chauffant","radiateurs basse température","ventilo-convecteurs","mixte"]},
-    {k:"appoint", l:"Appoint", type:"liste", opts:["résistance électrique","chaudière (relève)","aucun"]},
-    {k:"ecs", l:"Production ECS", type:"liste", opts:["ballon intégré","ballon séparé","aucune"]},
-    {k:"regulateur", l:"Régulateur (marque, modèle, classe)"},
+    {k:"emetteurs", l:"Émetteurs", type:"multi", opts:["plancher chauffant","radiateurs basse température","radiateurs haute température","ventilo-convecteurs"], opt:true},
+    {k:"appoint", l:"Appoint", type:"liste", opts:["résistance électrique","chaudière (relève)","aucun"], opt:true},
+    {k:"ecs", l:"Production ECS", type:"liste", opts:["ballon intégré","ballon séparé","aucune"], opt:true},
+    {k:"regulateur", l:"Régulateur (marque, modèle, classe)", opt:true},
     {k:"dernier", l:"Date du dernier entretien connu", type:"date"}
   ],
   ctrl: {
@@ -476,6 +635,7 @@ TECHNOS.chaudiere_gaz = {
   famille: "combustion",
   regl: {
     obligatoire: true,
+    pmin: 4, pmax: 400,
     plage: "4 à 400 kW",
     cadre: "Code de l'environnement, art. R224-41-4 à R224-41-9. Arrêté du 15 septembre 2009 modifié (arrêtés du 12 juin 2014, du 24 juillet 2020 et du 21 novembre 2022). L'annexe 1 renvoie au § 3.1 de la norme NF X 50-010.",
     periodicite: "Annuelle, par année civile",
@@ -490,12 +650,12 @@ TECHNOS.chaudiere_gaz = {
     {k:"puiss", l:"Puissance nominale utile", u:"kW", type:"num"},
     {k:"combustible", l:"Combustible", type:"liste", opts:["gaz naturel","propane","butane"]},
     {k:"techno", l:"Technologie", type:"liste", opts:["condensation","basse température","standard","atmosphérique ancienne"]},
-    {k:"bruleur", l:"Type de brûleur", type:"liste", opts:["prémélange total","prémélange partiel","atmosphérique","air soufflé"]},
-    {k:"evac", l:"Type et évacuation", type:"liste", opts:["C étanche ventouse","B1 raccordé non étanche","B22 / B23","VMC gaz"]},
+    {k:"bruleur", l:"Type de brûleur", type:"liste", opts:["prémélange total","prémélange partiel","atmosphérique","air soufflé"], siAnneeAvant:2018, aide:"sert uniquement au calcul des NOx sur les appareils d'avant 2018", opt:true},
+    {k:"evac", l:"Type et évacuation", type:"liste", opts:["C étanche ventouse","B1 raccordé non étanche","B22 / B23","VMC gaz"], opt:true},
     {k:"annee", l:"Année de fabrication", type:"num", aide:"sert au calcul du rendement forfaitaire"},
     {k:"mes", l:"Date de mise en service", type:"date"},
-    {k:"ecs", l:"Production ECS", type:"liste", opts:["instantanée","micro-accumulée","ballon (anode à vérifier)","aucune"]},
-    {k:"ramonage", l:"Date du dernier ramonage", type:"date"},
+    {k:"ecs", l:"Production ECS", type:"liste", opts:["instantanée","micro-accumulée","ballon (anode à vérifier)","aucune"], opt:true},
+    {k:"ramonage", l:"Date du dernier ramonage", type:"date", opt:true},
     {k:"dernier", l:"Date du dernier entretien connu", type:"date"}
   ],
   ctrl: {
@@ -601,6 +761,7 @@ TECHNOS.chaudiere_fioul = {
   famille: "combustion",
   regl: {
     obligatoire: true,
+    pmin: 4, pmax: 400,
     plage: "4 à 400 kW",
     cadre: "Code de l'environnement, art. R224-41-4 à R224-41-9. Arrêté du 15 septembre 2009 modifié (arrêtés du 12 juin 2014, du 24 juillet 2020 et du 21 novembre 2022).",
     periodicite: "Annuelle",
@@ -616,11 +777,12 @@ TECHNOS.chaudiere_fioul = {
     {k:"techno", l:"Type", type:"liste", opts:["condensation","basse température","standard"]},
     {k:"combustible", l:"Combustible", type:"liste", opts:["FOD","biofioul F10","biofioul F30"]},
     {k:"annee", l:"Année de mise en service", type:"num"},
-    {k:"bruleur", l:"Marque et modèle du brûleur"},
-    {k:"gicleur", l:"Gicleur : débit, angle, type", aide:"ex. 0,60 gal/h — 60° — S"},
-    {k:"cuve_type", l:"Cuve", type:"liste", opts:["aérienne simple paroi","aérienne double paroi","enterrée double paroi","enterrée simple paroi"]},
-    {k:"cuve_vol", l:"Volume de la cuve", u:"L", type:"num"},
-    {k:"ramonage", l:"Date du dernier ramonage", type:"date"},
+    {k:"bruleur", l:"Marque et modèle du brûleur", opt:true},
+    {k:"gicleur", l:"Gicleur : débit, angle, type", aide:"ex. 0,60 gal/h — 60° — S", opt:true},
+    {k:"emetteurs", l:"Émetteurs", type:"multi", opts:["plancher chauffant","radiateurs basse température","radiateurs haute température","ventilo-convecteurs"], opt:true},
+    {k:"cuve_type", l:"Cuve", type:"liste", opts:["aérienne simple paroi","aérienne double paroi","enterrée double paroi","enterrée simple paroi"], opt:true},
+    {k:"cuve_vol", l:"Volume de la cuve", u:"L", type:"num", opt:true},
+    {k:"ramonage", l:"Date du dernier ramonage", type:"date", opt:true},
     {k:"dernier", l:"Date du dernier entretien connu", type:"date"}
   ],
   ctrl: {
@@ -725,13 +887,13 @@ TECHNOS.adoucisseur = {
   ident: [
     {k:"marque", l:"Marque et modèle"},
     {k:"serie", l:"N° de série"},
-    {k:"annee", l:"Année de pose", type:"num"},
-    {k:"regen", l:"Type de régénération", type:"liste", opts:["volumétrique","chronométrique","statistique"]},
-    {k:"resine", l:"Volume de résine", u:"L", type:"num"},
-    {k:"bypass", l:"By-pass présent et manœuvrable", type:"liste", opts:["oui","non","grippé"]},
-    {k:"protection", l:"Protection anti-retour amont", type:"liste", opts:["clapet EA","disconnecteur CA","absente"]},
-    {k:"eau_boisson", l:"Point d'eau froide non adoucie pour la boisson", type:"liste", opts:["oui","non"], aide:"si non, le mentionner explicitement par écrit"},
-    {k:"index", l:"Index du compteur volumétrique", u:"m³", type:"num"},
+    {k:"annee", l:"Année de pose", type:"num", opt:true},
+    {k:"regen", l:"Type de régénération", type:"liste", opts:["volumétrique","chronométrique","statistique"], opt:true},
+    {k:"resine", l:"Volume de résine", u:"L", type:"num", opt:true},
+    {k:"bypass", l:"By-pass présent et manœuvrable", type:"liste", opts:["oui","non","grippé"], opt:true},
+    {k:"protection", l:"Protection anti-retour amont", type:"liste", opts:["clapet EA","disconnecteur CA","absente"], opt:true},
+    {k:"eau_boisson", l:"Point d'eau froide non adoucie pour la boisson", type:"liste", opts:["oui","non"], aide:"si non, le mentionner explicitement par écrit", opt:true},
+    {k:"index", l:"Index du compteur volumétrique", u:"m³", type:"num", opt:true},
     {k:"dernier", l:"Date du dernier entretien connu", type:"date"}
   ],
   ctrl: {
@@ -830,13 +992,13 @@ TECHNOS.vmc_df = {
   ident: [
     {k:"marque", l:"Marque et modèle de la centrale"},
     {k:"serie", l:"N° de série"},
-    {k:"annee", l:"Année de pose", type:"num"},
-    {k:"echangeur", l:"Type d'échangeur", type:"liste", opts:["à flux croisés","à contre-courant","rotatif","enthalpique"]},
-    {k:"filtres", l:"Classe des filtres", type:"liste", opts:["ISO Coarse (G4)","ePM10 (M5)","ePM1 (F7)","ePM1 (F9)"]},
-    {k:"bypass", l:"By-pass d'été", type:"liste", opts:["présent automatique","présent manuel","absent"]},
-    {k:"prechauffe", l:"Préchauffage antigel", type:"liste", opts:["électrique","hydraulique","puits climatique","absent"]},
-    {k:"bouches", l:"Nombre de bouches (extraction / soufflage)"},
-    {k:"local", l:"Local d'implantation de la centrale"},
+    {k:"annee", l:"Année de pose", type:"num", opt:true},
+    {k:"echangeur", l:"Type d'échangeur", type:"liste", opts:["à flux croisés","à contre-courant","rotatif","enthalpique"], opt:true},
+    {k:"filtres", l:"Classe des filtres", type:"liste", opts:["ISO Coarse (G4)","ePM10 (M5)","ePM1 (F7)","ePM1 (F9)"], opt:true},
+    {k:"bypass", l:"By-pass d'été", type:"liste", opts:["présent automatique","présent manuel","absent"], opt:true},
+    {k:"prechauffe", l:"Préchauffage antigel", type:"liste", opts:["électrique","hydraulique","puits climatique","absent"], opt:true},
+    {k:"bouches", l:"Nombre de bouches (extraction / soufflage)", opt:true},
+    {k:"local", l:"Local d'implantation de la centrale", opt:true},
     {k:"dernier", l:"Date du dernier entretien connu", type:"date"}
   ],
   ctrl: {
@@ -945,11 +1107,11 @@ TECHNOS.cet = {
     {k:"marque", l:"Marque et modèle"},
     {k:"serie", l:"N° de série"},
     {k:"volume", l:"Volume du ballon", u:"L", type:"num"},
-    {k:"puiss", l:"Puissance calorifique", u:"kW", type:"num"},
-    {k:"config", l:"Configuration", type:"liste", opts:["sur air ambiant","sur air extérieur (gainé)","split","double service"]},
-    {k:"fluide", l:"Fluide frigorigène", type:"liste", opts:["R134a","R290","R513A","R744","autre"]},
-    {k:"charge", l:"Charge de fluide", u:"kg", type:"num", aide:"vérifier sur la plaque : au-delà des seuils F-Gas, contrôle d'étanchéité obligatoire"},
-    {k:"anode", l:"Type d'anode", type:"liste", opts:["magnésium","titane (courant imposé)","hybride"]},
+    {k:"puiss", l:"Puissance calorifique", u:"kW", type:"num", opt:true},
+    {k:"config", l:"Configuration", type:"liste", opts:["sur air ambiant","sur air extérieur (gainé)","split","double service"], opt:true},
+    {k:"fluide", l:"Fluide frigorigène", type:"liste", opts:["R134a","R290","R513A","R744","autre"], opt:true},
+    {k:"charge", l:"Charge de fluide", u:"kg", type:"num", aide:"vérifier sur la plaque : au-delà des seuils F-Gas, contrôle d'étanchéité obligatoire", opt:true},
+    {k:"anode", l:"Type d'anode", type:"liste", opts:["magnésium","titane (courant imposé)","hybride"], opt:true},
     {k:"mes", l:"Date de mise en service", type:"date"},
     {k:"dernier", l:"Date du dernier entretien connu", type:"date"}
   ],
@@ -1029,7 +1191,7 @@ TECHNOS.cet = {
 };
 
 "use strict";
-var VERSION = "1.1";
+var VERSION = "2.8";
 
 /* ============ stockage ============ */
 var CLE_VISITE = "kare.visite.v1", CLE_CFG = "kare.cfg.v1", CLE_PARC = "kare.parc.v1", CLE_FILE = "kare.file.v1";
@@ -1048,14 +1210,28 @@ function nb(v){
 }
 function fmt(n,d){ return estNb(n) ? n.toFixed(d===undefined?1:d).replace(".",",") : "—"; }
 function txt(v){ v=(v===undefined||v===null)?"":String(v).trim(); return v||null; }
+/* Texte destiné au message sortant : on neutralise ce qui casse le JSON en aval
+   (guillemets droits, retours chariot, caractères de contrôle). */
+function propre(v){
+  if(v===undefined||v===null) return null;
+  var x = String(v)
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, "")
+    .replace(/\r\n?/g, "\n")
+    .replace(/"/g, "\u201d")
+    .replace(/\\/g, "/")
+    .trim();
+  return x || null;
+}
 function n0(v){ var x=nb(v); return estNb(x)?x:null; }
 function slug(v){ return String(v||"").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^A-Za-z0-9]+/g,"_").replace(/^_+|_+$/g,"").slice(0,42) || "fiche"; }
 function aujourdhui(){ var d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
 function idUnique(p){ return (p||"id")+"_"+Date.now().toString(36)+"_"+Math.random().toString(36).slice(2,8); }
 
 /* ============ configuration ============ */
-var cfg = lire(CLE_CFG, {webhook:"", secret:"", technicien:"Rémi KATA"});
+var cfg = lire(CLE_CFG, {webhook:"", secret:"", technicien:"Rémi KATA", appareils:"", modeControles:"declare", signature:"", signClient:"oui"});
 var parc = lire(CLE_PARC, []);
+var CLE_CLIENTS = "kare.clients.v1";
+var clients = lire(CLE_CLIENTS, []);
 function sauverCfg(){ ecrire(CLE_CFG, cfg); }
 
 /* ============ état de la visite ============ */
@@ -1067,7 +1243,8 @@ var INTERV = [
 function visiteVierge(){
   return {
     id: idUnique("visite"),
-    client:"", adresse:"", contact:"", present:"",
+    client:"", adresse:"", ville:"", contact:"", present:"",
+    signClient:"", signQui:"", signRefus:0,
     interv:"entretien",
     date: aujourdhui(),
     appareils:"",
@@ -1097,7 +1274,27 @@ function machineVierge(cle){
   var t = TECHNOS[cle];
   var m = {mid: idUnique("m"), tech: cle, ident:{}, ctrl:{}, mes:{}, sous:[], anomalies:"", actions:"", conseils:{}, note:""};
   if(t && t.sousMachines) m.sous = [{}];
+  if(t){
+    /* "declare" : tout est réputé contrôlé, on ne pointe que les exceptions.
+       "aFaire"  : rien n'est coché, sauf ce qu'une mesure vient prouver. */
+    if(cfg.modeControles !== "aFaire"){
+      (t.ctrl[V.interv] || t.ctrl.entretien || []).forEach(function(_, i){ m.ctrl["c"+i] = "ok"; });
+    }
+    t.conseils.forEach(function(_, i){ m.conseils["k"+i] = 1; });
+  }
+  m.ctrlManuel = {}; m.na = {};
   return m;
+}
+function recalerControles(){
+  V.machines.forEach(function(m){
+    var t = techDe(m); if(!t) return;
+    var lc = t.ctrl[V.interv] || t.ctrl.entretien || [];
+    var defaut = (cfg.modeControles === "aFaire") ? "" : "ok";
+    var neuf = {};
+    lc.forEach(function(_, i){ neuf["c"+i] = (m.ctrl["c"+i] !== undefined) ? m.ctrl["c"+i] : defaut; });
+    m.ctrl = neuf;
+    appliquerLiens(m);
+  });
 }
 function ajouterMachine(cle){
   var m = machineVierge(cle);
@@ -1119,6 +1316,164 @@ function libelleMachine(m){
   if(m.ident.puiss) d.push(m.ident.puiss+" kW");
   return d.length ? d.join(" · ") : t.label;
 }
+
+/* ============ mesure -> point de contrôle ============
+   Quand une mesure est renseignée, le point de contrôle qu'elle prouve
+   se coche tout seul. Le repérage se fait sur un fragment de libellé,
+   pour rester juste même si l'ordre de la liste change. */
+var LIENS = {
+  chaudiere_gaz: {
+    co_amb:"teneur en CO dans l", tfum:"température des fumées", co2:"CO2 ou en O2", o2:"CO2 ou en O2",
+    pcirc:"pression du circuit hydraulique", pvase:"gonflage du vase", emboue:"embouement du circuit",
+    isol:"isolation des réseaux", dimension:"dimensionnement de la chaudière",
+    classe_ener:"classe énergétique", rdt:"Évaluation du rendement", nox:"émissions de NOx"
+  },
+  chaudiere_fioul: {
+    co_amb:"CO dans l'ambiance", co_fum:"Mesures de combustion", tfum:"Mesures de combustion",
+    co2:"Mesures de combustion", o2:"Mesures de combustion", noircissement:"Mesures de combustion",
+    rdt_mes:"Évaluation du rendement", nox:"émissions de NOx", ppulv:"pression de pulvérisation",
+    pcirc:"Circuit hydraulique", pvase:"Circuit hydraulique", emboue:"Circuit hydraulique",
+    isol:"isolation des réseaux", cuve_etat:"Cuve :", cuve_eau:"Cuve :"
+  },
+  pac_air_eau: {
+    tstat:"tensions électriques statique", tdyn:"tensions électriques statique",
+    pcirc:"contrôle de la pression", pvase:"gonflage du vase", emboue:"embouement",
+    isol:"isolation des réseaux", classe_reg:"classes IV à VIII",
+    bp:"pressions à l'entrée et à la sortie", hp:"pressions à l'entrée et à la sortie",
+    ue_rep:"Relevé des températures", ue_souf:"Relevé des températures"
+  },
+  clim_air_air: {
+    tstat:"tensions statique et dynamique", tdyn:"tensions statique et dynamique",
+    bp:"pressions à l'entrée et à la sortie", hp:"pressions à l'entrée et à la sortie",
+    etanch:"étanchéité du circuit", voyant:"voyant de fluide",
+    ue_rep:"Relevé des températures", ue_souf:"Relevé des températures"
+  },
+  adoucisseur: {
+    th_brut:"TH de l'eau brute", th_adouci:"TH de l'eau adoucie", th_colonne:"TH en sortie de colonne",
+    pression:"pression d'entrée", desinfection:"Désinfection des résines",
+    regen_ok:"Régénération manuelle", sel:"Bac à sel"
+  },
+  vmc_df: {
+    debit_ext:"Mesure des débits", debit_souf:"Mesure des débits",
+    equilibrage:"équilibrage entre insufflation",
+    t_ext:"Relevé des températures air extérieur", t_souf:"Relevé des températures air extérieur",
+    t_rep:"Relevé des températures air extérieur", t_rej:"Relevé des températures air extérieur",
+    filtres_etat:"Filtres :", filtres_ref:"Filtres :", siphon:"Bac et siphon de condensats"
+  },
+  cet: {
+    consigne:"température de consigne et du cycle", antilegio:"température de consigne et du cycle",
+    t_puisage:"mitigeur thermostatique", groupe_secu:"groupe de sécurité",
+    anode_etat:"anode", appoint:"appoint électrique"
+  }
+};
+function sansAccents(x){ return String(x).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase(); }
+/* Indices de TOUS les points adossés à une mesure, remplie ou non.
+   C'est ce qui sépare les relevés des gestes manuels. */
+function pointsMesure(m){
+  var t = techDe(m), liens = LIENS[m.tech], out = {};
+  if(!t || !liens) return out;
+  var lc = listeCtrl(m);
+  Object.keys(liens).forEach(function(k){
+    var frag = sansAccents(liens[k]);
+    for(var i=0;i<lc.length;i++) if(sansAccents(lc[i]).indexOf(frag) >= 0){
+      out[i] = out[i] || []; if(out[i].indexOf(k)<0) out[i].push(k);
+    }
+  });
+  return out;
+}
+/* Indices des points prouvés par une mesure effectivement renseignée. */
+function pointsJustifies(m){
+  var t = techDe(m), liens = LIENS[m.tech];
+  var out = {};
+  if(!t || !liens) return out;
+  var lc = listeCtrl(m);
+  Object.keys(liens).forEach(function(k){
+    var champ = null;
+    for(var j=0;j<t.mes.length;j++) if(t.mes[j].k===k){ champ = t.mes[j]; break; }
+    var rempli;
+    if(champ && champ.type==="calc") rempli = estNb(valeurCalc(m, champ));
+    else rempli = txt(m.mes[k]) !== null;
+    if(!rempli) return;
+    var frag = sansAccents(liens[k]);
+    for(var i=0;i<lc.length;i++) if(sansAccents(lc[i]).indexOf(frag) >= 0) out[i] = k;
+  });
+  return out;
+}
+/* Applique les liaisons sans jamais écraser un choix fait à la main.
+   Une mesure marquée sans objet met son point en NP, pas en non contrôlé. */
+function appliquerLiens(m){
+  var j = pointsJustifies(m);
+  var tous = pointsMesure(m);
+  m.na = m.na || {};
+  m.ctrlManuel = m.ctrlManuel || {};
+  Object.keys(j).forEach(function(i){ if(!m.ctrlManuel["c"+i]) m.ctrl["c"+i] = "ok"; });
+  Object.keys(tous).forEach(function(i){
+    if(m.ctrlManuel["c"+i]) return;
+    var cles = tous[i];
+    var toutesSO = cles.length && cles.every(function(k){ return m.na[k]; });
+    if(toutesSO) m.ctrl["c"+i] = "np";
+    else if(m.ctrl["c"+i] === "np" && !j[i]) m.ctrl["c"+i] = (cfg.modeControles === "aFaire") ? "" : "ok";
+  });
+  return j;
+}
+function basculerSansObjet(m, k){
+  m.na = m.na || {};
+  if(m.na[k]){ delete m.na[k]; } else { m.na[k] = 1; delete m.mes[k]; }
+  appliquerLiens(m); enregistrerProfil(m);
+}
+
+/* ============ mémoire par machine ============
+   Ce qui n'est pas relevable sur CETTE machine est retenu,
+   pour ne plus être demandé à la visite suivante. */
+var CLE_PROFILS = "kare.profils.v1";
+function cleProfil(m){ return m.notion || (m.ident && m.ident.serie ? m.tech+":"+m.ident.serie : null); }
+function enregistrerProfil(m){
+  var c = cleProfil(m); if(!c) return;
+  var p = lire(CLE_PROFILS, {});
+  var na = Object.keys(m.na || {});
+  if(na.length) p[c] = {na:na, tech:m.tech};
+  else delete p[c];
+  ecrire(CLE_PROFILS, p);
+}
+function appliquerProfil(m){
+  var c = cleProfil(m); if(!c) return;
+  var p = lire(CLE_PROFILS, {})[c];
+  if(!p || p.tech !== m.tech) return;
+  m.na = m.na || {};
+  p.na.forEach(function(k){ m.na[k] = 1; });
+  appliquerLiens(m);
+}
+
+/* ============ ce qui s'affiche en premier ============ */
+var ESSENTIELLES = {
+  clim_air_air:   ["text","mode","ue_rep","ue_souf","tstat","tdyn","etanch"],
+  pac_air_eau:    ["text","tdep","tret","dt_eau","pcirc","tstat","tdyn","emboue","classe_reg","isol"],
+  chaudiere_gaz:  ["co_amb","co_fum","tfum","co2","o2","rdt","nox","pcirc","emboue","isol","dimension","classe_ener"],
+  chaudiere_fioul:["co_amb","co_fum","noircissement","tfum","co2","o2","rdt_mes","pcirc","cuve_etat","emboue","isol"],
+  adoucisseur:    ["th_brut","th_adouci","th_colonne","pression","sel","regen_ok","desinfection"],
+  vmc_df:         ["t_ext","t_souf","t_rep","rdt_ech","debit_ext","debit_souf","equilibrage","filtres_etat","siphon"],
+  cet:            ["t_air","t_souf","t_ballon","consigne","antilegio","t_puisage","groupe_secu","anode_etat"]
+};
+var MASQUEES = {chaudiere_gaz:["rdt_ref","nox_ref"]};
+/* pH et dureté ne sont exigés par aucun texte : ils restent disponibles, pas demandés. */
+/* La puissance sort-elle de la plage qui rend l'entretien obligatoire ?
+   null = on ne peut pas trancher, la puissance n'est pas renseignée. */
+function horsPlage(m){
+  var t = techDe(m);
+  if(!t || !t.regl.obligatoire || !estNb(t.regl.pmin)) return null;
+  var p = nb(m.ident.puiss);
+  if(!estNb(p) || p <= 0) return null;
+  if(p < t.regl.pmin) return {sens:"sous", seuil:t.regl.pmin, p:p};
+  if(p > t.regl.pmax) return {sens:"au-dessus de", seuil:t.regl.pmax, p:p};
+  return false;
+}
+function estReglementaire(m){
+  var t = techDe(m);
+  if(!t || !t.regl.obligatoire) return false;
+  return horsPlage(m) ? false : true;
+}
+function estEssentielle(tech, k){ var l = ESSENTIELLES[tech]; return !l || l.indexOf(k) >= 0; }
+function estMasquee(tech, k){ var l = MASQUEES[tech]; return !!l && l.indexOf(k) >= 0; }
 
 /* ============ calculs ============ */
 function valeurCalc(m, champ, source){
@@ -1221,7 +1576,7 @@ function anomaliesDe(m){
 }
 
 /* ============ navigation ============ */
-var vue = "visite";   /* "visite" | mid */
+var vue = "visite";
 
 function rendreOnglets(){
   var o = $("#onglets"); o.innerHTML = "";
@@ -1231,191 +1586,227 @@ function rendreOnglets(){
   b.onclick = function(){ aller("visite"); };
   o.appendChild(b);
   V.machines.forEach(function(m){
-    var t = techDe(m), a = avancement(m);
+    var t = techDe(m);
     var x = el("button","ong");
     x.type="button"; x.setAttribute("role","tab");
     x.setAttribute("aria-selected", vue===m.mid ? "true":"false");
-    x.appendChild(el("span",null,(t?t.icone+" ":"")+(t?t.court:"?")));
-    var pc = el("span","pc", a.total ? Math.round(a.fait/a.total*100)+"%" : "0%");
-    x.appendChild(pc);
+    x.textContent = (t?t.icone+" ":"")+(t?t.court:"?");
+    var ec = anomaliesDe(m).length;
+    if(ec) x.appendChild(el("span","pc", "!"+ec));
     x.onclick = function(){ aller(m.mid); };
     o.appendChild(x);
   });
-  var plus = el("button","ong","+ machine");
-  plus.type="button"; plus.onclick = ouvrirChoixMachine;
+  var plus = el("button","ong","+"); plus.type="button";
+  plus.setAttribute("aria-label","Ajouter une machine");
+  plus.onclick = ouvrirChoixMachine;
   o.appendChild(plus);
 }
 function aller(v){ vue=v; rendre(); window.scrollTo(0,0); }
-function rendre(){ rendreOnglets(); var a=$("#app"); a.innerHTML=""; if(vue==="visite") vueVisite(a); else vueMachine(a, machineParId(vue)); }
+function rendre(){
+  rendreOnglets();
+  var a=$("#app"); a.innerHTML="";
+  if(vue==="visite") vueVisite(a); else vueMachine(a, machineParId(vue));
+}
 
-/* ============ fabriques de champs ============ */
-function champTexte(parent, obj, cle, libelle, opts){
-  opts = opts || {};
-  var d = el("div","champ"+(opts.plein?" plein":""));
+/* ============ champs ============ */
+function champ(parent, obj, cle, libelle, o){
+  o = o || {};
+  var d = el("div","champ"+(o.plein?" plein":""));
   var lab = el("label", null, libelle);
-  lab.htmlFor = "f_"+cle+"_"+(opts.suffixe||"");
-  if(opts.u){ var u=el("span","u","("+opts.u+")"); lab.appendChild(u); }
+  lab.htmlFor = "f_"+cle+"_"+(o.suffixe||"");
+  if(o.u) lab.appendChild(el("span","u",o.u));
   d.appendChild(lab);
+  if(o.type==="multi"){
+    var choix = String(obj[cle]||"").split(",").map(function(x){return x.trim();}).filter(Boolean);
+    var wrap = el("div","chips petit");
+    (o.opts||[]).forEach(function(x){
+      var bb = el("button","chip mini",x); bb.type="button";
+      bb.setAttribute("aria-pressed", choix.indexOf(x)>=0 ? "true":"false");
+      bb.onclick = function(){
+        var k = choix.indexOf(x);
+        if(k>=0) choix.splice(k,1); else choix.push(x);
+        bb.setAttribute("aria-pressed", choix.indexOf(x)>=0 ? "true":"false");
+        obj[cle] = choix.join(", ");
+        if(o.auMaj) o.auMaj();
+        sauver();
+      };
+      wrap.appendChild(bb);
+    });
+    d.appendChild(wrap); parent.appendChild(d); return wrap;
+  }
   var i;
-  if(opts.type==="zone"){ i = el("textarea"); }
-  else if(opts.type==="liste"){
+  if(o.type==="zone") i = el("textarea");
+  else if(o.type==="liste"){
     i = el("select");
     i.appendChild(el("option","",""));
-    (opts.opts||[]).forEach(function(o){ var op=el("option",null,o); op.value=o; i.appendChild(op); });
+    (o.opts||[]).forEach(function(x){ var op=el("option",null,x); op.value=x; i.appendChild(op); });
   } else {
     i = el("input");
-    i.type = opts.type==="num" ? "number" : (opts.type==="date" ? "date" : "text");
-    if(opts.type==="num"){ i.inputMode="decimal"; i.step="any"; }
+    i.type = o.type==="num" ? "number" : (o.type==="date" ? "date" : "text");
+    if(o.type==="num"){ i.inputMode="decimal"; i.step="any"; }
   }
   i.id = lab.htmlFor;
-  i.value = obj[cle]===undefined||obj[cle]===null ? "" : obj[cle];
-  if(opts.ph) i.placeholder = opts.ph;
-  i.addEventListener("input", function(){
-    obj[cle] = i.value;
-    if(opts.auMaj) opts.auMaj();
-    sauver();
-  });
+  i.value = (obj[cle]===undefined||obj[cle]===null) ? "" : obj[cle];
+  if(o.ph) i.placeholder = o.ph;
+  i.addEventListener("input", function(){ obj[cle]=i.value; if(o.auMaj) o.auMaj(); sauver(); });
   d.appendChild(i);
-  if(opts.aide) d.appendChild(el("div","aide", opts.aide));
-  if(opts.slotVerdict){ var v=el("div"); v.dataset.verdict=cle; d.appendChild(v); }
+  if(o.slot) d.appendChild(o.slot);
   parent.appendChild(d);
   return i;
 }
-
-function champCalc(parent, libelle, opts, valeurFn){
-  var d = el("div","champ"+(opts.plein?" plein":""));
+function calcule(parent, libelle, o, fn){
+  var d = el("div","champ"+(o.plein?" plein":""));
   var lab = el("label", null, libelle);
-  if(opts.u) lab.appendChild(el("span","u","("+opts.u+")"));
+  if(o.u) lab.appendChild(el("span","u",o.u));
   d.appendChild(lab);
-  var c = el("div","calc","—");
-  d.appendChild(c);
-  if(opts.aide) d.appendChild(el("div","aide", opts.aide));
+  var c = el("div","calc","—"); d.appendChild(c);
   var v = el("div"); d.appendChild(v);
   parent.appendChild(d);
   return function(){
-    var val = valeurFn();
-    c.textContent = estNb(val) ? fmt(val, Math.abs(val)>=100?0:1) + (opts.u?" "+opts.u:"") : "—";
-    var ver = opts.champ ? verdict(opts.champ, val) : null;
-    v.innerHTML = "";
-    if(ver) v.appendChild(el("span","verdict "+ver.k, ver.t));
+    var val = fn();
+    c.textContent = estNb(val) ? fmt(val, Math.abs(val)>=100?0:1)+(o.u?" "+o.u:"") : "—";
+    var ver = o.ch ? verdict(o.ch, val) : null;
+    v.innerHTML=""; if(ver) v.appendChild(el("span","verdict "+ver.k, ver.t));
   };
+}
+function bloc(parent, titre, compteur, ouvert){
+  var d = el("details","repl"+(ouvert?" ouvert":""));
+  if(ouvert) d.open = true;
+  var s = el("summary", null, titre);
+  if(compteur) s.appendChild(el("span","cpt", compteur));
+  d.appendChild(s);
+  var corps = el("div"); d.appendChild(corps);
+  parent.appendChild(d);
+  return corps;
 }
 
 /* ============ écran VISITE ============ */
 function vueVisite(root){
-  /* --- client --- */
+  var dansLeParc = false;
   var c1 = el("div","carte");
-  c1.appendChild(el("h2",null,"Client et chantier"));
   var g = el("div","g2"); c1.appendChild(g);
 
-  if(parc && parc.length){
-    var d = el("div","champ plein");
-    d.appendChild(el("label",null,"Client du parc"));
-    var s = el("select");
-    s.appendChild(el("option",null,"— saisir à la main —"));
-    var noms = {};
-    parc.forEach(function(p){ if(p.client) noms[p.client]=1; });
-    Object.keys(noms).sort().forEach(function(n){ var o=el("option",null,n); o.value=n; s.appendChild(o); });
-    s.value = V.client || "";
-    s.addEventListener("change", function(){
-      if(!s.value) return;
-      V.client = s.value;
-      var f = parc.filter(function(p){ return p.client===s.value; });
-      if(f.length){ V.adresse = f[0].adresse || V.adresse; V.contact = f[0].contact || V.contact; }
-      sauver(); rendre();
-    });
-    d.appendChild(s);
-    d.appendChild(el("div","aide", parc.length+" machines au parc. Choisir le client pré-remplit l'adresse et propose ses machines."));
-    g.appendChild(d);
-  } else {
-    var av = el("div","alerte info");
-    av.innerHTML = "<b>Parc non chargé.</b> Importe le fichier <b>config_KA-RE.json</b> dans les réglages pour retrouver tes clients et leurs machines hors connexion.";
-    c1.insertBefore(av, g);
-  }
+  /* ---- recherche client : on tape trois lettres, on choisit ---- */
+  var dc = el("div","champ plein");
+  dc.appendChild(el("label",null,"Client"));
+  var rech = el("input"); rech.type="text"; rech.autocomplete="off";
+  rech.placeholder = V.client ? V.client : "tape les premières lettres…";
+  if(V.client) rech.classList.add("choisi");
+  dc.appendChild(rech);
+  var res = el("div","resultats"); dc.appendChild(res);
+  g.appendChild(dc);
 
-  champTexte(g, V, "client", "Nom du client", {plein:true, ph:"NOM Prénom ou raison sociale", auMaj:rendreOnglets});
-  champTexte(g, V, "adresse", "Adresse du chantier", {plein:true});
-  champTexte(g, V, "contact", "Téléphone / courriel", {});
-  champTexte(g, V, "present", "Personne présente", {});
+  function sansAcc(x){ return String(x||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase(); }
+  /* Deux écritures d'un même nom donnent la même clé : civilité, forme juridique
+     et ordre des mots sont ignorés. Évite d'afficher deux fois la même personne. */
+  function cleNom(n){
+    var x = sansAcc(n)
+      .replace(/\b(m|mme|mr|monsieur|madame|melle|sarl|sas|sasu|eurl|sci|ets|earl)\b/g, " ")
+      .replace(/[^a-z0-9]+/g, " ").trim();
+    return x.split(/\s+/).filter(Boolean).sort().join(" ");
+  }
+  function chercher(q){
+    res.innerHTML = "";
+    q = sansAcc(q).trim();
+    if(q.length < 2){
+      if(V.client){
+        var chg = el("button","btn mini","Changer de client"); chg.type="button";
+        chg.onclick = function(){ rech.value=""; rech.focus(); };
+      }
+      return;
+    }
+    var mots = q.split(/\s+/);
+    var pool = [], vus = {};
+    /* le parc d'abord : c'est lui qui porte les machines */
+    (parc||[]).forEach(function(p){
+      if(!p.client) return;
+      var k = cleNom(p.client);
+      if(vus[k]) return;
+      vus[k] = 1;
+      pool.push({nom:p.client, adresse:p.adresse, parc:1});
+    });
+    (clients||[]).forEach(function(c){
+      var k = cleNom(c.nom);
+      if(vus[k]) return;
+      vus[k] = 1;
+      pool.push({nom:c.nom, adresse:c.adresse, ax:c.ax, cli:c.cli});
+    });
+    var trouves = pool.filter(function(c){
+      var t = sansAcc(c.nom) + " " + sansAcc(c.adresse);
+      return mots.every(function(m){ return t.indexOf(m) >= 0; });
+    });
+    /* le parc d'abord, puis les vrais clients, puis le reste */
+    trouves.sort(function(a,b){
+      var pa = a.parc ? 0 : (a.cli ? 1 : 2), pb = b.parc ? 0 : (b.cli ? 1 : 2);
+      if(pa !== pb) return pa - pb;
+      return a.nom.toLowerCase() < b.nom.toLowerCase() ? -1 : 1;
+    });
+    if(!trouves.length){
+      var rien = el("div","mini","Aucun client trouvé. Tape le nom en entier, il sera créé à l'envoi.");
+      res.appendChild(rien);
+      V.client = rech.value.trim(); sauver(); rendreOnglets();
+      return;
+    }
+    trouves.slice(0,8).forEach(function(c){
+      var b = el("button","res"); b.type="button";
+      var t1 = el("div","r1", c.nom);
+      if(c.parc) t1.appendChild(el("span","tagp","parc"));
+      b.appendChild(t1);
+      if(c.adresse) b.appendChild(el("div","r2", c.adresse));
+      b.onclick = function(){
+        V.client = c.nom;
+        if(c.adresse && !txt(V.adresse)) V.adresse = c.adresse;
+        if(c.ax) V.axonaut = c.ax;
+        sauver(); rendre();
+      };
+      res.appendChild(b);
+    });
+    if(trouves.length > 8) res.appendChild(el("div","mini", (trouves.length-8)+" autres — précise ta recherche"));
+  }
+  rech.addEventListener("input", function(){ chercher(rech.value); });
+  rech.addEventListener("focus", function(){ if(rech.value) chercher(rech.value); });
+
+  champ(g, V, "adresse", "Adresse", {});
+  champ(g, V, "ville", "Commune", {ph:"reprise de l'adresse si vide"});
+  champ(g, V, "present", "Personne présente", {});
   root.appendChild(c1);
 
-  /* --- intervention --- */
   var c2 = el("div","carte");
-  c2.appendChild(el("h2",null,"Intervention"));
   var ch = el("div","chips"); c2.appendChild(ch);
   INTERV.forEach(function(it){
     var b = el("button","chip",it.l); b.type="button";
     b.setAttribute("aria-pressed", V.interv===it.c ? "true":"false");
-    b.onclick = function(){ V.interv=it.c; sauver(); rendre(); };
+    b.onclick = function(){ V.interv=it.c; recalerControles(); sauver(); rendre(); };
     ch.appendChild(b);
   });
-  var g2 = el("div","g2"); g2.style.marginTop="10px"; c2.appendChild(g2);
-  champTexte(g2, V, "date", "Date de la visite", {type:"date"});
-  champTexte(g2, V, "appareils", "Appareils de mesure utilisés", {plein:true, type:"zone",
-    ph:"ex. analyseur Testo 320 n° … (vérifié le …) · détecteur CO Testo 317-3 · manomètre Testo 550s"});
+  var g2 = el("div","g2"); g2.style.marginTop="9px"; c2.appendChild(g2);
+  champ(g2, V, "date", "Date", {type:"date"});
   root.appendChild(c2);
 
-  /* --- machines --- */
-  var c3 = el("div","carte");
-  var h = el("h2",null,"Machines de la visite");
-  h.appendChild(el("span","cpt", V.machines.length + (V.machines.length>1?" machines":" machine")));
-  c3.appendChild(h);
-
-  if(!V.machines.length){
-    c3.appendChild(el("div","vide","Aucune machine. Ajoute la première : chaudière, PAC, clim, adoucisseur, VMC ou chauffe-eau thermodynamique. Tu peux en mettre plusieurs sur la même visite."));
-  }
-  V.machines.forEach(function(m, i){
-    var t = techDe(m), a = avancement(m), an = anomaliesDe(m);
-    var row = el("div"); row.style.display="flex"; row.style.gap="8px"; row.style.alignItems="stretch"; row.style.marginBottom="8px";
-    var b = el("button","mach"); b.type="button"; b.style.marginBottom="0";
-    b.appendChild(el("span","ic", t?t.icone:"?"));
-    var tx = el("div","txt");
-    tx.appendChild(el("div","t1", t?t.label:"?"));
-    tx.appendChild(el("div","t2", libelleMachine(m)));
-    b.appendChild(tx);
-    var pc = el("span","pastille"+(a.total&&a.fait===a.total?" ok":""), a.total?Math.round(a.fait/a.total*100)+"%":"0%");
-    b.appendChild(pc);
-    if(an.length){
-      var grave = an.some(function(x){return x.grave;});
-      b.appendChild(el("span","pastille "+(grave?"mal":"att"), an.length+(an.length>1?" écarts":" écart")));
-    }
-    b.onclick = function(){ aller(m.mid); };
-    row.appendChild(b);
-    var sup = el("button","btn mini d","×"); sup.type="button"; sup.title="Retirer cette machine";
-    sup.style.flex="0 0 auto";
-    sup.onclick = function(){ retirerMachine(m.mid, sup); };
-    row.appendChild(sup);
-    c3.appendChild(row);
-  });
-  var add = el("button","btn","+ Ajouter une machine"); add.type="button"; add.style.width="100%";
-  add.onclick = ouvrirChoixMachine;
-  c3.appendChild(add);
-  root.appendChild(c3);
-
-  /* --- machines connues du client --- */
+  /* machines connues du client : reprise en un tap */
   if(V.client && parc && parc.length){
-    var connues = parc.filter(function(p){ return p.client===V.client; });
+    var connues = parc.filter(function(p){ return p.client===V.client; })
+                      .filter(function(p){ return !V.machines.some(function(m){ return m.notion && m.notion===p.notion; }); });
     if(connues.length){
       var c4 = el("div","carte");
-      c4.appendChild(el("h2",null,"Machines connues chez ce client"));
+      c4.appendChild(el("h2",null,"Machines du client"));
       connues.forEach(function(p){
         var b = el("button","mach"); b.type="button";
         b.appendChild(el("span","ic", (TECHNOS[p.tech]||{}).icone || "•"));
         var tx = el("div","txt");
-        tx.appendChild(el("div","t1", (TECHNOS[p.tech]||{}).label || p.tech || "machine"));
-        tx.appendChild(el("div","t2", [p.marque, p.serie?"n° "+p.serie:"", p.local].filter(Boolean).join(" · ")));
+        tx.appendChild(el("div","t1", (TECHNOS[p.tech]||{}).court || p.tech || "machine"));
+        tx.appendChild(el("div","t2", [p.marque, p.serie, p.local].filter(Boolean).join(" · ")));
         b.appendChild(tx);
-        b.appendChild(el("span","pastille","reprendre"));
+        b.appendChild(el("span","plus","+"));
         b.onclick = function(){
-          var cle = TECHNOS[p.tech] ? p.tech : null;
-          if(!cle){ toast("Technologie inconnue au catalogue","mal"); return; }
-          var m = ajouterMachine(cle);
-          ["marque","serie","puiss","fluide","charge","mes","local","nbui","volume","annee","techno","combustible"].forEach(function(k){
-            if(p[k]!==undefined && p[k]!==null && p[k]!=="") m.ident[k]=String(p[k]);
-          });
+          if(!TECHNOS[p.tech]){ toast("Technologie inconnue","mal"); return; }
+          var m = ajouterMachine(p.tech);
+          ["marque","serie","puiss","fluide","charge","mes","local","nbui","volume","annee","techno","combustible","resine"]
+            .forEach(function(k){ if(p[k]!==undefined && p[k]!==null && p[k]!=="") m.ident[k]=String(p[k]); });
           if(p.dernier) m.ident.dernier = p.dernier;
-          if(p.notion)  m.notion  = p.notion;    /* rattachement à la fiche équipement Notion */
+          if(p.notion)  m.notion  = p.notion;
           if(p.axonaut) m.axonaut = p.axonaut;
+          appliquerProfil(m);      /* ce qui n'est pas relevable sur cette machine est repris */
           sauver(); aller(m.mid);
         };
         c4.appendChild(b);
@@ -1423,17 +1814,67 @@ function vueVisite(root){
       root.appendChild(c4);
     }
   }
+
+  var c3 = el("div","carte");
+  if(V.machines.length){
+    c3.appendChild(el("h2",null,"Machines relevées"));
+    V.machines.forEach(function(m){
+      var t = techDe(m), a = avancement(m), an = anomaliesDe(m);
+      var row = el("div","rang");
+      var b = el("button","mach"); b.type="button";
+      b.appendChild(el("span","ic", t?t.icone:"?"));
+      var tx = el("div","txt");
+      tx.appendChild(el("div","t1", t?t.court:"?"));
+      tx.appendChild(el("div","t2", libelleMachine(m)));
+      b.appendChild(tx);
+      if(an.length) b.appendChild(el("span","pastille "+(an.some(function(x){return x.grave;})?"mal":"att"), "!"+an.length));
+      b.onclick = function(){ aller(m.mid); };
+      row.appendChild(b);
+      var sup = el("button","oter","×"); sup.type="button"; sup.setAttribute("aria-label","Retirer");
+      sup.onclick = function(){ retirerMachine(m.mid, sup); };
+      row.appendChild(sup);
+      c3.appendChild(row);
+    });
+  }
+  var add = el("button","btn","+ Machine"); add.type="button"; add.style.width="100%";
+  add.onclick = ouvrirChoixMachine;
+  c3.appendChild(add);
+  root.appendChild(c3);
+
+  /* --- signature du client --- */
+  if(V.machines.length){
+    var c5 = el("div","carte");
+    c5.appendChild(el("h2",null,"Signature du client"));
+    if(V.signClient){
+      var vu = el("div","sc-vu");
+      var im = el("img"); im.src = V.signClient; im.alt="signature"; vu.appendChild(im);
+      vu.appendChild(el("div","mini", (txt(V.signQui)||"signé")+" — le "+(V.date||"")));
+      c5.appendChild(vu);
+      var bR = el("button","btn mini","Refaire signer"); bR.type="button";
+      bR.onclick = ouvrirSignatureClient; c5.appendChild(bR);
+    } else if(V.signRefus){
+      c5.appendChild(el("div","alerte att","Client absent — les documents porteront cette mention."));
+      var bR2 = el("button","btn mini","Le client est là finalement"); bR2.type="button";
+      bR2.onclick = ouvrirSignatureClient; c5.appendChild(bR2);
+    } else {
+      var bS = el("button","btn p","Faire signer le client"); bS.type="button"; bS.style.width="100%";
+      bS.onclick = ouvrirSignatureClient;
+      c5.appendChild(bS);
+      c5.appendChild(el("div","mini","Récapitulatif à l'écran, le client signe au doigt. S'il n'est pas là, un bouton le note."));
+    }
+    root.appendChild(c5);
+  }
 }
 
 function retirerMachine(mid, btn){
   if(btn.dataset.arme !== "1"){
-    btn.dataset.arme="1"; btn.textContent="Sûr ?";
-    setTimeout(function(){ if(btn.dataset.arme==="1"){ btn.dataset.arme=""; btn.textContent="×"; } }, 6000);
+    btn.dataset.arme="1"; btn.textContent="?";
+    setTimeout(function(){ if(btn.dataset.arme==="1"){ btn.dataset.arme=""; btn.textContent="×"; } }, 5000);
     return;
   }
   V.machines = V.machines.filter(function(m){ return m.mid!==mid; });
   if(vue===mid) vue="visite";
-  sauver(); rendre(); toast("Machine retirée");
+  sauver(); rendre();
 }
 
 function ouvrirChoixMachine(){
@@ -1444,9 +1885,7 @@ function ouvrirChoixMachine(){
     b.appendChild(el("span","ic", t.icone));
     var tx = el("div","txt");
     tx.appendChild(el("div","t1", t.label));
-    tx.appendChild(el("div","t2", t.regl.obligatoire ? ("Réglementaire — "+t.regl.periodicite.toLowerCase()) : "Entretien contractuel"));
     b.appendChild(tx);
-    b.appendChild(el("span","pastille"+(t.regl.obligatoire?"":" att"), t.regl.obligatoire?"attestation":"compte rendu"));
     b.onclick = function(){ $("#dlgMachine").close(); var m=ajouterMachine(cle); aller(m.mid); };
     box.appendChild(b);
   });
@@ -1460,66 +1899,95 @@ function vueMachine(root, m){
   if(!t){ root.appendChild(el("div","vide","Technologie inconnue.")); return; }
   var majs = [];
 
-  /* --- cadre réglementaire --- */
-  var c0 = el("div","carte");
-  var h0 = el("h2",null, t.icone+" "+t.label);
-  h0.appendChild(el("span","cpt", INTERV.filter(function(i){return i.c===V.interv;})[0].l));
-  c0.appendChild(h0);
-  var al = el("div","alerte "+(t.regl.obligatoire?"info":"att"));
-  al.innerHTML = "<b>"+ (t.regl.obligatoire ? "Entretien réglementaire" : "Entretien NON réglementaire") + "</b> — "
-    + (t.regl.obligatoire ? ("plage "+t.regl.plage+", "+t.regl.periodicite.toLowerCase()+", attestation sous "+t.regl.delai+".")
-                          : ("le document remis est un <b>"+t.regl.doc.toLowerCase()+"</b>, jamais une attestation réglementaire."));
-  c0.appendChild(al);
-  if(t.regl.alerte){
-    var al2 = el("div","alerte att"); al2.innerHTML = "<b>À savoir :</b> "+t.regl.alerte;
-    c0.appendChild(al2);
-  }
-  var det = el("details","repl");
-  det.appendChild(el("summary",null,"Base réglementaire"));
-  var dd = el("div"); dd.textContent = t.regl.cadre; det.appendChild(dd);
-  c0.appendChild(det);
-  root.appendChild(c0);
-
-  /* --- identification --- */
+  /* --- identification, repliée --- */
   var c1 = el("div","carte");
-  c1.appendChild(el("h2",null,"Identification"));
-  var g1 = el("div","g2"); c1.appendChild(g1);
-  t.ident.forEach(function(f){
-    champTexte(g1, m.ident, f.k, f.l, {type:f.type, opts:f.opts, u:f.u, aide:f.aide, ph:f.ph, suffixe:m.mid,
-      auMaj:function(){ rendreOnglets(); majs.forEach(function(fn){fn();}); }});
-  });
+  var h1 = el("h2",null, t.icone+" "+t.label);
+  var hp = horsPlage(m), regl = estReglementaire(m);
+  h1.appendChild(el("span","tag"+(regl?"":" gris"), regl ? "attestation" : "compte rendu"));
+  c1.appendChild(h1);
+  if(hp){
+    var av = el("div","alerte mal");
+    av.innerHTML = "<b>"+fmt(hp.p,1)+" kW : "+hp.sens+" "+hp.seuil+" kW.</b> Cet entretien ne relève pas de "+
+      "l'obligation réglementaire. Le document sortira en <b>compte rendu contractuel</b>. "+
+      "Vérifie la puissance si c'est une faute de frappe.";
+    c1.appendChild(av);
+  }
+  var vide = t.ident.every(function(f){ return !txt(m.ident[f.k]); });
+  var corpsId = bloc(c1, libelleMachine(m)===t.label ? "Identification" : libelleMachine(m), null, vide);
+  var g1 = el("div","g2"); corpsId.appendChild(g1);
+  function pertinent(f){
+    if(f.siAnneeAvant){ var an = nb(m.ident.annee); return !estNb(an) || an < f.siAnneeAvant; }
+    return true;
+  }
+  function poserIdent(parent, f){
+    champ(parent, m.ident, f.k, f.l, {type:f.type, opts:f.opts, u:f.u, ph:f.aide||f.ph, suffixe:m.mid,
+      auMaj:function(){ majs.forEach(function(fn){fn();}); }});
+  }
+  t.ident.filter(function(f){ return !f.opt && pertinent(f); }).forEach(function(f){ poserIdent(g1, f); });
+  var secondaires = t.ident.filter(function(f){ return f.opt || !pertinent(f); });
+  if(secondaires.length){
+    var corpsSec = bloc(corpsId, "Autres informations", String(secondaires.length), false);
+    var gSec = el("div","g2"); corpsSec.appendChild(gSec);
+    secondaires.forEach(function(f){ poserIdent(gSec, f); });
+  }
   root.appendChild(c1);
 
   /* --- points de contrôle --- */
   var lc = listeCtrl(m);
   var c2 = el("div","carte");
-  var h2 = el("h2",null,"Points de contrôle");
-  var cptCtrl = el("span","cpt","");
-  h2.appendChild(cptCtrl); c2.appendChild(h2);
-  var lg = el("div","legende");
-  lg.appendChild(el("span",null,"✓ contrôlé"));
-  lg.appendChild(el("span",null,"✗ non contrôlé"));
-  lg.appendChild(el("span",null,"NP non présent sur l'installation"));
-  c2.appendChild(lg);
-  var toutOk = el("button","btn mini","Tout cocher « contrôlé »"); toutOk.type="button";
-  toutOk.style.marginBottom="10px";
-  toutOk.onclick = function(){ lc.forEach(function(_,i){ m.ctrl["c"+i]="ok"; }); sauver(); rendre(); };
-  c2.appendChild(toutOk);
+  var h2 = el("h2",null,"Contrôles");
+  var cptC = el("span","cpt",""); h2.appendChild(cptC); c2.appendChild(h2);
+  var resume = el("div","mini"); c2.appendChild(resume);
+  var justifies = appliquerLiens(m);
+  var adossees  = pointsMesure(m);
+  var idxMesure = [], idxGeste = [];
+  lc.forEach(function(_,i){ (adossees[i] ? idxMesure : idxGeste).push(i); });
+
+  var corpsMes = idxMesure.length ? bloc(c2, "Relevés — se cochent avec les mesures", String(idxMesure.length), false) : null;
+  var corpsGes = bloc(c2, "Gestes — à déclarer", String(idxGeste.length), false);
+  var barreG = el("div","barre-geste");
+  var bTout = el("button","btn mini","Tout fait"); bTout.type="button";
+  bTout.onclick = function(){
+    idxGeste.forEach(function(i){ m.ctrl["c"+i]="ok"; m.ctrlManuel["c"+i]=1; });
+    sauver(); rendre();
+  };
+  var bRien = el("button","btn mini","Tout décocher"); bRien.type="button";
+  bRien.onclick = function(){
+    idxGeste.forEach(function(i){ m.ctrl["c"+i]=""; m.ctrlManuel["c"+i]=1; });
+    sauver(); rendre();
+  };
+  barreG.appendChild(bTout); barreG.appendChild(bRien);
+  corpsGes.appendChild(barreG);
 
   function majCpt(){
-    var f=0; lc.forEach(function(_,i){ if(m.ctrl["c"+i]) f++; });
-    cptCtrl.textContent = f+" / "+lc.length;
+    var non=[], np=[];
+    lc.forEach(function(lib,i){ if(m.ctrl["c"+i]==="non") non.push(lib); else if(m.ctrl["c"+i]==="np") np.push(lib); });
+    var ok = lc.length-non.length-np.length;
+    cptC.textContent = ok+"/"+lc.length + (non.length?" · "+non.length+" non":"") + (np.length?" · "+np.length+" NP":"");
+    cptC.className = "cpt"+(non.length?" mal":"");
+    resume.innerHTML = "";
+    var nj = Object.keys(justifies).length;
+    var gestesOk = idxGeste.filter(function(i){ return m.ctrl["c"+i]==="ok"; }).length;
+    if(!non.length && !np.length){
+      resume.textContent = nj+"/"+idxMesure.length+" relevés · "+gestesOk+"/"+idxGeste.length+" gestes";
+    } else {
+      non.forEach(function(l){ var d=el("div","exc mal"); d.textContent="✗ "+l; resume.appendChild(d); });
+      np.forEach(function(l){ var d=el("div","exc"); d.textContent="NP  "+l; resume.appendChild(d); });
+    }
   }
   lc.forEach(function(lib, i){
     var l = el("div","pc-ligne");
-    l.appendChild(el("div","pc-lib", lib));
+    var lb = el("div","pc-lib", lib);
+    if(justifies[i]) lb.appendChild(el("span","auto","mesure"));
+    l.appendChild(lb);
     var e = el("div","pc-etats");
     [["ok","✓"],["non","✗"],["np","NP"]].forEach(function(p){
       var b = el("button","et",p[1]); b.type="button"; b.dataset.v=p[0];
       b.setAttribute("aria-pressed", m.ctrl["c"+i]===p[0] ? "true":"false");
-      b.setAttribute("aria-label", p[0]+" — "+lib);
+      b.setAttribute("aria-label", p[0]);
       b.onclick = function(){
-        m.ctrl["c"+i] = (m.ctrl["c"+i]===p[0]) ? "" : p[0];
+        m.ctrl["c"+i] = p[0];
+        m.ctrlManuel = m.ctrlManuel || {}; m.ctrlManuel["c"+i] = 1;
         Array.prototype.forEach.call(e.children, function(x){
           x.setAttribute("aria-pressed", m.ctrl["c"+i]===x.dataset.v ? "true":"false");
         });
@@ -1528,43 +1996,56 @@ function vueMachine(root, m){
       e.appendChild(b);
     });
     l.appendChild(e);
-    c2.appendChild(l);
+    (adossees[i] && corpsMes ? corpsMes : corpsGes).appendChild(l);
   });
   majCpt();
   root.appendChild(c2);
 
   /* --- mesures --- */
-  var c3 = el("div","carte");
-  c3.appendChild(el("h2",null,"Mesures et relevés"));
-  var g3 = el("div","g2"); c3.appendChild(g3);
-  t.mes.forEach(function(f){
-    if(f.type==="calc"){
-      var maj = champCalc(g3, f.l, {u:f.u, aide:f.aide, champ:f}, function(){ return valeurCalc(m, f); });
-      majs.push(maj);
+  function poserMesure(parent, f){
+    if(estMasquee(m.tech, f.k)) return;
+    if(f.type==="calc"){ majs.push(calcule(parent, f.l, {u:f.u, ch:f}, function(){ return valeurCalc(m,f); })); return; }
+    if(m.na && m.na[f.k]){
+      var dso = el("div","champ so");
+      var lso = el("label", null, f.l); dso.appendChild(lso);
+      var box = el("div","so-box");
+      box.appendChild(el("span","so-txt","sans objet sur cette machine"));
+      var rev = el("button","btn mini","Relever"); rev.type="button";
+      rev.onclick = function(){ basculerSansObjet(m, f.k); sauver(); rendre(); };
+      box.appendChild(rev);
+      dso.appendChild(box); parent.appendChild(dso);
       return;
     }
     if(f.type==="fixe"){
       var d=el("div","champ"); d.appendChild(el("label",null,f.l));
-      d.appendChild(el("div","calc", f.valeur + (f.u?" "+f.u:"")));
-      g3.appendChild(d); return;
+      d.appendChild(el("div","calc", f.valeur+(f.u?" "+f.u:""))); parent.appendChild(d); return;
     }
     var slot = el("div");
-    var inp = champTexte(g3, m.mes, f.k, f.l, {type:f.type, opts:f.opts, u:f.u, aide:f.aide, suffixe:m.mid,
-      auMaj:function(){ majVerdict(); majs.forEach(function(fn){fn();}); rendreOnglets(); }});
-    var box = inp.parentNode;
-    box.appendChild(slot);
+    var so = el("button","so-btn","sans objet"); so.type="button";
+    so.title = "Cette mesure n'est pas relevable sur cette machine";
+    so.onclick = function(){ basculerSansObjet(m, f.k); sauver(); rendre(); };
+    slot.appendChild(so);
+    champ(parent, m.mes, f.k, f.l, {type:f.type, opts:f.opts, u:f.u, suffixe:m.mid, slot:slot,
+      ph:(f.type==="num" && f.aide) ? f.aide : "",
+      auMaj:function(){ majVerdict(); majs.forEach(function(fn){fn();}); appliquerLiens(m); rendreOnglets(); }});
     function majVerdict(){
-      var val = nb(m.mes[f.k]);
-      var v = verdict(f, val);
+      var v = verdict(f, nb(m.mes[f.k]));
       slot.innerHTML="";
       if(v) slot.appendChild(el("span","verdict "+v.k, v.t));
+      else slot.appendChild(so);
     }
     majVerdict();
-    if(f.nature){
-      var n = el("div","aide"); n.textContent = f.nature==="réglementaire" ? "mesure exigée par le texte" : ("repère "+f.nature);
-      box.appendChild(n);
-    }
-  });
+  }
+  var c3 = el("div","carte");
+  c3.appendChild(el("h2",null,"Mesures"));
+  var g3 = el("div","g2"); c3.appendChild(g3);
+  var autres = t.mes.filter(function(f){ return !estEssentielle(m.tech, f.k) && !estMasquee(m.tech, f.k); });
+  t.mes.filter(function(f){ return estEssentielle(m.tech, f.k); }).forEach(function(f){ poserMesure(g3, f); });
+  if(autres.length){
+    var corpsA = bloc(c3, "Autres mesures", String(autres.length), false);
+    var gA = el("div","g2"); corpsA.appendChild(gA);
+    autres.forEach(function(f){ poserMesure(gA, f); });
+  }
   root.appendChild(c3);
 
   /* --- sous-machines --- */
@@ -1572,91 +2053,273 @@ function vueMachine(root, m){
     var sm = t.sousMachines;
     var c4 = el("div","carte");
     var h4 = el("h2",null, sm.label);
-    h4.appendChild(el("span","cpt", m.sous.length+" "+(m.sous.length>1?sm.singulier+"s":sm.singulier)));
+    h4.appendChild(el("span","cpt", String(m.sous.length)));
     c4.appendChild(h4);
     m.sous.forEach(function(ligne, idx){
-      var bloc = el("div","sm");
+      var b2 = el("div","sm");
       var tete = el("div","sm-tete");
-      tete.appendChild(el("span","n", sm.singulier.toUpperCase()+" "+(idx+1)));
+      tete.appendChild(el("span","n", sm.singulier+" "+(idx+1)));
       if(m.sous.length>1){
-        var x = el("button","btn mini d","Retirer"); x.type="button";
-        x.style.marginLeft="auto";
+        var x = el("button","oter","×"); x.type="button"; x.style.marginLeft="auto";
         x.onclick = function(){ m.sous.splice(idx,1); sauver(); rendre(); };
         tete.appendChild(x);
       }
-      bloc.appendChild(tete);
-      var gg = el("div","g2"); bloc.appendChild(gg);
-      var majsL = [];
+      b2.appendChild(tete);
+      var gg = el("div","g2"); b2.appendChild(gg);
+      var mj = [];
       sm.champs.forEach(function(f){
-        if(f.type==="calc"){
-          var mj = champCalc(gg, f.l, {u:f.u}, function(){ return valeurCalc(m, f, ligne); });
-          majsL.push(mj); return;
-        }
+        if(f.type==="calc"){ mj.push(calcule(gg, f.l, {u:f.u}, function(){ return valeurCalc(m,f,ligne); })); return; }
         if(f.type==="case"){
-          var d = el("div","champ");
-          d.appendChild(el("label",null,f.l));
-          var b = el("button","case","✓"); b.type="button";
-          b.setAttribute("aria-pressed", ligne[f.k]?"true":"false");
-          b.setAttribute("aria-label", f.l);
-          b.onclick = function(){ ligne[f.k] = ligne[f.k]?0:1; b.setAttribute("aria-pressed", ligne[f.k]?"true":"false"); sauver(); };
-          d.appendChild(b); gg.appendChild(d); return;
+          var d = el("div","champ"); d.appendChild(el("label",null,f.l));
+          var bb = el("button","case","✓"); bb.type="button";
+          bb.setAttribute("aria-pressed", ligne[f.k]?"true":"false");
+          bb.onclick = function(){ ligne[f.k]=ligne[f.k]?0:1; bb.setAttribute("aria-pressed", ligne[f.k]?"true":"false"); sauver(); };
+          d.appendChild(bb); gg.appendChild(d); return;
         }
-        champTexte(gg, ligne, f.k, f.l, {type:f.type, opts:f.opts, u:f.u, suffixe:m.mid+"_"+idx,
-          auMaj:function(){ majsL.forEach(function(fn){fn();}); }});
+        champ(gg, ligne, f.k, f.l, {type:f.type, opts:f.opts, u:f.u, suffixe:m.mid+"_"+idx,
+          auMaj:function(){ mj.forEach(function(fn){fn();}); }});
       });
-      majsL.forEach(function(fn){fn();});
-      c4.appendChild(bloc);
+      mj.forEach(function(fn){fn();});
+      c4.appendChild(b2);
     });
-    var addSm = el("button","btn","+ Ajouter "+(sm.singulier==="unité"?"une ":"une ")+sm.singulier); addSm.type="button";
-    addSm.style.width="100%";
+    var addSm = el("button","btn mini","+ "+sm.singulier); addSm.type="button"; addSm.style.width="100%";
     addSm.onclick = function(){ m.sous.push({}); sauver(); rendre(); };
     c4.appendChild(addSm);
     root.appendChild(c4);
   }
 
-  /* --- anomalies, actions --- */
+  /* --- défauts et actions --- */
   var c5 = el("div","carte");
-  c5.appendChild(el("h2",null,"Défauts et actions"));
   var auto = anomaliesDe(m);
   if(auto.length){
     var a5 = el("div","alerte "+(auto.some(function(x){return x.grave;})?"mal":"att"));
-    var ti = el("b", null, "Relevé automatiquement : "+auto.length+(auto.length>1?" écarts":" écart"));
-    a5.appendChild(ti);
-    var ul = el("div"); ul.style.marginTop="6px";
-    auto.forEach(function(x){ var p=el("div",null,"• "+x.lib); p.style.marginTop="3px"; ul.appendChild(p); });
-    a5.appendChild(ul);
+    auto.forEach(function(x){ a5.appendChild(el("div",null,"• "+x.lib)); });
     c5.appendChild(a5);
   }
   var g5 = el("div","g2"); c5.appendChild(g5);
-  champTexte(g5, m, "anomalies", "Défauts et anomalies constatés", {plein:true, type:"zone", suffixe:m.mid,
-    ph:"Décrire les défauts, ou porter « Aucune anomalie constatée ». Les causes énoncées sont des causes probables."});
-  champTexte(g5, m, "actions", "Actions correctives réalisées", {plein:true, type:"zone", suffixe:m.mid,
-    ph:"Nettoyages, réglages, remises en état effectués sur place. « Néant » si aucune."});
+  champ(g5, m, "anomalies", "Défauts constatés", {plein:true, type:"zone", suffixe:m.mid, ph:"vide = aucune anomalie"});
+  champ(g5, m, "actions", "Actions réalisées", {plein:true, type:"zone", suffixe:m.mid, ph:"vide = néant"});
   root.appendChild(c5);
 
-  /* --- conseils --- */
+  /* --- photos --- */
+  carteMachinePhotos(root, m, !!m.notion);
+
+  /* --- conseils, repliés, tous donnés par défaut --- */
   var c6 = el("div","carte");
-  var h6 = el("h2",null,"Conseils au client");
-  c6.appendChild(h6);
-  c6.appendChild(el("div","legende","Cocher ce qui a été expliqué au client."));
+  var donnes = t.conseils.filter(function(_,i){ return m.conseils["k"+i]; }).length;
+  var corpsC = bloc(c6, "Conseils au client", donnes+"/"+t.conseils.length, false);
   t.conseils.forEach(function(lib, i){
     var l = el("div","pc-ligne");
     l.appendChild(el("div","pc-lib", lib));
-    var b = el("button","case","✓"); b.type="button";
-    b.setAttribute("aria-pressed", m.conseils["k"+i]?"true":"false");
-    b.setAttribute("aria-label", lib);
-    b.onclick = function(){ m.conseils["k"+i] = m.conseils["k"+i]?0:1; b.setAttribute("aria-pressed", m.conseils["k"+i]?"true":"false"); sauver(); };
-    var w = el("div","pc-etats"); w.appendChild(b);
-    l.appendChild(w);
-    c6.appendChild(l);
+    var b3 = el("button","case","✓"); b3.type="button";
+    b3.setAttribute("aria-pressed", m.conseils["k"+i]?"true":"false");
+    b3.onclick = function(){
+      m.conseils["k"+i] = m.conseils["k"+i]?0:1;
+      b3.setAttribute("aria-pressed", m.conseils["k"+i]?"true":"false");
+      var n = t.conseils.filter(function(_,j){ return m.conseils["k"+j]; }).length;
+      corpsC.parentNode.querySelector(".cpt").textContent = n+"/"+t.conseils.length;
+      sauver();
+    };
+    var w = el("div","pc-etats"); w.appendChild(b3); l.appendChild(w);
+    corpsC.appendChild(l);
   });
-  champTexte(c6, m, "note", "Précisions propres à cette installation", {plein:true, type:"zone", suffixe:m.mid});
-  var mm = el("div","alerte info");
-  mm.textContent = "Les conseils et recommandations sont donnés à titre indicatif et ont une valeur informative. Aucun investissement proposé ne revêt un caractère obligatoire. Il s'agit de conseils et non de prescriptions ou d'injonctions de faire.";
-  c6.appendChild(mm);
+  champ(c6, m, "note", "Précisions", {plein:true, type:"zone", suffixe:m.mid});
   root.appendChild(c6);
 
   majs.forEach(function(fn){fn();});
+}
+
+/* ============ signature du client, sur la tablette ============
+   Un récapitulatif de ce qu'il signe, puis son tracé.
+   Sans signature : le document porte « client absent ». */
+function texteEngagement(){
+  var lignes = [];
+  V.machines.forEach(function(m){
+    var t = techDe(m); if(!t) return;
+    var doc = t.regl.obligatoire ? "attestation d'entretien" : "compte rendu d'entretien";
+    if(V.interv === "mes")      doc = "procès-verbal de mise en service";
+    else if(V.interv === "dep") doc = "rapport d'intervention";
+    lignes.push(doc + " — " + t.label.toLowerCase() + (txt(m.ident.marque) ? " (" + m.ident.marque + ")" : ""));
+  });
+  return lignes;
+}
+
+function ouvrirSignatureClient(){
+  if(!V.machines.length){ toast("Aucune machine à faire signer","att"); return; }
+  var dlg = document.getElementById("dlgSignClient");
+  var corps = document.getElementById("signClientCorps");
+  corps.innerHTML = "";
+
+  var intro = el("div","sc-intro");
+  intro.appendChild(el("div","sc-t","Vous allez signer pour :"));
+  var ul = el("div","sc-liste");
+  texteEngagement().forEach(function(l){ ul.appendChild(el("div",null,"• "+l)); });
+  intro.appendChild(ul);
+  intro.appendChild(el("div","sc-t2",
+    "réalisés le " + (V.date||"") + " par " + (cfg.technicien||"Rémi KATA") + " — SARL KA-RÉ" +
+    (txt(V.adresse) ? ", à " + V.adresse : "")));
+  intro.appendChild(el("div","sc-mention",
+    "Votre signature vaut réception des documents ci-dessus. Elle ne vaut pas approbation des constatations techniques."));
+  corps.appendChild(intro);
+
+  var ch = el("div","champ plein");
+  ch.appendChild(el("label",null,"Nom du signataire"));
+  var inp = el("input"); inp.type="text"; inp.value = V.signQui || V.present || "";
+  inp.placeholder = "NOM Prénom";
+  inp.addEventListener("input", function(){ V.signQui = inp.value; sauver(); });
+  ch.appendChild(inp);
+  corps.appendChild(ch);
+
+  var toile = el("canvas"); toile.className = "sign-toile"; toile.width = 900; toile.height = 300;
+  corps.appendChild(toile);
+  var ctx = toile.getContext("2d");
+  ctx.lineWidth = 4; ctx.lineCap = "round"; ctx.lineJoin = "round"; ctx.strokeStyle = "#0E1A26";
+  var trace = false, vierge = true;
+  function pos(e){
+    var r = toile.getBoundingClientRect();
+    return {x:(e.clientX-r.left)*toile.width/r.width, y:(e.clientY-r.top)*toile.height/r.height};
+  }
+  toile.addEventListener("pointerdown", function(e){
+    trace = true; vierge = false; toile.setPointerCapture(e.pointerId);
+    var p = pos(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); e.preventDefault();
+  });
+  toile.addEventListener("pointermove", function(e){
+    if(!trace) return; var p = pos(e); ctx.lineTo(p.x,p.y); ctx.stroke(); e.preventDefault();
+  });
+  ["pointerup","pointercancel","pointerleave"].forEach(function(ev){
+    toile.addEventListener(ev, function(){ trace = false; });
+  });
+
+  var barre = el("div","sc-barre");
+  var bEff = el("button","btn mini","Effacer"); bEff.type="button";
+  bEff.onclick = function(){ ctx.clearRect(0,0,toile.width,toile.height); vierge = true; };
+  var bAbs = el("button","btn mini","Client absent"); bAbs.type="button";
+  bAbs.onclick = function(){
+    V.signClient = ""; V.signRefus = 1; sauverTout(); dlg.close();
+    toast("Noté : client absent");
+  };
+  var bOk = el("button","btn p","Valider la signature"); bOk.type="button";
+  bOk.onclick = function(){
+    if(vierge){ toast("Fais signer, ou touche « Client absent »","att"); return; }
+    V.signClient = rognerToile(toile, ctx, 520);
+    V.signRefus = 0;
+    if(!txt(V.signQui)) V.signQui = txt(V.present) || "";
+    sauverTout(); dlg.close();
+    toast("Signature enregistrée","ok");
+    rendre();
+  };
+  barre.appendChild(bEff); barre.appendChild(bAbs); barre.appendChild(bOk);
+  corps.appendChild(barre);
+  dlg.showModal();
+}
+
+/* Rogne les marges vides d'un tracé et réduit à la largeur voulue. */
+function rognerToile(toile, ctx, largeur){
+  var d = ctx.getImageData(0,0,toile.width,toile.height).data;
+  var x0=toile.width, y0=toile.height, x1=0, y1=0, vu=false;
+  for(var y=0;y<toile.height;y++) for(var x=0;x<toile.width;x++){
+    if(d[(y*toile.width+x)*4+3] > 12){
+      vu=true; if(x<x0)x0=x; if(x>x1)x1=x; if(y<y0)y0=y; if(y>y1)y1=y;
+    }
+  }
+  if(!vu) return "";
+  var mx = 8;
+  x0=Math.max(0,x0-mx); y0=Math.max(0,y0-mx);
+  x1=Math.min(toile.width-1,x1+mx); y1=Math.min(toile.height-1,y1+mx);
+  var w = x1-x0+1, h = y1-y0+1;
+  var out = document.createElement("canvas");
+  var ech = Math.min(1, largeur/w);
+  out.width = Math.round(w*ech); out.height = Math.round(h*ech);
+  out.getContext("2d").drawImage(toile, x0,y0,w,h, 0,0,out.width,out.height);
+  return out.toDataURL("image/png");
+}
+
+/* ============ photos ============
+   Prises sur place, réduites tout de suite, enregistrées avec la fiche
+   et imprimées sur le document remis au client. */
+var PHOTO_MAX = 1280, PHOTO_QUAL = 0.62, PHOTO_PAR_MACHINE = 8;
+var ETIQUETTES = ["Plaque signalétique","Ticket d'analyse","Avant","Après","Anomalie","Autre"];
+
+function reduireImage(fichier, fn){
+  var lecteur = new FileReader();
+  lecteur.onload = function(){
+    var im = new Image();
+    im.onload = function(){
+      var ech = Math.min(1, PHOTO_MAX/Math.max(im.width, im.height));
+      var c = document.createElement("canvas");
+      c.width = Math.round(im.width*ech); c.height = Math.round(im.height*ech);
+      var x = c.getContext("2d");
+      x.fillStyle = "#fff"; x.fillRect(0,0,c.width,c.height);
+      x.drawImage(im, 0,0, c.width, c.height);
+      fn(c.toDataURL("image/jpeg", PHOTO_QUAL), c.width, c.height);
+    };
+    im.onerror = function(){ fn(null); };
+    im.src = lecteur.result;
+  };
+  lecteur.onerror = function(){ fn(null); };
+  lecteur.readAsDataURL(fichier);
+}
+
+function ajouterPhoto(m, fichier, etiquette, apres){
+  m.photos = m.photos || [];
+  if(m.photos.length >= PHOTO_PAR_MACHINE){ toast("8 photos maximum par machine","att"); return; }
+  reduireImage(fichier, function(data){
+    if(!data){ toast("Image illisible","mal"); return; }
+    m.photos.push({id:idUnique("ph"), et:etiquette||"Autre", data:data, t:Date.now()});
+    if(!sauverTout()){
+      m.photos.pop();
+      toast("Mémoire pleine — envoie la visite en cours avant d'ajouter des photos","mal");
+    }
+    if(apres) apres();
+  });
+}
+
+function carteMachinePhotos(root, m, connue){
+  var c = el("div","carte");
+  var h = el("h2",null,"Photos");
+  m.photos = m.photos || [];
+  h.appendChild(el("span","cpt", m.photos.length+"/"+PHOTO_PAR_MACHINE));
+  c.appendChild(h);
+
+  if(connue && !m.photos.length && !m.photosOuvert){
+    var ouvre = el("button","btn","+ Photo"); ouvre.type="button"; ouvre.style.width="100%";
+    ouvre.onclick = function(){ m.photosOuvert = 1; rendre(); };
+    c.appendChild(ouvre);
+    root.appendChild(c); return;
+  }
+  if(!connue && !m.photos.length){
+    c.appendChild(el("div","alerte att","Matériel inconnu du parc. Photographie la plaque signalétique : j'en tirerai les caractéristiques."));
+  }
+  var ch = el("div","chips petit"); ch.style.marginBottom="8px";
+  ETIQUETTES.forEach(function(et){
+    var lab = el("label","chip mini"); lab.textContent = et;
+    var inp = el("input"); inp.type="file"; inp.accept="image/*"; inp.capture="environment";
+    inp.style.display="none";
+    inp.addEventListener("change", function(){
+      if(inp.files && inp.files[0]) ajouterPhoto(m, inp.files[0], et, rendre);
+      inp.value = "";
+    });
+    lab.appendChild(inp);
+    ch.appendChild(lab);
+  });
+  c.appendChild(ch);
+
+  if(m.photos.length){
+    var g = el("div","vignettes");
+    m.photos.forEach(function(ph, i){
+      var b = el("div","vign");
+      var im = el("img"); im.src = ph.data; im.alt = ph.et; b.appendChild(im);
+      b.appendChild(el("span","et", ph.et));
+      var x = el("button","oter","×"); x.type="button"; x.setAttribute("aria-label","Retirer la photo");
+      x.onclick = function(){ m.photos.splice(i,1); sauverTout(); rendre(); };
+      b.appendChild(x);
+      g.appendChild(b);
+    });
+    c.appendChild(g);
+  } else {
+    c.appendChild(el("div","mini","Touche une étiquette pour déclencher l'appareil photo. Les photos partent sur le document du client."));
+  }
+  root.appendChild(c);
 }
 
 /* ============ construction du message ============ */
@@ -1665,7 +2328,7 @@ function etatLisible(v){ return v==="ok" ? "contrôlé" : v==="non" ? "NON CONTR
 function payloadMachine(m, idx){
   var t = techDe(m), lc = listeCtrl(m);
   var ident = {}, i;
-  t.ident.forEach(function(f){ var v=txt(m.ident[f.k]); if(v!==null) ident[f.l]=v; });
+  t.ident.forEach(function(f){ var v=propre(m.ident[f.k]); if(v!==null) ident[f.l]=v; });
 
   var ctrl = [], nOk=0, nNon=0, nNp=0;
   lc.forEach(function(lib, j){
@@ -1677,9 +2340,14 @@ function payloadMachine(m, idx){
   var mesures = {};
   t.mes.forEach(function(f){
     var val, brut;
+    if(m.na && m.na[f.k]){
+      mesures[f.l] = {valeur:"sans objet", unite:f.u||null, verdict:null, alerte:false,
+                      motif:"non relevable sur cet équipement"};
+      return;
+    }
     if(f.type==="calc"){ val = valeurCalc(m,f); brut = estNb(val)?val:null; }
     else if(f.type==="fixe"){ brut = f.valeur; val = f.valeur; }
-    else { brut = (f.type==="num") ? n0(m.mes[f.k]) : txt(m.mes[f.k]); val = nb(m.mes[f.k]); }
+    else { brut = (f.type==="num") ? n0(m.mes[f.k]) : propre(m.mes[f.k]); val = nb(m.mes[f.k]); }
     if(brut===null || brut===undefined || brut==="") return;
     var v = verdict(f, estNb(val)?val:NaN);
     mesures[f.l] = {valeur:brut, unite:f.u||null, verdict:v?v.t:null, alerte:v?(v.k!=="ok"):false};
@@ -1703,7 +2371,7 @@ function payloadMachine(m, idx){
   var conseils = [];
   t.conseils.forEach(function(lib,k){ if(m.conseils["k"+k]) conseils.push(lib); });
 
-  var ecarts = anomaliesDe(m).map(function(x){ return (x.grave?"[DANGER] ":"")+x.lib; });
+  var ecarts = anomaliesDe(m).map(function(x){ return propre((x.grave?"[DANGER] ":"")+x.lib); }).filter(Boolean);
 
   return {
     secret: cfg.secret || "",
@@ -1717,29 +2385,32 @@ function payloadMachine(m, idx){
     technologie_label: t.label,
     notion_page_id: m.notion || null,
     axonaut_id: m.axonaut || null,
-    reglementaire: !!t.regl.obligatoire,
-    document_a_produire: t.regl.doc,
+    reglementaire: estReglementaire(m),
+    hors_plage: horsPlage(m) ? (fmt(horsPlage(m).p,1)+" kW, "+horsPlage(m).sens+" "+horsPlage(m).seuil+" kW") : null,
+    document_a_produire: estReglementaire(m) ? t.regl.doc : "Compte rendu d'entretien contractuel",
     periodicite: t.regl.periodicite,
     base_reglementaire: t.regl.cadre,
     client: {
-      nom: txt(V.client), adresse: txt(V.adresse),
-      contact: txt(V.contact), present: txt(V.present)
+      nom: propre(V.client), adresse: propre(V.adresse),
+      contact: propre(V.contact), present: propre(V.present)
     },
     technicien: cfg.technicien || "Rémi KATA",
-    appareils_mesure: txt(V.appareils),
+    appareils_mesure: propre(cfg.appareils || V.appareils),
     identification: ident,
     controles: ctrl,
     controles_controles: nOk, controles_non: nNon, controles_np: nNp, controles_total: lc.length,
     mesures: mesures,
     sous_machines: sous,
-    anomalies: txt(m.anomalies),
-    actions: txt(m.actions),
+    anomalies: propre(m.anomalies),
+    actions: propre(m.actions),
     conseils_donnes: conseils,
-    precisions: txt(m.note),
+    precisions: propre(m.note),
+    photos: (m.photos||[]).map(function(ph){ return {etiquette:ph.et}; }),
+    photos_nb: (m.photos||[]).length,
     ecarts: ecarts,
     danger: ecarts.some(function(e){ return e.indexOf("[DANGER]")===0; }),
     application: "fiche-terrain KA-RÉ v"+VERSION,
-    resume: resumeTexte(m, idx)
+    resume: propre(resumeTexte(m, idx))
   };
 }
 
@@ -1753,7 +2424,7 @@ function resumeTexte(m, idx){
   ligne("Intervention", (INTERV.filter(function(x){return x.c===V.interv;})[0]||{}).l);
   ligne("Technicien", cfg.technicien||"Rémi KATA");
   ligne("Personne présente", V.present);
-  ligne("Appareils de mesure", V.appareils);
+  ligne("Appareils de mesure", cfg.appareils || V.appareils);
   L.push(""); L.push("-- Identification --");
   t.ident.forEach(function(f){ ligne(f.l, txt(m.ident[f.k])); });
   L.push(""); L.push("-- Points de contrôle --");
@@ -1764,6 +2435,7 @@ function resumeTexte(m, idx){
     if(f.type==="calc"){ val=valeurCalc(m,f); aff = estNb(val)?fmt(val,1):null; }
     else if(f.type==="fixe"){ val=f.valeur; aff=String(f.valeur); }
     else { aff = txt(m.mes[f.k]); val = nb(m.mes[f.k]); }
+    if(m.na && m.na[f.k]){ ligne(f.l, "sans objet"); return; }
     if(aff===null) return;
     var v = verdict(f, estNb(val)?val:NaN);
     ligne(f.l, aff + (f.u?" "+f.u:"") + (v ? "  → "+v.t : ""));
@@ -1897,42 +2569,289 @@ function toast(msg, kind){
   toastTimer = setTimeout(function(){ if(t) t.remove(); }, 3600);
 }
 
+/* ============================================================
+   Le document remis au client.
+   Construit à l'impression : un document par machine, complet,
+   avec en-tête, références réglementaires, réserves et signatures.
+   ============================================================ */
+var KARE_ENTETE = {
+  raison:"SARL KA-RÉ", slogan:"Votre confort, notre expertise !",
+  adresse:"13 Rue de la Lâche, 57530 Raville",
+  tel:"06 80 80 50 01", mail:"contact@ka-re.fr",
+  siret:"SIRET 983 668 567 00016", tva:"TVA FR30983668567",
+  qualif:"RGE QualiPac QPAC/76170 · Attestation de capacité fluides frigorigènes CF00574"
+};
+/* Devine la commune à partir de l'adresse du chantier : « … 57530 Raville » -> Raville */
+function communeDe(adr){
+  var a = txt(adr); if(!a) return null;
+  var m = a.match(/\b\d{5}\s+([^,;]+)$/);
+  if(m) return m[1].trim();
+  var bouts = a.split(",");
+  return bouts.length > 1 ? bouts[bouts.length-1].trim() : null;
+}
+var RESERVES =
+  "Le présent document rend compte des vérifications, mesures et constatations réalisées le jour de la visite, "+
+  "sur les seules parties accessibles de l'installation et sans démontage autre que celui nécessaire à l'entretien "+
+  "courant. Il ne constitue ni une garantie de bon fonctionnement futur, ni un diagnostic exhaustif de l'installation. "+
+  "Il ne couvre pas les désordres non apparents, les vices cachés, les conséquences d'interventions réalisées par des "+
+  "tiers, ni les défauts d'un matériel dont KA-RÉ n'a pas assuré la pose lorsque son historique n'a pas été porté à sa "+
+  "connaissance. Les causes mentionnées sont des causes probables. Lorsqu'un danger est constaté, il est signalé au "+
+  "commanditaire au titre du devoir de conseil de l'entreprise. Les travaux correctifs identifiés et non réalisés ce "+
+  "jour font l'objet d'un devis distinct ; leur non-réalisation engage la responsabilité du commanditaire quant aux "+
+  "conséquences.";
+var MENTION_CONSEILS =
+  "Les conseils et recommandations sont donnés à titre indicatif et ont une valeur informative. Aucun investissement "+
+  "proposé par la personne ayant effectué l'entretien ne revêt un caractère obligatoire. Il s'agit de conseils et non "+
+  "de prescriptions ou d'injonctions de faire.";
+
+/* 2026-08-24 -> 24/08/2026 */
+function dateFr(d){
+  var v = txt(d); if(!v) return "";
+  var m = v.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  return m ? m[3]+"/"+m[2]+"/"+m[1] : v;
+}
+function ligneDoc(parent, cle, val){
+  if(val===null || val===undefined || String(val).trim()==="") return;
+  var l = el("div","dl");
+  l.appendChild(el("span","dk", cle));
+  l.appendChild(el("span","dv", String(val)));
+  parent.appendChild(l);
+}
+
+function documentMachine(m, idx){
+  var t = techDe(m);
+  var d = el("div","doc");
+  if(idx > 0) d.classList.add("saut");
+
+  /* --- en-tête --- */
+  var e = el("div","doc-entete");
+  var img = el("img"); img.className="doc-logo"; img.src = LOGO_KARE; img.alt="KA-RÉ";
+  e.appendChild(img);
+  var ident = el("div","doc-ident");
+  ident.appendChild(el("div","slog", KARE_ENTETE.slogan));
+  ident.appendChild(el("div","coord", KARE_ENTETE.adresse+" · "+KARE_ENTETE.tel+" · "+KARE_ENTETE.mail));
+  ident.appendChild(el("div","coord", KARE_ENTETE.siret+" · "+KARE_ENTETE.tva));
+  ident.appendChild(el("div","qualif", KARE_ENTETE.qualif));
+  e.appendChild(ident);
+  d.appendChild(e);
+
+  /* --- titre --- */
+  var regl  = estReglementaire(m);
+  var titre = regl ? "Attestation d'entretien" : "Compte rendu d'entretien";
+  if(V.interv === "mes")      titre = "Procès-verbal de mise en service";
+  else if(V.interv === "dep") titre = "Rapport d'intervention";
+  d.appendChild(el("h1", null, titre + " — " + t.label));
+
+  var st = el("div","doc-sous");
+  if(regl && V.interv === "entretien"){
+    st.textContent = "Établi en application du " + t.regl.cadre +
+      " Puissance concernée : " + t.regl.plage + ". Périodicité : " + t.regl.periodicite.toLowerCase() + ".";
+  } else if(V.interv === "entretien"){
+    var hp2 = horsPlage(m);
+    st.textContent = hp2
+      ? ("Prestation contractuelle. La puissance de cet équipement (" + fmt(hp2.p,1) + " kW) se situe " + hp2.sens +
+         " " + hp2.seuil + " kW : l'entretien ne relève pas de l'obligation réglementaire. Le présent document ne " +
+         "constitue pas une attestation réglementaire.")
+      : ("Prestation contractuelle. L'entretien de ce type d'équipement ne fait l'objet d'aucune " +
+         "obligation réglementaire : le présent document ne constitue pas une attestation réglementaire.");
+  } else {
+    st.textContent = "Document établi au titre de l'intervention réalisée. " +
+      (t.regl.obligatoire ? "L'entretien périodique de cet équipement relève par ailleurs du " + t.regl.cadre : "");
+  }
+  d.appendChild(st);
+
+  /* --- commanditaire et intervention --- */
+  var s1 = el("div","doc-sect");
+  s1.appendChild(el("h2",null,"1 — Commanditaire et intervention"));
+  ligneDoc(s1, "Commanditaire", V.client);
+  ligneDoc(s1, "Adresse de l'installation", V.adresse);
+  ligneDoc(s1, "Personne présente", V.present);
+  ligneDoc(s1, "Date de la visite", dateFr(V.date));
+  ligneDoc(s1, "Nature de l'intervention", (INTERV.filter(function(x){return x.c===V.interv;})[0]||{}).l);
+  ligneDoc(s1, "Intervenant", (cfg.technicien||"Rémi KATA")+" — "+KARE_ENTETE.raison+" — "+KARE_ENTETE.tel);
+  ligneDoc(s1, "Appareils de mesure utilisés", cfg.appareils);
+  d.appendChild(s1);
+
+  /* --- identification --- */
+  var s2 = el("div","doc-sect");
+  s2.appendChild(el("h2",null,"2 — Identification de l'équipement"));
+  var vide2 = true;
+  t.ident.forEach(function(f){
+    var v = txt(m.ident[f.k]);
+    if(v!==null){ vide2=false; ligneDoc(s2, f.l, (f.type==="date" ? dateFr(v) : v) + (f.u?" "+f.u:"")); }
+  });
+  if(vide2) s2.appendChild(el("div","dl","—"));
+  d.appendChild(s2);
+
+  /* --- points de contrôle --- */
+  var lc = listeCtrl(m);
+  var s3 = el("div","doc-sect");
+  s3.appendChild(el("h2",null,"3 — Points de contrôle"));
+  s3.appendChild(el("div","doc-leg","✓ contrôlé    ✗ non contrôlé    NP non présent sur l'installation"));
+  var tb = el("table","doc-tbl");
+  lc.forEach(function(lib,i){
+    var e2 = m.ctrl["c"+i];
+    var tr = el("tr");
+    var td1 = el("td", null, lib); tr.appendChild(td1);
+    var td2 = el("td","c", e2==="ok" ? "✓" : e2==="non" ? "✗" : e2==="np" ? "NP" : "—");
+    if(e2==="non") td2.className="c mal";
+    tr.appendChild(td2);
+    tb.appendChild(tr);
+  });
+  s3.appendChild(tb);
+  d.appendChild(s3);
+
+  /* --- mesures --- */
+  var s4 = el("div","doc-sect");
+  s4.appendChild(el("h2",null,"4 — Mesures et relevés"));
+  var au = 0;
+  t.mes.forEach(function(f){
+    var val, aff;
+    if(m.na && m.na[f.k]){ au++; ligneDoc(s4, f.l, "sans objet — non relevable sur cet équipement"); return; }
+    if(f.type==="calc"){ val=valeurCalc(m,f); aff = estNb(val)?fmt(val,1):null; }
+    else if(f.type==="fixe"){ val=f.valeur; aff=String(f.valeur); }
+    else { aff = txt(m.mes[f.k]); val = nb(m.mes[f.k]); }
+    if(aff===null) return;
+    au++;
+    var v = verdict(f, estNb(val)?val:NaN);
+    ligneDoc(s4, f.l, aff + (f.u?" "+f.u:"") + (v && v.k!=="ok" ? "   ⚠ "+v.t : ""));
+  });
+  if(!au) s4.appendChild(el("div","dl","Aucune mesure relevée."));
+  if(t.sousMachines && m.sous.length){
+    s4.appendChild(el("h3",null,t.sousMachines.label));
+    m.sous.forEach(function(l, k){
+      var bouts=[];
+      t.sousMachines.champs.forEach(function(f){
+        var v;
+        if(f.type==="calc"){ var x=valeurCalc(m,f,l); v = estNb(x)?fmt(x,1):null; }
+        else if(f.type==="case"){ v = l[f.k]?"oui":null; }
+        else v = txt(l[f.k]);
+        if(v!==null) bouts.push(f.l+" "+v+(f.u?" "+f.u:""));
+      });
+      if(bouts.length) ligneDoc(s4, t.sousMachines.singulier+" "+(k+1), bouts.join(" · "));
+    });
+  }
+  d.appendChild(s4);
+
+  /* --- défauts et actions --- */
+  var s5 = el("div","doc-sect");
+  s5.appendChild(el("h2",null,"5 — Défauts constatés et actions réalisées"));
+  var ec = anomaliesDe(m);
+  if(ec.length){
+    var u = el("div","doc-ec");
+    ec.forEach(function(x){ u.appendChild(el("div", x.grave?"mal":"", "• "+x.lib)); });
+    s5.appendChild(u);
+  }
+  ligneDoc(s5, "Défauts constatés", txt(m.anomalies) || (ec.length ? "voir ci-dessus" : "Aucune anomalie constatée"));
+  ligneDoc(s5, "Actions correctives réalisées", txt(m.actions) || "Néant");
+  d.appendChild(s5);
+
+  /* --- conseils --- */
+  var s6 = el("div","doc-sect");
+  s6.appendChild(el("h2",null,"6 — Conseils et recommandations"));
+  var don = t.conseils.filter(function(_,i){ return m.conseils["k"+i]; });
+  if(don.length){
+    var u2 = el("div","doc-ec");
+    don.forEach(function(c){ u2.appendChild(el("div",null,"• "+c)); });
+    s6.appendChild(u2);
+  } else s6.appendChild(el("div","dl","—"));
+  if(txt(m.note)) ligneDoc(s6, "Précisions", m.note);
+  s6.appendChild(el("div","doc-mention", MENTION_CONSEILS));
+  d.appendChild(s6);
+
+  /* --- réserves --- */
+  var r = el("div","doc-clause");
+  r.appendChild(el("b",null,"Réserves. "));
+  r.appendChild(document.createTextNode(RESERVES));
+  d.appendChild(r);
+
+  /* --- signatures --- */
+  var sg = el("div","doc-sign");
+  var g1 = el("div");
+  g1.appendChild(el("div","l","Le technicien — "+(cfg.technicien||"Rémi KATA")));
+  if(cfg.signature){
+    var si = el("img"); si.className="doc-para"; si.src = cfg.signature; si.alt="signature";
+    g1.appendChild(si);
+  }
+  g1.appendChild(el("div","dt", "Fait à " + (txt(V.ville) || communeDe(V.adresse) || "…") + ", le " + dateFr(V.date)));
+  sg.appendChild(g1);
+  if(cfg.signClient !== "non"){
+    var g2 = el("div");
+    g2.appendChild(el("div","l","Le commanditaire"));
+    if(V.signClient){
+      var sc = el("img"); sc.className="doc-para"; sc.src = V.signClient; sc.alt="signature du client";
+      g2.appendChild(sc);
+      g2.appendChild(el("div","dt", (txt(V.signQui) || txt(V.present) || "") + " — signé sur tablette le " + dateFr(V.date)));
+    } else if(V.signRefus){
+      g2.appendChild(el("div","absent","CLIENT ABSENT — document remis par voie électronique"));
+    } else {
+      g2.appendChild(el("div","dt","Pour réception du présent document"));
+    }
+    sg.appendChild(g2);
+  }
+  d.appendChild(sg);
+
+  /* --- pied --- */
+  var p = el("div","doc-pied");
+  if(regl && V.interv === "entretien"){
+    p.appendChild(el("div",null,"À remettre au commanditaire sous "+t.regl.delai+
+      " · "+t.regl.conserv+" · à tenir à disposition des agents de contrôle."));
+  }
+  p.appendChild(el("div",null, KARE_ENTETE.raison+" · "+KARE_ENTETE.adresse+" · "+KARE_ENTETE.siret+
+    " · fiche "+m.mid.slice(-6)+" · visite "+V.id.slice(-6)));
+  d.appendChild(p);
+  return d;
+}
+
+function imprimer(){
+  sauverTout();
+  if(!V.machines.length){ toast("Aucune machine à imprimer","att"); return; }
+  var zone = document.getElementById("zoneImpression");
+  if(zone) zone.remove();
+  zone = el("div"); zone.id = "zoneImpression";
+  V.machines.forEach(function(m,i){ zone.appendChild(documentMachine(m,i)); });
+  document.body.appendChild(zone);
+  document.body.classList.add("mode-impression");
+  var fin = function(){
+    document.body.classList.remove("mode-impression");
+    var z = document.getElementById("zoneImpression"); if(z) z.remove();
+    window.removeEventListener("afterprint", fin);
+  };
+  window.addEventListener("afterprint", fin);
+  setTimeout(function(){ window.print(); setTimeout(fin, 1500); }, 60);
+}
+
 /* ============ réglages ============ */
 function ouvrirReglages(){
+  var t = document.querySelector("#dlgReglages .dlg-tete");
+  if(t) t.textContent = "Réglages — version " + VERSION;
   $("#cfgWebhook").value = cfg.webhook || "";
   $("#cfgSecret").value  = cfg.secret  || "";
   $("#cfgTech").value    = cfg.technicien || "";
+  $("#cfgAppareils").value = cfg.appareils || "";
+  $("#cfgMode").value = cfg.modeControles || "declare";
+  $("#cfgSignClient").value = cfg.signClient || "oui";
+  if(window.__signatureInit) window.__signatureInit();
   var ip = $("#infoParc");
   if(parc && parc.length){
-    var clients = {}; parc.forEach(function(p){ if(p.client) clients[p.client]=1; });
-    ip.textContent = parc.length+" machines chez "+Object.keys(clients).length+" clients.";
-  } else ip.textContent = "Aucun parc chargé. Importe config_KA-RE.json ci-dessus.";
+
+    ip.textContent = parc.length+" machines au parc · "+clients.length+" clients Axonaut";
+  } else ip.textContent = "Aucun parc chargé.";
 
   var iv = $("#infoVisites");
   var f = fileLire();
-  iv.textContent = "Visite en cours : "+V.machines.length+" machine(s). File d'attente : "+f.length+" fiche(s). "
-    + (STOCK_OK ? "Enregistrement local actif." : "ATTENTION : l'enregistrement local est indisponible sur ce navigateur.");
+  iv.textContent = V.machines.length+" machine(s) en cours · "+f.length+" en attente"
+    + (STOCK_OK ? "" : " · ENREGISTREMENT LOCAL INDISPONIBLE");
 
   var src = $("#infoSources");
   if(!src.dataset.rempli){
     src.innerHTML =
-      "<p><b>Ce que l'application affirme, et ce qu'elle ne garantit pas.</b></p>"+
-      "<p>Les listes de points de contrôle et les mentions réglementaires ont été construites à partir des textes "+
-      "(code de l'environnement, arrêtés du 15/09/2009, du 24/07/2020 et du 21/11/2022) et de sources professionnelles "+
-      "(CAPEB, COSTIC, AIDA/INERIS, GRDF Cegibat, SYNASAV). Légifrance ayant refusé l'accès automatisé, "+
-      "<b>plusieurs libellés proviennent de sources secondaires et non du texte officiel lui-même</b>.</p>"+
-      "<p><b>Points à faire confirmer avant de s'appuyer dessus en cas de litige :</b></p>"+
-      "<ul style='margin:6px 0 0 16px; padding:0'>"+
-      "<li>Chaudière gaz : la formulation officielle renvoie au § 3.1 de la norme NF X 50-010, payante et révisée en 2025.</li>"+
-      "<li>Rendement forfaitaire et NOx : formules de l'annexe 2 et table de l'annexe 3, à recaler sur le modèle CAPEB ou le kit COSTIC.</li>"+
-      "<li>Classe énergétique : tables de l'annexe 5 non récupérées — champ libre pour l'instant.</li>"+
-      "<li>CO dans les fumées : aucun seuil réglementaire. Le repère de 100 ppm est un usage, pas une règle.</li>"+
-      "<li>Cuve fioul : la périodicité du contrôle d'étanchéité est incertaine, à trancher avec la DREAL ou la CAPEB.</li>"+
-      "<li>PAC et clim : l'obligation est <b>biennale</b>, pas annuelle. Un contrat annuel se vend, mais comme prestation contractuelle.</li>"+
-      "<li>Adoucisseur, VMC double flux, CET : <b>aucune obligation d'entretien</b>. Le document est un compte rendu contractuel.</li>"+
-      "</ul>"+
-      "<p style='margin-top:8px'>Le kit gratuit du <b>COSTIC</b> (modèles d'attestation conformes, mis à jour en novembre 2025) "+
-      "est la référence la plus rapide à obtenir pour recaler tout cela.</p>";
+      "<p>Points de contrôle et mentions établis d'après les textes (arrêtés du 15/09/2009, 24/07/2020 et 21/11/2022) "+
+      "et des sources professionnelles. Plusieurs libellés viennent de sources secondaires, pas du texte officiel.</p>"+
+      "<p><b>À faire confirmer :</b> rendement forfaitaire et NOx (annexes 2 et 3), classe énergétique (annexe 5), "+
+      "périodicité du contrôle de cuve fioul. Le CO dans les fumées n'a aucun seuil réglementaire.</p>"+
+      "<p><b>Périodicités :</b> chaudières annuelle · PAC et clim <b>biennale</b> · adoucisseur, VMC et CET "+
+      "sans obligation, compte rendu contractuel.</p>";
     src.dataset.rempli="1";
   }
   $("#dlgReglages").showModal();
@@ -1949,6 +2868,7 @@ function importerConfig(fichier){
       if(d.technicien){ cfg.technicien = d.technicien; }
       var liste = d.parc || d.machines || (Array.isArray(d) ? d : null);
       if(Array.isArray(liste)){ parc = liste; ecrire(CLE_PARC, parc); n++; }
+      if(Array.isArray(d.clients)){ clients = d.clients; ecrire(CLE_CLIENTS, clients); n++; }
       sauverCfg();
       ouvrirReglages(); rendre();
       toast(n ? "Configuration importée" : "Fichier lu, mais rien de reconnu", n?"ok":"att");
@@ -1963,7 +2883,7 @@ function cabler(){
   $("#bReglages").onclick = ouvrirReglages;
   $("#bEnvoyer").onclick  = envoyer;
   $("#bFichier").onclick  = telecharger;
-  $("#bImprimer").onclick = function(){ sauverTout(); window.print(); };
+  $("#bImprimer").onclick = imprimer;
 
   Array.prototype.forEach.call(document.querySelectorAll("[data-fermer]"), function(b){
     b.onclick = function(){ b.closest("dialog").close(); };
@@ -1972,6 +2892,12 @@ function cabler(){
   $("#cfgWebhook").addEventListener("input", function(){ cfg.webhook=this.value.trim(); sauverCfg(); });
   $("#cfgSecret").addEventListener("input",  function(){ cfg.secret=this.value.trim(); sauverCfg(); });
   $("#cfgTech").addEventListener("input",    function(){ cfg.technicien=this.value.trim(); sauverCfg(); });
+  $("#cfgAppareils").addEventListener("input", function(){ cfg.appareils=this.value.trim(); sauverCfg(); });
+  $("#cfgSignClient").addEventListener("change", function(){ cfg.signClient=this.value; sauverCfg(); });
+  $("#cfgMode").addEventListener("change", function(){
+    cfg.modeControles = this.value; sauverCfg(); recalerControles(); sauverTout(); rendre();
+    toast(this.value==="aFaire" ? "Mode liste à faire" : "Mode déclaration");
+  });
   $("#cfgFichier").addEventListener("change", function(){ if(this.files && this.files[0]) importerConfig(this.files[0]); });
 
   $("#bTester").onclick = function(){
@@ -2029,6 +2955,7 @@ window.KARE = {
   set visite(x){ V = x; },
   get config(){ return cfg; },
   get parc(){ return parc; },
+  get clients(){ return clients; },
   set parc(x){ parc = x; ecrire(CLE_PARC, parc); },
   ajouterMachine: ajouterMachine, aller: aller, rendre: rendre,
   valeurCalc: valeurCalc, verdict: verdict, verdictCO: verdictCO,
@@ -2036,8 +2963,85 @@ window.KARE = {
   payloadMachine: payloadMachine, resumeTexte: resumeTexte,
   fileLire: fileLire, fileEcrire: fileEcrire, viderFile: viderFile,
   envoyer: envoyer, sauverTout: sauverTout, sauverCfg: sauverCfg,
-  visiteVierge: visiteVierge, majReseau: majReseau, telecharger: telecharger
+  visiteVierge: visiteVierge, majReseau: majReseau, telecharger: telecharger,
+  documentMachine: documentMachine, imprimer: imprimer,
+  pointsJustifies: pointsJustifies, appliquerLiens: appliquerLiens, listeCtrl: listeCtrl,
+  pointsMesure: pointsMesure, basculerSansObjet: basculerSansObjet,
+  horsPlage: horsPlage, estReglementaire: estReglementaire,
+  appliquerProfil: appliquerProfil, enregistrerProfil: enregistrerProfil
 };
+
+/* ============ signature du technicien ============ */
+(function(){
+  var toile, ctx, trace = false, vierge = true;
+  function init(){
+    toile = document.getElementById("cfgSign");
+    if(!toile || toile.dataset.pret) return;
+    toile.dataset.pret = "1";
+    ctx = toile.getContext("2d");
+    ctx.lineWidth = 3; ctx.lineCap = "round"; ctx.lineJoin = "round";
+    ctx.strokeStyle = "#0E1A26";
+    function pos(e){
+      var r = toile.getBoundingClientRect();
+      return {x:(e.clientX-r.left)*toile.width/r.width, y:(e.clientY-r.top)*toile.height/r.height};
+    }
+    toile.addEventListener("pointerdown", function(e){
+      trace = true; vierge = false; toile.setPointerCapture(e.pointerId);
+      var p = pos(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); e.preventDefault();
+    });
+    toile.addEventListener("pointermove", function(e){
+      if(!trace) return; var p = pos(e); ctx.lineTo(p.x,p.y); ctx.stroke(); e.preventDefault();
+    });
+    ["pointerup","pointercancel","pointerleave"].forEach(function(ev){
+      toile.addEventListener(ev, function(){ trace = false; });
+    });
+    document.getElementById("bSignEffacer").onclick = function(){
+      ctx.clearRect(0,0,toile.width,toile.height); vierge = true;
+      cfg.signature = ""; sauverCfg(); etat();
+    };
+    document.getElementById("bSignGarder").onclick = function(){
+      if(vierge && !cfg.signature){ toast("Trace ta signature d'abord","att"); return; }
+      cfg.signature = rogner(); sauverCfg(); etat();
+      toast("Signature enregistrée","ok");
+    };
+  }
+  /* rogne les marges vides et réduit, pour ne garder que le tracé */
+  function rogner(){
+    var d = ctx.getImageData(0,0,toile.width,toile.height).data;
+    var x0=toile.width, y0=toile.height, x1=0, y1=0, vu=false;
+    for(var y=0;y<toile.height;y++) for(var x=0;x<toile.width;x++){
+      if(d[(y*toile.width+x)*4+3] > 12){
+        vu=true; if(x<x0)x0=x; if(x>x1)x1=x; if(y<y0)y0=y; if(y>y1)y1=y;
+      }
+    }
+    if(!vu) return "";
+    var mx = 6;
+    x0=Math.max(0,x0-mx); y0=Math.max(0,y0-mx);
+    x1=Math.min(toile.width-1,x1+mx); y1=Math.min(toile.height-1,y1+mx);
+    var w = x1-x0+1, h = y1-y0+1;
+    var out = document.createElement("canvas");
+    var ech = Math.min(1, 420/w);
+    out.width = Math.round(w*ech); out.height = Math.round(h*ech);
+    out.getContext("2d").drawImage(toile, x0,y0,w,h, 0,0,out.width,out.height);
+    return out.toDataURL("image/png");
+  }
+  function etat(){
+    var e = document.getElementById("signEtat");
+    if(e) e.textContent = cfg.signature ? "signature enregistrée" : "aucune signature";
+  }
+  function redessiner(){
+    if(!ctx || !cfg.signature) return;
+    var im = new Image();
+    im.onload = function(){
+      ctx.clearRect(0,0,toile.width,toile.height);
+      var ech = Math.min(toile.width/im.width, toile.height/im.height, 1);
+      ctx.drawImage(im, (toile.width-im.width*ech)/2, (toile.height-im.height*ech)/2, im.width*ech, im.height*ech);
+      vierge = false;
+    };
+    im.src = cfg.signature;
+  }
+  window.__signatureInit = function(){ init(); etat(); redessiner(); };
+})();
 
 })();
 </script>
