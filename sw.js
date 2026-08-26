@@ -2,7 +2,7 @@
    La page elle-même : réseau d'abord, cache en secours -> on a toujours la dernière version,
    et ça marche quand même hors connexion.
    Les icônes et le manifeste : cache d'abord, ils ne changent presque jamais. */
-var CACHE = "kare-fiche-v3-3";
+var CACHE = "kare-fiche-v3-5";
 var FICHIERS = ["./","./index.html","./manifest.webmanifest","./icon-192.png","./icon-512.png","./icon-maskable-512.png"];
 
 self.addEventListener("install", function(e){

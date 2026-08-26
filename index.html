@@ -159,6 +159,25 @@ details.repl > summary::-webkit-details-marker{display:none}
 details.repl > summary::before{content:"▸"; color:var(--texte3)}
 details.repl[open] > summary::before{content:"▾"}
 details.repl > div{padding:0 12px 12px; font-size:13px; line-height:1.5; color:var(--texte2)}
+/* le titre d'un volet ouvert reste sous la main pendant qu'on fait défiler */
+details.repl[open] > summary{position:sticky; top:0; z-index:4; background:var(--carte2);
+  border-bottom:1px solid var(--trait2); border-radius:8px 8px 0 0}
+.repl-pied{padding:0 12px 10px}
+.repl-pied .btn{width:100%}
+details.repl:not([open]) > .repl-pied{display:none}
+/* la notice se feuillette : onglets en haut, flèches en bas */
+.fiche-onglets{display:flex; gap:6px; overflow-x:auto; padding:8px 12px; border-bottom:1px solid var(--trait2); flex:0 0 auto}
+.fiche-onglets .chip{white-space:nowrap}
+.fiche-onglets .chip[aria-pressed="true"]{background:var(--accent); color:#fff; border-color:var(--accent)}
+.fiche-pied{gap:8px; align-items:center}
+.fiche-pos{font-family:var(--num); font-size:12px; color:var(--texte3); min-width:52px; text-align:center}
+.btn.large{width:100%; padding:14px; font-size:15px}
+.pc-etats.large{display:flex; gap:8px; margin-top:6px}
+.pc-etats.large .et.large{flex:1; width:auto; height:auto; padding:12px 6px; font-size:14px; font-weight:600}
+/* une plage usuelle n'est pas un seuil : elle se lit, elle n'alarme pas */
+.verdict.info{background:var(--carte2); color:var(--texte3); border:1px solid var(--trait2)}
+.tagf{margin-left:6px; font-size:10px; padding:1px 5px; border-radius:4px; background:var(--carte2); color:var(--texte3); border:1px solid var(--trait2)}
+.ref-plage{font-family:var(--num); font-size:11.5px; color:var(--texte3); margin-top:3px}
 .mono{font-family:var(--num); font-size:12px; word-break:break-all}
 
 @media print{
@@ -324,9 +343,15 @@ dialog.plein{width:min(96vw,1100px); max-width:96vw}
 </dialog>
 
 <dialog id="dlgFiche" class="plein">
-  <div class="dlg-tete" id="ficheTitre">Fiche de référence</div>
-  <div class="dlg-corps fiche-corps"><img id="ficheImg" alt="Fiche de référence"></div>
-  <div class="dlg-pied"><button type="button" class="btn p" data-fermer>Fermer</button></div>
+  <div class="dlg-tete" id="ficheTitre">Notice</div>
+  <div class="fiche-onglets" id="ficheOnglets"></div>
+  <div class="dlg-corps fiche-corps"><img id="ficheImg" alt="Planche de la notice"></div>
+  <div class="dlg-pied fiche-pied">
+    <button type="button" class="btn" id="fichePrec">‹ Précédente</button>
+    <span class="fiche-pos" id="fichePos"></span>
+    <button type="button" class="btn" id="ficheSuiv">Suivante ›</button>
+    <button type="button" class="btn p" data-fermer>Fermer</button>
+  </div>
 </dialog>
 
 <dialog id="dlgRestant">
@@ -382,6 +407,13 @@ dialog.plein{width:min(96vw,1100px); max-width:96vw}
     <div class="champ plein" style="margin-bottom:10px">
       <label for="cfgWebhook">Adresse d'envoi (Make)</label>
       <input type="text" id="cfgWebhook" placeholder="collée depuis le fichier de configuration" autocomplete="off">
+    </div>
+    <div class="champ plein" style="margin-bottom:10px">
+      <label for="cfgMajUrl">Adresse de mise à jour (parc et clients)</label>
+      <input type="text" id="cfgMajUrl" placeholder="collée depuis le fichier de configuration" autocomplete="off">
+      <div class="mini" id="majEtat">—</div>
+      <button type="button" class="btn mini p" id="bMaj" style="margin-top:6px; width:100%">Mettre à jour le parc et les clients</button>
+      <div class="mini">Va chercher les machines dans Notion et les clients dans Axonaut. Se fait aussi tout seul à l'ouverture, une fois par demi-journée, quand il y a du réseau.</div>
     </div>
     <div class="champ plein" style="margin-bottom:10px">
       <label for="cfgSecret">Clé partagée</label>
@@ -559,8 +591,8 @@ TECHNOS.clim_air_air = {
     {k:"ue_souf", l:"Unité extérieure — soufflage", u:"°C", type:"num"},
     {k:"bp", l:"Pression BP (aspiration)", u:"bar", type:"num"},
     {k:"hp", l:"Pression HP (refoulement)", u:"bar", type:"num"},
-    {k:"sh", l:"Surchauffe", u:"K", type:"num", min:5, max:8, nature:"professionnel", aide:"5 à 8 K en froid, 5 à 10 K en chaud"},
-    {k:"sr", l:"Sous-refroidissement", u:"K", type:"num", min:3, max:8, nature:"professionnel"},
+    {k:"sh", l:"Surchauffe", u:"K", type:"num", ref:{min:5, max:8}, nature:"professionnel", aide:"5 à 8 K en froid, 5 à 10 K en chaud"},
+    {k:"sr", l:"Sous-refroidissement", u:"K", type:"num", ref:{min:3, max:8}, nature:"professionnel"},
     {k:"tstat", l:"Tension statique", u:"V", type:"num", min:207, max:253, nature:"réglementaire", aide:"230 V ±10 % — mesure exigée par l'annexe 1"},
     {k:"tdyn", l:"Tension dynamique", u:"V", type:"num", min:207, max:253, nature:"réglementaire", aide:"une chute de plus de 5 % révèle une section de câble insuffisante"},
     {k:"intens", l:"Intensité absorbée", u:"A", type:"num", nature:"professionnel", aide:"comparer à l'intensité de plaque"},
@@ -682,22 +714,22 @@ TECHNOS.pac_air_eau = {
   },
   mes: [
     {k:"text", l:"Température extérieure", u:"°C", type:"num", aide:"indispensable pour interpréter toutes les autres mesures"},
-    {k:"tdep", l:"Température de départ d'eau", u:"°C", type:"num", max:55, nature:"professionnel", aide:"30-35 °C plancher, 40-50 °C radiateurs BT. Au-delà de 55 °C le COP s'effondre"},
+    {k:"tdep", l:"Température de départ d'eau", u:"°C", type:"num", ref:{max:55}, nature:"professionnel", aide:"30-35 °C plancher, 40-50 °C radiateurs BT. Au-delà de 55 °C le COP s'effondre"},
     {k:"tret", l:"Température de retour d'eau", u:"°C", type:"num"},
-    {k:"dt_eau", l:"ΔT départ / retour", u:"K", type:"calc", calc:"absdiff:tdep,tret", min:4, max:10, nature:"professionnel", aide:"4-6 K plancher, 5-8 K radiateurs. Trop faible : débit excessif. Trop élevé : débit insuffisant, filtre colmaté, circuit embouè"},
+    {k:"dt_eau", l:"ΔT départ / retour", u:"K", type:"calc", calc:"absdiff:tdep,tret", ref:{min:4, max:10}, nature:"professionnel", aide:"4-6 K plancher, 5-8 K radiateurs. Trop faible : débit excessif. Trop élevé : débit insuffisant, filtre colmaté, circuit embouè"},
     {k:"ue_rep", l:"Unité extérieure — air aspiré", u:"°C", type:"num"},
     {k:"ue_souf", l:"Unité extérieure — air soufflé", u:"°C", type:"num"},
-    {k:"pcirc", l:"Pression du circuit à froid", u:"bar", type:"num", min:1, max:2, nature:"professionnel"},
-    {k:"pvase", l:"Pression de gonflage du vase", u:"bar", type:"num", min:0.8, max:1.5, nature:"professionnel", aide:"pression statique moins 0,3 bar, vase isolé et vidé côté eau"},
+    {k:"pcirc", l:"Pression du circuit à froid", u:"bar", type:"num", ref:{min:1, max:2}, nature:"professionnel"},
+    {k:"pvase", l:"Pression de gonflage du vase", u:"bar", type:"num", ref:{min:0.8, max:1.5}, nature:"professionnel", aide:"pression statique moins 0,3 bar, vase isolé et vidé côté eau"},
     {k:"bp", l:"Pression BP", u:"bar", type:"num", aide:"le cas échéant : ne jamais percer un circuit scellé"},
     {k:"hp", l:"Pression HP", u:"bar", type:"num", aide:"le cas échéant"},
-    {k:"sh", l:"Surchauffe", u:"K", type:"num", min:4, max:8, nature:"professionnel"},
-    {k:"sr", l:"Sous-refroidissement", u:"K", type:"num", min:3, max:8, nature:"professionnel"},
+    {k:"sh", l:"Surchauffe", u:"K", type:"num", ref:{min:4, max:8}, nature:"professionnel"},
+    {k:"sr", l:"Sous-refroidissement", u:"K", type:"num", ref:{min:3, max:8}, nature:"professionnel"},
     {k:"tstat", l:"Tension statique", u:"V", type:"num", min:207, max:253, nature:"réglementaire"},
     {k:"tdyn", l:"Tension dynamique", u:"V", type:"num", min:207, max:253, nature:"réglementaire"},
     {k:"intens", l:"Intensité absorbée", u:"A", type:"num", nature:"professionnel"},
-    {k:"ph", l:"pH de l'eau du circuit", u:"pH", type:"num", min:8.2, max:10, nature:"professionnel", aide:"NF EN 12828, installations sans aluminium"},
-    {k:"th", l:"Dureté de l'eau (TH)", u:"°f", type:"num", max:15, nature:"professionnel"},
+    {k:"ph", l:"pH de l'eau du circuit", u:"pH", type:"num", ref:{min:8.2, max:10}, nature:"professionnel", aide:"NF EN 12828, installations sans aluminium"},
+    {k:"th", l:"Dureté de l'eau (TH)", u:"°f", type:"num", ref:{max:15}, nature:"professionnel"},
     {k:"emboue", l:"Embouement constaté", type:"liste", opts:["non","léger","marqué"]},
     {k:"classe_reg", l:"Classe du régulateur", type:"liste", opts:["IV","V","VI","VII","VIII","inférieure ou absente"], nature:"réglementaire", aide:"doit relever des classes IV à VIII"},
     {k:"isol", l:"Isolation des réseaux hors volume chauffé", type:"liste", opts:["présente et en bon état","dégradée","absente","sans objet"], nature:"réglementaire"}
@@ -761,22 +793,11 @@ TECHNOS.chaudiere_gaz = {
     {k:"bruleur", l:"Type de brûleur", type:"liste", opts:["prémélange total","prémélange partiel","atmosphérique","air soufflé"],
      aide:"le brûleur, pas la technologie. C'est lui qui donne la valeur forfaitaire des NOx (annexe 3) et qui décide si les mesures de combustion s'appliquent : elles ne sont obligatoires que sur les brûleurs à air soufflé. Repris d'une visite à l'autre."},
     {k:"evac", l:"Type et évacuation", type:"liste", opts:["C étanche ventouse","B1 raccordé non étanche","B22 / B23 raccordé sans coupe-tirage","VMC gaz"],
-     aide:"norme NF EN 1749. B = l'air de combustion est pris dans la pièce ; C = circuit étanche (ventouse). B1 a un coupe-tirage, B2 n'en a pas : B22 ventilateur en aval de la chambre de combustion, B23 en amont (brûleur prémix). Le suffixe P signale un conduit en surpression.", opt:true},
-    {k:"cuisson", l:"Appareil de cuisson au gaz dans le local", type:"liste", opts:["non","oui"], opt:true,
-     aide:"change les règles d'aération du local (arrêté du 23 février 2018, art. 13)"},
-    {k:"non_raccorde", l:"Appareil à gaz non raccordé dans le local", type:"liste", opts:["non","oui"], opt:true,
-     aide:"chauffe-eau non raccordé par exemple — impose une sortie d'air haute"},
-    {k:"air_sortie_type", l:"Sortie d'air du local", type:"liste",
-     opts:["directe (paroi extérieure)","conduit vertical","extraction mécanique (VMC, VMR)","VMC gaz"], opt:true,
-     aide:"c'est ce choix, croisé avec l'amenée d'air, qui donne la section ou le module à respecter"},
-    {k:"air_amenee_type", l:"Amenée d'air", type:"liste", opts:["directe","indirecte (transit sous les portes)"], opt:true},
-    {k:"coupe_tirage", l:"Coupe-tirage de la chaudière", type:"liste",
-     opts:["à 1,80 m ou plus du sol","sous 1,80 m ou absent (B2xP)"], opt:true,
-     aide:"seulement utile s'il y a aussi un appareil non raccordé dans le local : c'est cette hauteur qui départage les cas 5 à 7 du cas 8"},
-    {k:"hotte", l:"Hotte motorisée à évacuation dans le local", type:"liste", opts:["non","oui"], opt:true},
+     aide:"norme NF EN 1749. B = l'air de combustion est pris dans la pièce ; C = circuit étanche (ventouse). B1 a un coupe-tirage, B2 n'en a pas : B22 ventilateur en aval de la chambre de combustion, B23 en amont (brûleur prémix). Le suffixe P signale un conduit en surpression. Renseigné une fois, repris ensuite : c'est lui qui fait disparaître les points sans objet (VMC gaz, CO d'ambiance sur étanche)."},
     {k:"annee", l:"Année de fabrication", type:"num", aide:"sert au calcul du rendement forfaitaire"},
     {k:"mes", l:"Date de mise en service", type:"date"},
-    {k:"ecs", l:"Production ECS", type:"liste", opts:["instantanée","micro-accumulée","ballon (anode à vérifier)","aucune"], opt:true},
+    {k:"ecs", l:"Production ECS", type:"liste", opts:["instantanée","micro-accumulée","ballon (anode à vérifier)","aucune"],
+     aide:"« aucune » retire le point sur le ballon à accumulation"},
     {k:"ramonage", l:"Date du dernier ramonage", type:"date", opt:true},
     {k:"dernier", l:"Date du dernier entretien connu", type:"date"}
   ],
@@ -841,29 +862,42 @@ TECHNOS.chaudiere_gaz = {
   },
   mes: [
     {k:"co_amb", l:"CO ambiant", u:"ppm", type:"num", max:10, nature:"réglementaire", paliers:"co", aide:"appareil en fonctionnement, autres appareils à combustion arrêtés, balayage lent à 50 cm"},
-    {k:"co_fum", l:"CO dans les fumées (à 0 % O2)", u:"ppm", type:"num", max:100, nature:"professionnel", aide:"aucun seuil réglementaire — repère d'usage, à faire valider par la CAPEB"},
-    {k:"tfum", l:"Température des fumées", u:"°C", type:"num", nature:"réglementaire", aide:"mesure obligatoire sur brûleur à air soufflé, après les opérations de réglage. Repères : 40-80 °C en condensation, 100-180 °C en standard"},
+    {k:"co_fum", l:"CO dans les fumées (à 0 % O2)", u:"ppm", type:"num", ref:{max:100}, nature:"professionnel", aide:"aucun seuil réglementaire — repère d'usage, à faire valider par la CAPEB"},
+    {k:"tfum", l:"Température des fumées", u:"°C", type:"num", nature:"réglementaire",
+     ref:function(m){ return estCondensation(m) ? {min:30, max:90} : {min:110, max:200, note:"sous 160 °C, risque de condensation dans un conduit maçonné"}; },
+     aide:"mesure obligatoire sur brûleur à air soufflé, après les opérations de réglage"},
     {k:"tamb", l:"Température ambiante", u:"°C", type:"num", nature:"réglementaire", aide:"relevée en même temps que la température des fumées, sur brûleur à air soufflé"},
-    {k:"co2", l:"Teneur en CO2 des fumées", u:"%", type:"num", nature:"professionnel", aide:"prémélange 8,5-10 %, atmosphérique 5-7 % (gaz naturel)"},
-    {k:"o2", l:"Teneur en O2 des fumées", u:"%", type:"num", nature:"professionnel", aide:"prémélange 4-6 %, atmosphérique 8-11 %"},
-    {k:"rdt_mes", l:"Rendement de combustion lu à l'analyseur", u:"%", type:"num", aide:"valeur de réglage — ce n'est PAS le rendement à porter sur l'attestation"},
-    {k:"rdt", l:"Rendement à porter sur l'attestation", u:"% PCI", type:"calc", calc:"rendement_gaz", nature:"réglementaire", aide:"valeur forfaitaire calculée à partir de la technologie, de l'année et de la puissance"},
-    {k:"rdt_ref", l:"Rendement de référence", u:"% PCI", type:"calc", calc:"rendement_ref_gaz", nature:"réglementaire"},
-    {k:"nox", l:"NOx évalués", u:"mg/kWh", type:"calc", calc:"nox_gaz", nature:"réglementaire", aide:"valeur forfaitaire selon le type de brûleur — les NOx ne se mesurent pas en entretien courant"},
+    {k:"co2", l:"Teneur en CO2 des fumées", u:"%", type:"num", nature:"professionnel",
+     ref:function(m){ return estAtmospherique(m) ? {min:5, max:8} : {min:8, max:10}; },
+     aide:"gaz naturel : CO2 maximal théorique 11,7 %. La plage usuelle découle d'un excès d'air de 20 à 40 %"},
+    {k:"o2", l:"Teneur en O2 des fumées", u:"%", type:"num", nature:"professionnel",
+     ref:function(m){ return estAtmospherique(m) ? {min:8, max:11} : {min:3.5, max:6}; },
+     aide:"l'O2 et le CO2 disent la même chose : l'excès d'air"},
+    {k:"rdt_mes", l:"Rendement de combustion lu à l'analyseur", u:"%", type:"num",
+     ref:function(m){ return estCondensation(m) ? {min:98, max:107, note:"au-dessus de 100 % dès qu'il y a condensation réelle"} : {min:88, max:94}; },
+     aide:"valeur de réglage — ce n'est PAS le rendement à porter sur l'attestation"},
+    {k:"rdt", l:"Rendement à porter sur l'attestation", u:"% PCI", type:"calc", calc:"rendement_gaz", nature:"réglementaire",
+     besoin:[{k:"techno", l:"type de chaudière"},{k:"annee", l:"année de mise en service"},{k:"puiss", l:"puissance"}],
+     aide:"valeur forfaitaire calculée à partir de la technologie, de l'année et de la puissance"},
+    {k:"rdt_ref", l:"Rendement de référence", u:"% PCI", type:"calc", calc:"rendement_ref_gaz", nature:"réglementaire",
+     besoin:[{k:"puiss", l:"puissance"}]},
+    {k:"nox", l:"NOx évalués", u:"mg/kWh", type:"calc", calc:"nox_gaz", nature:"réglementaire",
+     besoin:[{k:"bruleur", l:"type de brûleur"}],
+     aide:"valeur forfaitaire de l'annexe 3, déduite du type de brûleur. Les NOx ne se mesurent pas en entretien courant : aucun analyseur d'entretien ne les donne."},
     {k:"nox_ref", l:"NOx de référence", u:"mg/kWh", type:"fixe", valeur:35, nature:"réglementaire",
      aide:"valeur imprimée sur le modèle d'attestation : niveau d'émissions atteint par les meilleures technologies présentes sur le marché depuis 2009. À ne pas confondre avec le plafond d'éco-conception de 56 mg/kWh."},
     {k:"classe_nox", l:"Classe NOx de l'appareil", type:"liste", opts:["1","2","3","4","5","6","non déterminée"],
      aide:"plaque signalétique ou notice, souvent « NOx class 5 ». Facultatif : depuis le 26 septembre 2018 le règlement UE 813/2013 plafonne les chaudières gaz à 56 mg/kWh, et c'est cette valeur que l'appli retient d'office. Rien à relever sur place.", opt:true},
     {k:"classe_ener", l:"Classe énergétique", type:"calc", calc:"classe_energie", nature:"réglementaire",
+     besoin:[{k:"techno", l:"type de chaudière"},{k:"annee", l:"année de mise en service"}],
      aide:"calculée d'après la technologie et l'année, selon la table du modèle d'attestation (standard ou basse température : D avant 2005, C après ; condensation : B avant 2005, A après). Cette table ne vaut que pour les appareils mis sur le marché avant septembre 2015 ; au-delà, c'est l'étiquette ErP du fabricant qui fait foi."},
-    {k:"tirage", l:"Dépression / tirage du conduit", u:"Pa", type:"num", nature:"professionnel"},
-    {k:"pcirc", l:"Pression du circuit à froid", u:"bar", type:"num", min:1, max:1.5, nature:"professionnel"},
-    {k:"pvase", l:"Pression de gonflage du vase", u:"bar", type:"num", min:0.8, max:1.5, nature:"professionnel", aide:"régler 0,2 à 0,5 bar sous la pression de remplissage à froid, vase isolé et vidangé côté eau"},
+    {k:"tirage", l:"Dépression / tirage du conduit", u:"Pa", type:"num", nature:"professionnel",
+     ref:{min:3, max:20, note:"en valeur absolue"}, absRef:true},
+    {k:"pcirc", l:"Pression du circuit à froid", u:"bar", type:"num", ref:{min:1, max:1.5}, nature:"professionnel"},
+    {k:"pvase", l:"Pression de gonflage du vase", u:"bar", type:"num", ref:{min:0.5, max:1, note:"souvent 0,7 bar sortie d'usine"}, nature:"professionnel", aide:"régler 0,2 à 0,5 bar sous la pression de remplissage à froid, vase isolé et vidangé côté eau. Règle : hauteur d'eau au-dessus du vase divisée par 10, minimum 0,5 bar"},
     {k:"emboue", l:"Embouement constaté", type:"liste", opts:["non","léger","marqué"], nature:"réglementaire"},
     {k:"isol", l:"Isolation des réseaux hors volume chauffé", type:"liste", opts:["présente et en bon état","dégradée","absente","sans objet"], nature:"réglementaire"},
-    {k:"dimension", l:"Dimensionnement au regard des besoins", type:"liste", opts:["adapté","surdimensionné","sous-dimensionné"], nature:"réglementaire"},
-    {k:"air_section", l:"Section libre relevée de l'amenée d'air", u:"cm²", type:"num", nature:"professionnel", aide:"laisser vide si l'air arrive par les entrées d'air du logement"},
-    {k:"air_obstruction", l:"Orifices et conduits d'amenée d'air dégagés", type:"liste", opts:["oui","partiellement obstrués","obstrués"], nature:"réglementaire", aide:"c'est ce point-là qui relève de l'entretien annuel"}
+    {k:"dimension", l:"Dimensionnement au regard des besoins", type:"liste", opts:["adapté","surdimensionné","sous-dimensionné"], nature:"réglementaire"}
   ],
   sousMachines: null,
   conseils: [
@@ -930,6 +964,9 @@ TECHNOS.chaudiere_fioul = {
     {k:"combustible", l:"Combustible", type:"liste", opts:["FOD","biofioul F10","biofioul F30"]},
     {k:"annee", l:"Année de mise en service", type:"num"},
     {k:"bruleur", l:"Marque et modèle du brûleur", opt:true},
+    {k:"flamme", l:"Technologie du brûleur", type:"liste",
+     opts:["ancienne (avant 1990)","flamme jaune","flamme jaune à recirculation","flamme bleue","radiant"],
+     aide:"c'est cette ligne-là qui donne les NOx forfaitaires de l'annexe 3 : le texte classe les brûleurs fioul par type de flamme, pas par nombre d'allures"},
     {k:"gicleur", l:"Gicleur : débit, angle, type", aide:"ex. 0,60 gal/h — 60° — S", opt:true},
     {k:"emetteurs", l:"Émetteurs", type:"multi", opts:["plancher chauffant","radiateurs basse température","radiateurs haute température","ventilo-convecteurs"], opt:true},
     {k:"cuve_type", l:"Cuve", type:"liste", opts:["aérienne simple paroi","aérienne double paroi","enterrée double paroi","enterrée simple paroi"], opt:true},
@@ -987,18 +1024,27 @@ TECHNOS.chaudiere_fioul = {
   },
   mes: [
     {k:"co_amb", l:"CO ambiant", u:"ppm", type:"num", max:10, nature:"réglementaire", paliers:"co"},
-    {k:"co_fum", l:"CO dans les fumées (à 0 % O2)", u:"ppm", type:"num", max:100, nature:"professionnel", aide:"viser moins de 50 ppm sur un brûleur bien réglé"},
-    {k:"noircissement", l:"Indice de noircissement (Bacharach)", type:"liste", opts:["0","1","2","3","4","5","6","7","8","9"], max:1, nature:"professionnel", aide:"détermination obligatoire, sans seuil réglementaire. Viser 0 ou 1"},
-    {k:"tfum", l:"Température des fumées", u:"°C", type:"num", nature:"professionnel", aide:"160-220 °C en standard, 60-90 °C en condensation"},
-    {k:"co2", l:"Teneur en CO2 des fumées", u:"%", type:"num", min:11, max:13, nature:"professionnel"},
-    {k:"o2", l:"Teneur en O2 des fumées", u:"%", type:"num", min:3, max:6, nature:"professionnel"},
-    {k:"rdt_mes", l:"Rendement de combustion lu à l'analyseur", u:"%", type:"num", min:90, nature:"professionnel"},
-    {k:"nox", l:"NOx évalués", u:"mg/kWh", type:"num", nature:"réglementaire", aide:"évaluation forfaitaire selon l'annexe 3 — à recaler sur le modèle COSTIC"},
-    {k:"classe_ener", l:"Classe énergétique", type:"liste", opts:["A+++","A++","A+","A","B","C","D","E","F","G","non déterminée"], nature:"réglementaire"},
-    {k:"ppulv", l:"Pression de pulvérisation", u:"bar", type:"num", min:10, max:14, nature:"professionnel"},
-    {k:"tirage", l:"Dépression au foyer / tirage", u:"Pa", type:"num", min:10, max:30, nature:"professionnel"},
-    {k:"pcirc", l:"Pression du circuit à froid", u:"bar", type:"num", min:1, max:2, nature:"professionnel"},
-    {k:"pvase", l:"Pression de gonflage du vase", u:"bar", type:"num", min:0.8, max:1.5, nature:"professionnel"},
+    {k:"co_fum", l:"CO dans les fumées (à 0 % O2)", u:"ppm", type:"num", ref:{max:100}, nature:"professionnel", aide:"viser moins de 50 ppm sur un brûleur bien réglé"},
+    {k:"noircissement", l:"Indice de noircissement (Bacharach)", type:"liste", opts:["0","1","2","3","4","5","6","7","8","9"], ref:{max:2, note:"objectif de réglage : 0 ou 1"}, nature:"professionnel", aide:"détermination obligatoire, sans seuil réglementaire en France. Certains brûleurs demandent de ne pas descendre sous 1 pour tenir les démarrages à froid"},
+    {k:"tfum", l:"Température des fumées", u:"°C", type:"num", nature:"professionnel",
+     ref:function(m){ return estCondensation(m) ? {min:45, max:90} : {min:160, max:250}; },
+     aide:"sous 160 °C sans condensation, risque de condensation dans le conduit"},
+    {k:"co2", l:"Teneur en CO2 des fumées", u:"%", type:"num", ref:{min:12, max:13.5, note:"cible usuelle 12,5 %"}, nature:"professionnel"},
+    {k:"o2", l:"Teneur en O2 des fumées", u:"%", type:"num", ref:{min:3, max:5}, nature:"professionnel"},
+    {k:"rdt_mes", l:"Rendement de combustion lu à l'analyseur", u:"%", type:"num", nature:"professionnel",
+     ref:function(m){ return estCondensation(m) ? {min:96, max:103} : {min:88, max:93}; }},
+    {k:"nox", l:"NOx évalués", u:"mg/kWh", type:"calc", calc:"nox_fioul", nature:"réglementaire",
+     besoin:[{k:"flamme", l:"technologie du brûleur"}],
+     aide:"forfait de l'annexe 3 selon le type de flamme, et selon la puissance au-delà de 150 kW. RÉSERVE : deux reproductions de l'annexe divergent d'une ligne sur cette table — voir Réglages, Sources et réserves."},
+    {k:"nox_ref", l:"NOx de référence", u:"mg/kWh", type:"fixe", valeur:90, nature:"réglementaire",
+     aide:"valeur pré-imprimée sur le modèle d'attestation fioul du COSTIC. À ne pas confondre avec un plafond à respecter."},
+    {k:"classe_ener", l:"Classe énergétique", type:"calc", calc:"classe_energie", nature:"réglementaire",
+     besoin:[{k:"techno", l:"type de chaudière"},{k:"annee", l:"année de mise en service"}],
+     aide:"table du modèle d'attestation, version fioul : standard ou basse température D avant 2000, C ensuite ; condensation B, sans A possible. Ne vaut que pour un appareil antérieur à 2015 et de moins de 70 kW."},
+    {k:"ppulv", l:"Pression de pulvérisation", u:"bar", type:"num", ref:{min:10, max:14, note:"12 bar en sortie d'usine"}, nature:"professionnel", aide:"suivre d'abord la plaque du brûleur et le tableau du gicleur"},
+    {k:"tirage", l:"Dépression au foyer / tirage", u:"Pa", type:"num", ref:{min:10, max:30}, nature:"professionnel"},
+    {k:"pcirc", l:"Pression du circuit à froid", u:"bar", type:"num", ref:{min:1, max:2}, nature:"professionnel"},
+    {k:"pvase", l:"Pression de gonflage du vase", u:"bar", type:"num", ref:{min:0.5, max:1, note:"souvent 0,7 bar sortie d'usine"}, nature:"professionnel"},
     {k:"tdep", l:"Température de départ d'eau", u:"°C", type:"num"},
     {k:"tret", l:"Température de retour d'eau", u:"°C", type:"num", aide:"en condensation, un retour au-delà de 55 °C empêche la condensation"},
     {k:"cuve_etat", l:"État de la cuve et de la rétention", type:"liste", opts:["conforme","à surveiller","non conforme"]},
@@ -1103,12 +1149,12 @@ TECHNOS.adoucisseur = {
   },
   mes: [
     {k:"th_brut", l:"TH eau brute", u:"°f", type:"num"},
-    {k:"th_adouci", l:"TH eau adoucie", u:"°f", type:"num", min:8, max:15, nature:"professionnel", aide:"cible professionnelle : une eau totalement adoucie devient agressive (équilibre calcocarbonique)"},
-    {k:"pression", l:"Pression d'entrée", u:"bar", type:"num", max:5, nature:"professionnel"},
+    {k:"th_adouci", l:"TH eau adoucie", u:"°f", type:"num", ref:{min:8, max:15}, nature:"professionnel", aide:"cible professionnelle : une eau totalement adoucie devient agressive (équilibre calcocarbonique)"},
+    {k:"pression", l:"Pression d'entrée", u:"bar", type:"num", ref:{max:5}, nature:"professionnel"},
     {k:"sel", l:"Niveau de sel", type:"liste", opts:["correct","bas","pont de sel","boue saline"]},
     {k:"index", l:"Index du compteur volumétrique", u:"m³", type:"num", aide:"permet de calculer le volume traité depuis la dernière visite"},
     {k:"regen_ok", l:"Régénération de contrôle", type:"liste", opts:["cycle complet conforme","aspiration de saumure faible","fuite permanente à l'égout","cycle incomplet"]},
-    {k:"regen_fin", l:"TH après régénération de contrôle", u:"°f", type:"num", max:15, nature:"professionnel", aide:"vérifie que la régénération a bien rendu sa capacité à la résine"}
+    {k:"regen_fin", l:"TH après régénération de contrôle", u:"°f", type:"num", ref:{max:15}, nature:"professionnel", aide:"vérifie que la régénération a bien rendu sa capacité à la résine"}
   ],
   sousMachines: null,
   conseils: [
@@ -1204,10 +1250,10 @@ TECHNOS.vmc_df = {
     {k:"t_souf", l:"Température air soufflé", u:"°C", type:"num"},
     {k:"t_rep", l:"Température air repris", u:"°C", type:"num"},
     {k:"t_rej", l:"Température air rejeté", u:"°C", type:"num"},
-    {k:"rdt_ech", l:"Rendement apparent de l'échangeur", u:"%", type:"calc", calc:"rendement_echangeur", min:70, nature:"professionnel", aide:"(soufflé − extérieur) / (repris − extérieur). Comparer à la valeur certifiée du fabricant"},
+    {k:"rdt_ech", l:"Rendement apparent de l'échangeur", u:"%", type:"calc", calc:"rendement_echangeur", ref:{min:70}, nature:"professionnel", aide:"(soufflé − extérieur) / (repris − extérieur). Comparer à la valeur certifiée du fabricant"},
     {k:"debit_ext", l:"Débit total extrait", u:"m³/h", type:"num"},
     {k:"debit_souf", l:"Débit total soufflé", u:"m³/h", type:"num"},
-    {k:"equilibrage", l:"Écart d'équilibrage", u:"%", type:"calc", calc:"equilibrage", max:10, nature:"professionnel", aide:"au-delà de 10 %, le logement est mis en surpression ou en dépression"},
+    {k:"equilibrage", l:"Écart d'équilibrage", u:"%", type:"calc", calc:"equilibrage", ref:{max:10}, nature:"professionnel", aide:"au-delà de 10 %, le logement est mis en surpression ou en dépression"},
     {k:"filtres_etat", l:"État des filtres à la dépose", type:"liste", opts:["propres","encrassés","colmatés"]},
     {k:"filtres_ref", l:"Référence des filtres posés"},
     {k:"siphon", l:"Siphon de condensats", type:"liste", opts:["amorcé et écoulement correct","désamorcé","contre-pente","bouché"]},
@@ -1314,7 +1360,7 @@ TECHNOS.cet = {
   mes: [
     {k:"t_air", l:"Température de l'air à l'aspiration", u:"°C", type:"num", aide:"conditionne le COP et la plage de fonctionnement"},
     {k:"t_souf", l:"Température de l'air soufflé", u:"°C", type:"num"},
-    {k:"dt_air", l:"ΔT sur l'air", u:"K", type:"calc", calc:"absdiff:t_air,t_souf", min:4, max:8, nature:"professionnel"},
+    {k:"dt_air", l:"ΔT sur l'air", u:"K", type:"calc", calc:"absdiff:t_air,t_souf", ref:{min:4, max:8}, nature:"professionnel"},
     {k:"t_ballon", l:"Température du ballon", u:"°C", type:"num"},
     {k:"consigne", l:"Température de consigne", u:"°C", type:"num", min:50, nature:"sanitaire", aide:"compromis légionelle / entartrage / brûlure"},
     {k:"antilegio", l:"Cycle anti-légionelle", type:"liste", opts:["actif et programmé","actif non programmé","désactivé","absent"], nature:"sanitaire"},
@@ -1339,7 +1385,7 @@ TECHNOS.cet = {
 };
 
 "use strict";
-var VERSION = "3.3";
+var VERSION = "3.5";
 
 /* ============ stockage ============ */
 var CLE_VISITE = "kare.visite.v1", CLE_CFG = "kare.cfg.v1", CLE_PARC = "kare.parc.v1", CLE_FILE = "kare.file.v1";
@@ -1596,7 +1642,14 @@ function pointsJustifies(m){
     var champ = null;
     for(var j=0;j<t.mes.length;j++) if(t.mes[j].k===k){ champ = t.mes[j]; break; }
     var rempli;
-    if(champ && champ.type==="calc") rempli = estNb(valeurCalc(m, champ));
+    if(champ && champ.type==="calc"){
+      /* Une valeur calculée n'est pas forcément un nombre : la classe
+         énergétique rend « B » ou « étiquette ErP du fabricant ». Ne tester
+         que estNb() laissait ces points-là éternellement « à relever », et
+         donc le document impossible à finir. */
+      var vc = valeurCalc(m, champ);
+      rempli = estNb(vc) || (typeof vc === "string" && vc !== "");
+    }
     else rempli = txt(m.mes[k]) !== null;
     if(!rempli) return;
     var frag = sansAccents(liens[k]);
@@ -1738,11 +1791,9 @@ function cleProfil(m){ return m.notion || (m.ident && m.ident.serie ? m.tech+":"
    production d'eau chaude. On les mémorise par machine, on les repropose à la
    visite suivante — et Rémi garde la main : il modifie, c'est sa saisie qui
    gagne et qui devient la nouvelle mémoire. */
-var IDENT_STABLE = ["techno","bruleur","evac","ecs","combustible","puiss","marque","serie",
+var IDENT_STABLE = ["techno","bruleur","flamme","evac","ecs","combustible","puiss","marque","serie",
                     "annee","fluide","charge","nbui","emetteurs","cuve_type","cuve_vol",
-                    "resine","protection","bypass","local","mes",
-                    /* l'aération du local ne bouge pas d'une année sur l'autre */
-                    "cuisson","non_raccorde","air_sortie_type","air_amenee_type","coupe_tirage","hotte"];
+                    "resine","protection","bypass","local","mes"];
 function enregistrerProfil(m){
   var c = cleProfil(m); if(!c) return;
   var p = lire(CLE_PROFILS, {});
@@ -1794,6 +1845,7 @@ function valeurCalc(m, champ, source){
   if(c==="rendement_gaz")      return rendementGaz(m);
   if(c==="rendement_ref_gaz")  return rendementRefGaz(m);
   if(c==="nox_gaz")            return noxGaz(m);
+  if(c==="nox_fioul")          return noxFioul(m);
   if(c==="classe_energie")     return classeEnergie(m);
   /* 1 °f retiré = 0,2 mmol/L de Na+ = 4,6 mg/L. Le chiffre de 8 mg/L qui
      circule vient du degré allemand (1 °dH = 1,78 °f). Source : mémoire EHESP
@@ -1848,6 +1900,27 @@ function noxGaz(m){
   var v = NOX_GAZ[b];
   return estNb(v) ? v : NaN;
 }
+/* NOx forfaitaires fioul — annexe 3, classement par technologie de flamme
+   (et non par nombre d'allures : le texte ne connaît pas ce critère).
+   RÉSERVE : deux reproductions sérieuses de l'annexe donnent le même jeu de
+   chiffres décalé d'une ligne. J'ai retenu l'alignement Sauermann, seul
+   physiquement cohérent (jaune > jaune à recirculation > bleue > radiant),
+   confirmé par deux éditions du document. À contrôler une fois sur le PDF
+   officiel de l'annexe 3 avant de considérer la table comme acquise. */
+var NOX_FIOUL = {
+  "ancienne (avant 1990)":        {v:170},
+  "flamme jaune":                 {v:140, gros:210},
+  "flamme jaune à recirculation": {v:120, gros:180},
+  "flamme bleue":                 {v:90},
+  "radiant":                      {v:60}
+};
+function noxFioul(m){
+  var e = NOX_FIOUL[m.ident.flamme || ""];
+  if(!e) return NaN;
+  var p = nb(m.ident.puiss);
+  if(e.gros && estNb(p) && p >= 150) return e.gros;
+  return e.v;
+}
 /* Table de classification énergétique du modèle d'attestation 2023.
    Ne vaut que pour les appareils mis sur le marché avant septembre 2015 ;
    au-delà, c'est l'étiquette ErP du fabricant. */
@@ -1855,7 +1928,16 @@ function classeEnergie(m){
   var tech = sansAccents(txt(m.ident.techno) || ""), an = nb(m.ident.annee);
   if(!tech || !estNb(an)) return null;
   if(an >= 2015) return "étiquette ErP du fabricant";
+  /* Le modèle d'attestation borne la rubrique : « si antérieure à 2015 et de
+     moins de 70 kW ». Au-delà, on n'invente pas une classe. */
+  var p = nb(m.ident.puiss);
+  if(estNb(p) && p >= 70) return "non déterminée (appareil de 70 kW ou plus)";
   var condens = tech.indexOf("condensation") === 0;
+  if(m.tech === "chaudiere_fioul"){
+    /* Fioul : bascule en 2000 et plafond à B pour la condensation. */
+    if(condens) return "B";
+    return an < 2000 ? "D" : "C";
+  }
   if(condens) return an < 2005 ? "B" : "A";
   return an < 2005 ? "D" : "C";
 }
@@ -1868,14 +1950,54 @@ function verdictCO(v){
   if(v < 50)  return {k:"att", t:"ANORMALE — investigations obligatoires"};
   return {k:"mal", t:"DANGER GRAVE — arrêt et consignation"};
 }
-function verdict(champ, val){
+/* Deux repères d'appareil qui reviennent partout dans les plages usuelles. */
+function estCondensation(m){
+  return sansAccents(txt((m&&m.ident||{}).techno) || "").indexOf("condensation") === 0;
+}
+function estAtmospherique(m){
+  return sansAccents(txt((m&&m.ident||{}).bruleur) || "").indexOf("atmospherique") >= 0;
+}
+/* Deux natures de bornes, à ne surtout pas mélanger :
+   — min/max : seuil opposable. Le dépassement est une anomalie, il part sur
+     le document du client.
+   — ref     : plage usuelle de bon fonctionnement. Elle sert à voir d'un
+     coup d'œil si la valeur est plausible. Elle ne crée JAMAIS d'anomalie,
+     et rien n'échoue parce qu'une mesure en sort.
+   La plage usuelle peut dépendre de l'appareil (condensation ou non) : on
+   accepte alors une fonction plutôt qu'un objet. */
+function plageRef(champ, m){
+  var r = champ.ref;
+  if(typeof r === "function") r = r(m || {ident:{}, tech:""});
+  if(!r || (!estNb(r.min) && !estNb(r.max))) return null;
+  return r;
+}
+function bornerTexte(v, u){ return fmt(v, v%1 ? 1 : 0) + (u ? " "+u : ""); }
+function texteRef(champ, m){
+  var r = plageRef(champ, m); if(!r) return "";
+  var u = champ.u || "";
+  var t;
+  if(estNb(r.min) && estNb(r.max)) t = "usuel : " + bornerTexte(r.min,"") + " à " + bornerTexte(r.max,u);
+  else if(estNb(r.min))            t = "usuel : au moins " + bornerTexte(r.min,u);
+  else                             t = "usuel : jusqu'à " + bornerTexte(r.max,u);
+  return t + (r.note ? " — " + r.note : "");
+}
+function verdict(champ, val, m){
   if(champ.paliers === "co") return verdictCO(val);
   if(!estNb(val)) return null;
   var min = estNb(champ.min)?champ.min:null, max = estNb(champ.max)?champ.max:null;
-  if(min===null && max===null) return null;
-  if(min!==null && val < min) return {k:"att", t:"sous " + fmt(min,min%1?1:0) + (champ.u?" "+champ.u:"")};
-  if(max!==null && val > max) return {k:"att", t:"au-dessus de " + fmt(max,max%1?1:0) + (champ.u?" "+champ.u:"")};
-  return {k:"ok", t:"dans la plage"};
+  if(min!==null || max!==null){
+    if(min!==null && val < min) return {k:"att", t:"sous " + bornerTexte(min, champ.u)};
+    if(max!==null && val > max) return {k:"att", t:"au-dessus de " + bornerTexte(max, champ.u)};
+    return {k:"ok", t:"dans la plage"};
+  }
+  var r = plageRef(champ, m);
+  if(!r) return null;
+  /* Une dépression se note tantôt −8 Pa, tantôt 8 Pa. On ne va pas
+     transformer une convention de signe en alerte. */
+  if(champ.absRef) val = Math.abs(val);
+  if((estNb(r.min) && val < r.min) || (estNb(r.max) && val > r.max))
+    return {k:"att", t:"hors plage usuelle", indicatif:true};
+  return {k:"ok", t:"dans la plage usuelle", indicatif:true};
 }
 
 /* ============ avancement ============ */
@@ -1893,242 +2015,105 @@ function avancement(m){
 function anomaliesDe(m){
   var t=techDe(m); if(!t) return [];
   var out=[], lc=listeCtrl(m), i;
+  if(typeof ligneVentilation === "function"){
+    var lv = ligneVentilation(m);
+    if(lv && lv.alerte) out.push({type:"aération", lib:lv.k+" : "+lv.v});
+  }
   for(i=0;i<lc.length;i++) if(m.ctrl["c"+i]==="non") out.push({type:"contrôle", lib:lc[i]});
   for(i=0;i<t.mes.length;i++){
     var ch=t.mes[i], val = ch.type==="calc" ? valeurCalc(m,ch) : nb(m.mes[ch.k]);
-    var v = verdict(ch, val);
-    if(v && v.k!=="ok") out.push({type:"mesure", lib:ch.l+" : "+fmt(val,1)+(ch.u?" "+ch.u:"")+" — "+v.t, grave:v.k==="mal"});
+    var v = verdict(ch, val, m);
+    /* Une plage usuelle n'est pas un seuil : elle ne part pas chez le client. */
+    if(v && v.k!=="ok" && !v.indicatif) out.push({type:"mesure", lib:ch.l+" : "+fmt(val,1)+(ch.u?" "+ch.u:"")+" — "+v.t, grave:v.k==="mal"});
   }
   return out;
 }
 
-/* ============================================================
-   AÉRATION DU LOCAL — mémo de terrain
-   Refait le 26/08/2026 sur la « Fiche Visa Qualité Habitation 2026 »
-   (référentiel PG, tableau « Dimension des entrées d'air », points 7 à 11).
-   C'est ce document qui commande, pas mon interprétation des textes :
-   il donne la règle telle qu'un professionnel gaz se la voit appliquer,
-   avec le niveau d'anomalie associé.
+/* ============ aération du local ============
+   Version précédente : un moteur qui déduisait le CAS applicable de six
+   questions posées à Rémi, puis affichait la section ou le module à
+   respecter. Rémi a tranché : « je veux la notice pour voir si c'est
+   conforme ou non, pas plusieurs cases à remplir. »
+   Il a raison. Il lit la planche sur place, il juge, il note. L'application
+   ne rejuge pas à sa place : elle lui met la bonne page sous les yeux et
+   enregistre son verdict. Une case, et une description si ça ne va pas. */
 
-   Le pivot n'est pas l'époque du logement : c'est le couple
-   SORTIE D'AIR × AMENÉE D'AIR, croisé avec ce qu'il y a comme appareils
-   dans le local. Ma première version se trompait d'axe.
-
-   Rappel de portée : ce référentiel vise la CONFORMITÉ DE L'INSTALLATION.
-   L'entretien annuel, lui, n'impose que de vérifier que les orifices ne
-   sont pas obstrués — et d'investiguer si le CO dépasse 10 ppm.
-   ============================================================ */
-
-var VQ = "Fiche Visa Qualité Habitation 2026 — tableau « Dimension des entrées d'air », points 7 à 11";
-/* Le manuel Pro Gaz (planche 20, « Ventilation - Dimensionnement ») donne la
-   même table avec deux écarts. On applique la fiche Visa Qualité, plus récente
-   et plus détaillée, et on affiche l'écart plutôt que de choisir en silence. */
-var ECART_MANUEL = {
-  directe_directe: "Le manuel Pro Gaz donne ici « surface utile égale à 100 cm² », sans tranche de puissance. La fiche Visa Qualité 2026 distingue 100 cm² entre 35 et 50 kW et 150 cm² entre 50 et 70 kW. C'est cette dernière qui est appliquée ici.",
-  conduit_directe: "Le manuel Pro Gaz porte « déconseillé » sans donner de section, et place les tranches en cm² du côté de l'amenée INDIRECTE. La fiche Visa Qualité 2026 les place du côté de l'amenée DIRECTE, ce qui est appliqué ici. Sur ce croisement précis, les deux documents ne disent pas la même chose."
-};
-
-/* Amenée d'air directe, en cm² de section libre, selon la puissance utile. */
-var VENT_DIRECTE = [
-  {min:35, max:50, cm2:100},
-  {min:50, max:70, cm2:150}
+/* Les planches, dans l'ordre où on les feuillette. Les clés correspondent
+   aux fichiers de src/ref/ intégrés au build. */
+var NOTICE_VENT = [
+  {cle:"ventilation-00-introduction",      l:"Introduction"},
+  {cle:"ventilation-01-types-appareils",   l:"Types d'appareils A, B, C"},
+  {cle:"ventilation-02-points-vigilance",  l:"Points de vigilance"},
+  {cle:"ventilation-03-configurations",    l:"Table des 11 cas"},
+  {cle:"ventilation-04-dimensionnement",   l:"Dimensionnement des entrées d'air"},
+  {cle:"ventilation-cas-01",  l:"CAS 1"},
+  {cle:"ventilation-cas-02",  l:"CAS 2"},
+  {cle:"ventilation-cas-03",  l:"CAS 3"},
+  {cle:"ventilation-cas-04",  l:"CAS 4"},
+  {cle:"ventilation-cas-05",  l:"CAS 5"},
+  {cle:"ventilation-cas-06",  l:"CAS 6"},
+  {cle:"ventilation-cas-07",  l:"CAS 7"},
+  {cle:"ventilation-cas-08",  l:"CAS 8"},
+  {cle:"ventilation-cas-09",  l:"CAS 9"},
+  {cle:"ventilation-cas-10",  l:"CAS 10"},
+  {cle:"ventilation-cas-11",  l:"CAS 11"}
 ];
-var VENT_CONDUIT = [
-  {min:0,  max:25, cm2:50},
-  {min:25, max:35, cm2:70},
-  {min:35, max:50, cm2:100},
-  {min:50, max:70, cm2:150}
-];
-function sectionSelon(table, pu){
-  for(var i=0;i<table.length;i++) if(pu > table[i].min && pu <= table[i].max) return table[i].cm2;
-  if(table === VENT_CONDUIT && pu > 0 && pu <= 25) return 50;
-  return null;
-}
+var SOURCE_VENT = "Fiche Visa Qualité Habitation 2026 et Fiches pratiques ventilation — arrêté du 23 février 2018, art. 13 et 18";
 
-/* ============ quel CAS ? ============
-   Page 18 des fiches pratiques : on choisit l'APPAREIL, puis la SORTIE D'AIR,
-   et la table donne le numéro de cas à consulter. C'est exactement ce
-   raisonnement qu'on reproduit ici — et le bouton ouvre la bonne planche. */
-function typesPresents(m){
-  var evac = sansAccents(txt(m.ident.evac) || "");
-  return {
-    A: sansAccents(txt(m.ident.non_raccorde) || "").indexOf("oui") === 0
-       || sansAccents(txt(m.ident.cuisson) || "").indexOf("oui") === 0,
-    B: !!evac && evac.indexOf("c etanche") < 0,
-    C: evac.indexOf("c etanche") === 0,
-    connu: !!evac
-  };
-}
-function casVentilation(m){
-  var t = typesPresents(m);
-  var sortie = sansAccents(txt(m.ident.air_sortie_type) || "");
-  var ct = sansAccents(txt(m.ident.coupe_tirage) || "");
-  var hotte = sansAccents(txt(m.ident.hotte) || "").indexOf("oui") === 0
-           || sansAccents(txt(m.ident.hotte) || "").indexOf("motorisee") >= 0;
-
-  if(t.A && t.C) return {n:11, quoi:"Type A + Type C"};
-  if(t.C && !t.A) return {n:10, quoi:"Type C étanche seul"};
-  if(t.A && t.B){
-    if(hotte) return {n:9, quoi:"cuisson + Type B à tirage naturel, avec hotte motorisée"};
-    if(ct.indexOf("1,80 m ou plus") >= 0 || ct.indexOf("1.80 m ou plus") >= 0)
-      return {n:8, quoi:"Type A + Type B, coupe-tirage à 1,80 m ou plus"};
-    if(!ct) return {manque:"Renseigne la hauteur du coupe-tirage de la chaudière : c'est elle qui départage les cas 5 à 7 du cas 8."};
-    if(sortie.indexOf("directe") === 0)          return {n:5, quoi:"Type A + Type B, coupe-tirage bas, sortie directe"};
-    if(sortie.indexOf("conduit vertical") === 0) return {n:6, quoi:"Type A + Type B, coupe-tirage bas, conduit vertical"};
-    if(sortie.indexOf("extraction") === 0 || sortie.indexOf("vmc") === 0)
-      return {n:7, quoi:"Type A + Type B, coupe-tirage bas, VMC"};
-    return {manque:"Renseigne le type de sortie d'air du local."};
-  }
-  if(t.B) return {n:4, quoi:"Type B, chaudière seule"};
-  if(t.A){
-    if(sortie.indexOf("directe") === 0)          return {n:1, quoi:"Type A seul, sortie directe"};
-    if(sortie.indexOf("conduit vertical") === 0) return {n:2, quoi:"Type A seul, conduit vertical"};
-    if(sortie.indexOf("extraction") === 0 || sortie.indexOf("vmc") === 0)
-      return {n:3, quoi:"Type A seul, VMC"};
-    return {manque:"Renseigne le type de sortie d'air du local."};
-  }
-  return {manque:"Renseigne le type et l'évacuation de l'appareil."};
-}
-
-/* La carte ne s'affiche que si l'aération du local est réellement en jeu. */
+/* La question ne se pose que sur un appareil qui prend son air dans la
+   pièce. Une ventouse étanche n'a pas besoin d'aération de local. */
 function ventilationConcernee(m){
+  if(!m) return false;
+  if(m.tech === "chaudiere_fioul") return true;
   if(m.tech !== "chaudiere_gaz") return false;
-  var evac = sansAccents(txt(m.ident.evac) || "");
-  var typeA = sansAccents(txt(m.ident.non_raccorde) || "").indexOf("oui") === 0
-           || sansAccents(txt(m.ident.cuisson) || "").indexOf("oui") === 0;
-  if(typeA) return true;
-  if(!evac) return false;                        /* type inconnu : on ne présume rien */
-  return evac.indexOf("c etanche") < 0;          /* étanche seul = hors sujet */
+  var e = sansAccents(txt(m.ident.evac) || "");   /* sansAccents met aussi en minuscules */
+  if(!e) return true;                       /* pas encore renseigné : on montre */
+  return e.indexOf("c etanche") !== 0;      /* étanche seul : sans objet */
 }
 
-function consigneVentilation(m){
-  var out = {exigences:[], rappels:[], reserves:[], source:VQ};
-  var evac   = sansAccents(txt(m.ident.evac) || "");
-  var sortie = sansAccents(txt(m.ident.air_sortie_type) || "");
-  var amenee = sansAccents(txt(m.ident.air_amenee_type) || "");
-  var pu     = nb(m.ident.puiss);
-  var etanche = evac.indexOf("c etanche") === 0;
-  var vmcGazAppareil = evac.indexOf("vmc gaz") === 0;
-  var typeA = sansAccents(txt(m.ident.non_raccorde) || "").indexOf("oui") === 0
-           || sansAccents(txt(m.ident.cuisson) || "").indexOf("oui") === 0;
-
-  if(etanche && !typeA){
-    out.sansObjet = "Appareil étanche seul dans le local : le circuit de combustion ne communique pas avec la pièce. Aucune exigence d'aération au titre du gaz.";
-    out.cas = 10; out.config = "CAS n° 10 — Type C étanche seul";
-    out.fiche = "ventilation-cas-10";
-    return out;
-  }
-
-  /* --- le cas, au sens des fiches pratiques --- */
-  var cas = casVentilation(m);
-  if(cas.n){
-    out.cas = cas.n;
-    out.config = "CAS n° " + cas.n + " — " + cas.quoi;
-    out.fiche = "ventilation-cas-" + (cas.n < 10 ? "0" : "") + cas.n;
-  } else if(cas.manque){
-    out.manque = cas.manque;
-  }
-  var config;
-  if(vmcGazAppareil) config = typeA ? "A + B sur VMC gaz" : "B seul sur VMC gaz";
-  else if(etanche)   config = "appareil non raccordé (type A) seul";
-  else               config = typeA ? "A + B" : "B seul (appareil raccordé)";
-
-  /* --- sortie d'air --- */
-  if(config === "B seul (appareil raccordé)" || config === "B seul sur VMC gaz"){
-    out.exigences.push({
-      quoi: "Sortie d'air",
-      valeur: "aucune sortie d'air supplémentaire à créer",
-      niveau: null,
-      detail: "Le référentiel l'écrit en toutes lettres pour les appareils raccordés seuls : « IL N'Y A PAS LIEU DE CRÉER UNE SORTIE D'AIR SUPPLÉMENTAIRE ». L'amenée d'air, elle, reste obligatoire.",
-      source: VQ
-    });
-  } else if(config === "A + B sur VMC gaz"){
-    out.exigences.push({
-      quoi: "Sortie d'air",
-      valeur: "coupe-tirage de l'appareil raccordé, ou bouche de VMC spécifique à 1,80 m au-dessus du sol",
-      niveau: "A2 en neuf · A1 en existant",
-      source: VQ
-    });
-  } else {
-    out.exigences.push({
-      quoi: "Sortie d'air (appareil non raccordé présent)",
-      valeur: "100 cm² de passage libre, bord supérieur à 1,80 m au moins au-dessus du sol",
-      niveau: "A2 en neuf · A1 en existant",
-      detail: "au choix : sortie directe, conduit vertical, coupe-tirage d'un appareil raccordé, ou bouche de VMC — toujours à 1,80 m au moins.",
-      source: VQ
-    });
-  }
-
-  /* --- amenée d'air : le croisement sortie x amenée ---
-     Si le cas n'est pas encore déterminé, c'est cette question-là qu'il faut
-     poser d'abord : elle commande tout le reste. */
-  if(out.manque) return out;
-  if(!sortie || !amenee){
-    out.manque = "Renseigne le type de sortie d'air du local et le mode d'amenée d'air : c'est leur croisement qui donne la section ou le module à respecter.";
-    return out;
-  }
-
-  var directe = amenee.indexOf("directe") === 0;
-  var e = {quoi:"Amenée d'air", niveau:"A2 en neuf · A2 en existant", source:VQ};
-
-  if(sortie.indexOf("directe") === 0){
-    if(directe){
-      var s1 = estNb(pu) ? sectionSelon(VENT_DIRECTE, pu) : null;
-      e.valeur = s1 ? (s1 + " cm² de section libre")
-                    : (estNb(pu) ? "hors table : ce croisement n'est prévu qu'entre 35 et 70 kW" : "renseigne la puissance");
-      e.detail = "sortie directe + amenée directe : la table ne couvre que 35 < Pu ≤ 50 kW (100 cm²) et 50 < Pu ≤ 70 kW (150 cm²).";
-      e.ecart = ECART_MANUEL.directe_directe;
-    } else {
-      e.valeur = "INTERDIT";
-      e.detail = "avec une sortie d'air directe, l'amenée d'air indirecte est interdite par le référentiel.";
-      e.alerte = true;
-    }
-  } else if(sortie.indexOf("conduit vertical") === 0){
-    if(directe){
-      var s2 = estNb(pu) ? sectionSelon(VENT_CONDUIT, pu) : null;
-      e.valeur = s2 ? (s2 + " cm² de section libre") : "renseigne la puissance";
-      e.detail = "sortie par conduit vertical + amenée directe : possible, mais le référentiel la donne « fortement déconseillée ». Barème : ≤ 25 kW → 50 cm² · 25-35 → 70 · 35-50 → 100 · 50-70 → 150.";
-      e.ecart = ECART_MANUEL.conduit_directe;
-    } else {
-      var m2 = estNb(pu) ? Math.max(Math.round(6.2*pu), 90) : null;
-      e.valeur = m2 ? (m2 + " m³/h de module d'entrées d'air") : "renseigne la puissance";
-      e.detail = "M = 6,2 × Pu, sans descendre sous 90 m³/h" + (estNb(pu) ? " — ici Pu = "+fmt(pu,1)+" kW" : "") + ". M est la somme des modules des entrées d'air du logement.";
-    }
-  } else if(sortie.indexOf("extraction mecanique") === 0){
-    if(directe){
-      e.valeur = "INTERDIT";
-      e.detail = "en extraction mécanique (VMC, VMR), l'amenée d'air directe est interdite : elle casserait la dépression et le balayage.";
-      e.alerte = true;
-    } else {
-      var m3 = estNb(pu) ? Math.max(Math.round(3.1*pu), 45) : null;
-      e.valeur = m3 ? (m3 + " m³/h de module d'entrées d'air") : "renseigne la puissance";
-      e.detail = "M = 3,1 × Pu, sans descendre sous 45 m³/h" + (estNb(pu) ? " — ici Pu = "+fmt(pu,1)+" kW" : "") + ".";
-    }
-  } else {                                   /* VMC gaz */
-    if(directe){
-      e.valeur = "INTERDIT";
-      e.detail = "en VMC gaz, l'amenée d'air directe est interdite.";
-      e.alerte = true;
-    } else {
-      var m4 = estNb(pu) ? Math.round(4.3*pu) : null;
-      e.valeur = m4 ? (m4 + " m³/h de module d'entrées d'air") : "renseigne la puissance";
-      e.detail = "M = 4,3 × Pu" + (estNb(pu) ? " — ici Pu = "+fmt(pu,1)+" kW" : "") + ". Pas de plancher dans la table.";
-    }
-  }
-  out.exigences.push(e);
-
-  /* --- positionnement, valable dès qu'il y a une amenée directe --- */
-  if(directe){
-    out.rappels.push("Grille d'amenée d'air directe : bord supérieur à 0,30 m du sol au maximum. Tolérance à 1,50 m, à condition qu'il y ait au moins 1,50 m entre le haut de l'amenée d'air et le haut de la sortie d'air.");
-  } else {
-    out.rappels.push("Amenée d'air indirecte : sans limitation de hauteur, l'air transite sous les portes. Vérifier que le passage existe réellement et n'est pas bouché par un joint de porte ou une moquette.");
-  }
-  out.rappels.push("Pu est la somme des puissances utiles de TOUS les appareils gaz raccordés du local, pas seulement de la chaudière.");
-  out.rappels.push("En entretien annuel, ce qui t'incombe est plus simple : vérifier que les orifices et conduits d'amenée d'air ne sont pas obstrués. Le dimensionnement relève de la conformité de l'installation.");
-
-  out.reserves.push("Niveaux d'anomalie : A1 = à traiter lors d'une intervention ultérieure · A2 = réparation dans les meilleurs délais · DGI = coupure immédiate du gaz. Ils engagent l'appellation PG Installation de l'entreprise.");
-  out.reserves.push("La section de transit sous les portes n'est pas chiffrée dans ce tableau. Les valeurs qui circulent (2 cm sous la porte du local, 1 cm ailleurs) viennent du DTU relayé par Cegibat, avec des sources divergentes. À ne pas porter sur un document sans vérification.");
-  return out;
+var VENT_ETATS = [
+  {v:"conforme", l:"Conforme"},
+  {v:"non",      l:"Non conforme"},
+  {v:"so",       l:"Sans objet"}
+];
+function ventDe(m){
+  if(!m.vent) m.vent = {etat:"", desc:""};
+  return m.vent;
+}
+function ventLibelle(m){
+  var e = ventDe(m).etat;
+  for(var i=0;i<VENT_ETATS.length;i++) if(VENT_ETATS[i].v === e) return VENT_ETATS[i].l;
+  return "";
+}
+/* Le verdict de Rémi coche lui-même le point de contrôle correspondant :
+   il ne va pas dire deux fois la même chose. */
+/* Le fioul a ce point dans sa liste réglementaire d'entretien, le gaz ne
+   l'a pas : l'annexe 1 de l'arrêté du 15/09/2009 ne le cite pas parmi les
+   opérations d'entretien de la chaudière gaz. On ne l'invente donc pas dans
+   la liste. Sur gaz, le verdict d'aération vaut constat à lui seul et
+   figure sur le document comme tel. */
+var FRAG_VENT = "amenee d'air et de la ventilation du local";
+function indexPointVent(m){
+  var lc = listeCtrl(m), f = sansAccents(FRAG_VENT);
+  for(var i=0;i<lc.length;i++) if(sansAccents(lc[i]).indexOf(f) >= 0) return i;
+  return -1;
+}
+function appliquerVentilation(m){
+  if(!ventilationConcernee(m)) return;
+  var i = indexPointVent(m); if(i < 0) return;
+  var e = ventDe(m).etat;
+  if(!e) return;
+  m.ctrl["c"+i] = (e === "conforme") ? "ok" : (e === "non" ? "non" : "np");
+  m.ctrlManuel = m.ctrlManuel || {}; m.ctrlManuel["c"+i] = 1;
+}
+/* Ce qui part sur le document du client. */
+function ligneVentilation(m){
+  if(!ventilationConcernee(m)) return null;
+  var v = ventDe(m);
+  if(!v.etat) return null;
+  var t = ventLibelle(m);
+  if(v.etat === "non" && txt(v.desc)) t += " — " + txt(v.desc);
+  return {k:"Aération du local", v:t, alerte:(v.etat === "non")};
 }
 
 /* ============ navigation ============ */
@@ -2206,6 +2191,10 @@ function champ(parent, obj, cle, libelle, o){
   if(o.ph) i.placeholder = o.ph;
   i.addEventListener("input", function(){ obj[cle]=i.value; if(o.auMaj) o.auMaj(); sauver(); });
   d.appendChild(i);
+  /* La plage usuelle s'affiche AVANT de saisir : c'est à ce moment-là
+     qu'elle sert. « dans la plage » après coup, c'est trop tard pour
+     savoir si on tient la bonne valeur. */
+  if(o.plage) d.appendChild(el("div","ref-plage", o.plage));
   /* L'explication vit SOUS le champ, jamais dans le champ : un texte
      d'aide en placeholder se coupe sur un téléphone et disparaît dès
      qu'on saisit. C'est justement là qu'on en a besoin. */
@@ -2213,6 +2202,16 @@ function champ(parent, obj, cle, libelle, o){
   if(o.slot) d.appendChild(o.slot);
   parent.appendChild(d);
   return i;
+}
+/* Ce qu'il manque pour qu'un calcul aboutisse, en clair.
+   « NOx évalués : — » sans explication, c'est une impasse : Rémi n'a pas
+   d'appareil pour mesurer les NOx, et rien ne lui disait que la valeur
+   forfaitaire attendait seulement le type de brûleur dans l'identification. */
+function manquePour(m, besoin){
+  if(!m || !besoin || !besoin.length) return [];
+  return besoin.filter(function(b){
+    return txt(m.ident[b.k]) === null && txt((m.mes||{})[b.k]) === null;
+  }).map(function(b){ return b.l; });
 }
 function calcule(parent, libelle, o, fn){
   var d = el("div","champ"+(o.plein?" plein":""));
@@ -2224,11 +2223,21 @@ function calcule(parent, libelle, o, fn){
   parent.appendChild(d);
   return function(){
     var val = fn();
-    c.textContent = estNb(val) ? fmt(val, Math.abs(val)>=100?0:1)+(o.u?" "+o.u:"") : "—";
-    var ver = o.ch ? verdict(o.ch, val) : null;
-    v.innerHTML=""; if(ver) v.appendChild(el("span","verdict "+ver.k, ver.t));
+    c.textContent = estNb(val) ? fmt(val, Math.abs(val)>=100?0:1)+(o.u?" "+o.u:"")
+                  : (typeof val === "string" && val ? val : "—");
+    var ver = o.ch ? verdict(o.ch, val, o.m) : null;
+    v.innerHTML="";
+    if(ver) v.appendChild(el("span","verdict "+ver.k, ver.t));
+    if(!estNb(val) && !(typeof val === "string" && val)){
+      var mq = manquePour(o.m, o.besoin);
+      if(mq.length) v.appendChild(el("span","verdict att", "il manque : " + mq.join(", ")));
+    }
   };
 }
+/* Un volet déplié de 26 lignes se referme mal : le titre est remonté hors
+   de l'écran et il faut redescendre le chercher. Deux réponses, les deux
+   utiles au doigt : le titre reste collé en haut pendant qu'on fait défiler,
+   et un bouton « Replier » ferme le volet depuis le bas. */
 function bloc(parent, titre, compteur, ouvert){
   var d = el("details","repl"+(ouvert?" ouvert":""));
   if(ouvert) d.open = true;
@@ -2236,6 +2245,15 @@ function bloc(parent, titre, compteur, ouvert){
   if(compteur) s.appendChild(el("span","cpt", compteur));
   d.appendChild(s);
   var corps = el("div"); d.appendChild(corps);
+  if(!ouvert){
+    var pied = el("div","repl-pied noprint");
+    var b = el("button","btn mini","▴  Replier « "+titre+" »"); b.type="button";
+    b.onclick = function(){
+      d.open = false;
+      if(s.scrollIntoView) s.scrollIntoView({block:"nearest"});
+    };
+    pied.appendChild(b); d.appendChild(pied);
+  }
   parent.appendChild(d);
   return corps;
 }
@@ -2300,15 +2318,18 @@ function vueVisite(root){
       var k = cleNom(c.nom);
       if(vus[k]) return;
       vus[k] = 1;
-      pool.push({nom:c.nom, adresse:c.adresse, ax:c.ax, cli:c.cli});
+      pool.push({nom:c.nom, adresse:c.adresse, ax:c.ax, cli:c.cli, f:c.f});
     });
     var trouves = pool.filter(function(c){
       var t = sansAcc(c.nom) + " " + sansAcc(c.adresse);
       return mots.every(function(m){ return t.indexOf(m) >= 0; });
     });
-    /* le parc d'abord, puis les vrais clients, puis le reste */
+    /* Le parc d'abord — c'est là qu'on va —, puis les clients, puis les
+       prospects, et les fournisseurs en dernier : on n'entretient pas la
+       chaudière de CEDEO. */
+    function rang(c){ return c.parc ? 0 : (c.cli ? 1 : (c.f ? 3 : 2)); }
     trouves.sort(function(a,b){
-      var pa = a.parc ? 0 : (a.cli ? 1 : 2), pb = b.parc ? 0 : (b.cli ? 1 : 2);
+      var pa = rang(a), pb = rang(b);
       if(pa !== pb) return pa - pb;
       return a.nom.toLowerCase() < b.nom.toLowerCase() ? -1 : 1;
     });
@@ -2322,6 +2343,7 @@ function vueVisite(root){
       var b = el("button","res"); b.type="button";
       var t1 = el("div","r1", c.nom);
       if(c.parc) t1.appendChild(el("span","tagp","parc"));
+      else if(c.f) t1.appendChild(el("span","tagf","fournisseur"));
       b.appendChild(t1);
       if(c.adresse) b.appendChild(el("div","r2", c.adresse));
       b.onclick = function(){
@@ -2377,6 +2399,9 @@ function vueVisite(root){
           if(p.dernier) m.ident.dernier = p.dernier;
           if(p.notion)  m.notion  = p.notion;
           if(p.axonaut) m.axonaut = p.axonaut;
+          if(p.email)   m.email   = p.email;
+          /* Ce que je m'étais noté la dernière fois ressort ici, sur place. */
+          if(p.prochaine) m.prochaineAvant = p.prochaine;
           appliquerProfil(m);      /* ce qui n'est pas relevable sur cette machine est repris */
           sauver(); aller(m.mid);
         };
@@ -2517,11 +2542,20 @@ function vueMachine(root, m){
   var resume = el("div","mini"); c2.appendChild(resume);
   var justifies = appliquerLiens(m);
   var adossees  = pointsMesure(m);
-  var idxMesure = [], idxGeste = [];
-  lc.forEach(function(_,i){ (adossees[i] ? idxMesure : idxGeste).push(i); });
+  /* Un point que l'appareil rend sans objet — « VMC gaz : … » sur une
+     chaudière qui n'est pas raccordée à une VMC gaz — encombrait la liste
+     des gestes à déclarer. Il reste consultable et rectifiable, mais il
+     sort de la liste de travail : ce n'est pas un geste à faire. */
+  var idxMesure = [], idxGeste = [], idxSO = [];
+  var npAuto = m.npAuto || {};
+  lc.forEach(function(_,i){
+    if(npAuto["c"+i] && !(m.ctrlManuel||{})["c"+i]) idxSO.push(i);
+    else (adossees[i] ? idxMesure : idxGeste).push(i);
+  });
 
   var corpsMes = idxMesure.length ? bloc(c2, "Relevés — se cochent avec les mesures", String(idxMesure.length), false) : null;
   var corpsGes = bloc(c2, "Gestes — à déclarer", String(idxGeste.length), false);
+  var corpsSO  = idxSO.length ? bloc(c2, "Sans objet sur cet appareil", String(idxSO.length), false) : null;
   var barreG = el("div","barre-geste");
   var bTout = el("button","btn mini","Tout fait"); bTout.type="button";
   bTout.onclick = function(){
@@ -2538,15 +2572,24 @@ function vueMachine(root, m){
 
   function majCpt(){
     var non=[], np=[];
-    lc.forEach(function(lib,i){ if(m.ctrl["c"+i]==="non") non.push(lib); else if(m.ctrl["c"+i]==="np") np.push(lib); });
-    var ok = lc.length-non.length-np.length;
-    cptC.textContent = ok+"/"+lc.length + (non.length?" · "+non.length+" non":"") + (np.length?" · "+np.length+" NP":"");
+    /* Les sans-objet automatiques ont déjà leur volet à eux : les répéter
+       en tête de carte remplit l'écran sans rien apprendre. Seuls les NP
+       posés à la main sont rappelés ici. */
+    lc.forEach(function(lib,i){
+      if(m.ctrl["c"+i]==="non") non.push(lib);
+      else if(m.ctrl["c"+i]==="np" && idxSO.indexOf(i) < 0) np.push(lib);
+    });
+    var npTotal = 0;
+    lc.forEach(function(_,i){ if(m.ctrl["c"+i]==="np") npTotal++; });
+    var ok = lc.length-non.length-npTotal;
+    cptC.textContent = ok+"/"+lc.length + (non.length?" · "+non.length+" non":"") + (npTotal?" · "+npTotal+" NP":"");
     cptC.className = "cpt"+(non.length?" mal":"");
     resume.innerHTML = "";
     var nj = Object.keys(justifies).length;
     var gestesOk = idxGeste.filter(function(i){ return m.ctrl["c"+i]==="ok"; }).length;
     if(!non.length && !np.length){
-      resume.textContent = nj+"/"+idxMesure.length+" relevés · "+gestesOk+"/"+idxGeste.length+" gestes";
+      resume.textContent = nj+"/"+idxMesure.length+" relevés · "+gestesOk+"/"+idxGeste.length+" gestes"
+                         + (idxSO.length ? " · "+idxSO.length+" sans objet" : "");
     } else {
       non.forEach(function(l){ var d=el("div","exc mal"); d.textContent="✗ "+l; resume.appendChild(d); });
       np.forEach(function(l){ var d=el("div","exc"); d.textContent="NP  "+l; resume.appendChild(d); });
@@ -2573,7 +2616,12 @@ function vueMachine(root, m){
       e.appendChild(b);
     });
     l.appendChild(e);
-    (adossees[i] && corpsMes ? corpsMes : corpsGes).appendChild(l);
+    if(idxSO.indexOf(i) >= 0 && corpsSO){
+      if(npAuto["c"+i] && typeof npAuto["c"+i] === "string") lb.appendChild(el("span","auto", npAuto["c"+i]));
+      corpsSO.appendChild(l);
+    } else {
+      (adossees[i] && corpsMes ? corpsMes : corpsGes).appendChild(l);
+    }
   });
   majCpt();
   root.appendChild(c2);
@@ -2581,7 +2629,7 @@ function vueMachine(root, m){
   /* --- mesures --- */
   function poserMesure(parent, f){
     if(estMasquee(m.tech, f.k)) return;
-    if(f.type==="calc"){ majs.push(calcule(parent, f.l, {u:f.u, ch:f}, function(){ return valeurCalc(m,f); })); return; }
+    if(f.type==="calc"){ majs.push(calcule(parent, f.l, {u:f.u, ch:f, m:m, besoin:f.besoin}, function(){ return valeurCalc(m,f); })); return; }
     if(m.na && m.na[f.k]){
       var dso = el("div","champ so");
       var lso = el("label", null, f.l); dso.appendChild(lso);
@@ -2603,12 +2651,12 @@ function vueMachine(root, m){
     so.onclick = function(){ basculerSansObjet(m, f.k); sauver(); rendre(); };
     slot.appendChild(so);
     champ(parent, m.mes, f.k, f.l, {type:f.type, opts:f.opts, u:f.u, suffixe:m.mid, slot:slot,
-      aide: f.aide || "",
+      aide: f.aide || "", plage: texteRef(f, m),
       auMaj:function(){ majVerdict(); majs.forEach(function(fn){fn();}); appliquerLiens(m); rendreOnglets(); }});
     function majVerdict(){
-      var v = verdict(f, nb(m.mes[f.k]));
+      var v = verdict(f, nb(m.mes[f.k]), m);
       slot.innerHTML="";
-      if(v) slot.appendChild(el("span","verdict "+v.k, v.t));
+      if(v) slot.appendChild(el("span","verdict "+(v.indicatif && v.k==="ok" ? "info" : v.k), v.t));
       else slot.appendChild(so);
     }
     majVerdict();
@@ -2665,6 +2713,45 @@ function vueMachine(root, m){
     root.appendChild(c4);
   }
 
+  /* --- aération du local : la notice, puis le verdict de Rémi --- */
+  if(typeof ventilationConcernee === "function" && ventilationConcernee(m)){
+    var cv = el("div","carte");
+    cv.appendChild(el("h2",null,"Aération du local"));
+
+    var bN = el("button","btn p large","📖  Ouvrir la notice ventilation");
+    bN.type = "button";
+    bN.onclick = function(){ ouvrirNotice(NOTICE_VENT, "Ventilation"); };
+    cv.appendChild(bN);
+    cv.appendChild(el("div","mini", SOURCE_VENT));
+
+    var v = ventDe(m);
+    var lg = el("div","champ plein"); lg.style.marginTop = "10px";
+    lg.appendChild(el("label",null,"Ce que j'ai constaté"));
+    var eta = el("div","pc-etats large");
+    VENT_ETATS.forEach(function(o){
+      var b = el("button","et large", o.l); b.type="button"; b.dataset.v=o.v;
+      b.setAttribute("aria-pressed", v.etat===o.v ? "true":"false");
+      b.onclick = function(){
+        v.etat = (v.etat === o.v) ? "" : o.v;
+        appliquerVentilation(m);
+        sauver(); rendre();
+      };
+      eta.appendChild(b);
+    });
+    lg.appendChild(eta);
+    cv.appendChild(lg);
+
+    if(v.etat === "non"){
+      var gd = el("div","g2"); gd.style.marginTop="8px"; cv.appendChild(gd);
+      champ(gd, v, "desc", "Ce qui n'est pas conforme", {plein:true, type:"zone", suffixe:m.mid+"_vent",
+        ph:"ex. entrée d'air basse obstruée par un meuble · pas de sortie d'air haute · grille de 50 cm² au lieu de 100"});
+      cv.appendChild(el("div","aide",
+        "Cette description part telle quelle sur le document du client, en anomalie. " +
+        "Décris le constat, pas la cause : « grille obstruée », pas « le client a bouché ». Formule au conditionnel ce qui n'est qu'une hypothèse."));
+    }
+    root.appendChild(cv);
+  }
+
   /* --- défauts et actions --- */
   var c5 = el("div","carte");
   var auto = anomaliesDe(m);
@@ -2700,56 +2787,15 @@ function vueMachine(root, m){
     chp.appendChild(br);
   });
   c5b.appendChild(chp);
+  if(txt(m.prochaineAvant)){
+    var rap = el("div","alerte att");
+    rap.appendChild(el("div", null, "Noté à la visite précédente : " + m.prochaineAvant));
+    c5b.appendChild(rap);
+  }
   var g5b = el("div","g2"); c5b.appendChild(g5b);
   champ(g5b, m, "prochaine", "Détail", {plein:true, type:"zone", suffixe:m.mid,
     ph:"ex. amener un joint de vanne gaz DN20 · prévoir 1 h de plus · clé du local chez le voisin"});
   root.appendChild(c5b);
-
-  /* --- aération du local : mémo réglementaire, affiché seulement si ça compte --- */
-  if(typeof ventilationConcernee === "function" && ventilationConcernee(m)){
-    var cv = el("div","carte");
-    var hv = el("h2",null,"Aération du local");
-    cv.appendChild(hv);
-    var g = consigneVentilation(m);
-    var corpsV = bloc(cv, "Ce que le référentiel demande ici", g.exigences.length ? String(g.exigences.length) : null, false);
-    if(g.sansObjet){ corpsV.appendChild(el("div","alerte ok", g.sansObjet)); }
-    else if(g.manque){ corpsV.appendChild(el("div","alerte att", g.manque)); }
-    if(g.config) corpsV.appendChild(el("div","mini","Configuration reconnue : "+g.config));
-    g.exigences.forEach(function(x){
-      var b = el("div","exig"+(x.alerte?" mal":""));
-      b.appendChild(el("div","exig-quoi", x.quoi));
-      b.appendChild(el("div","exig-val", x.valeur));
-      if(x.niveau) b.appendChild(el("div","exig-niv", "Anomalie si non respecté : "+x.niveau));
-      if(x.detail) b.appendChild(el("div","aide", x.detail));
-      if(x.ecart)  b.appendChild(el("div","exig-ecart", "Deux sources divergent. "+x.ecart));
-      b.appendChild(el("div","exig-src", x.source));
-      corpsV.appendChild(b);
-    });
-    if(typeof ouvrirFiche === "function"){
-      var rangee = el("div","chips petit"); rangee.style.marginTop = "8px";
-      function planche(cle, libelle){
-        if(!ficheDispo(cle)) return;
-        var bf = el("button","chip mini", libelle); bf.type = "button";
-        bf.onclick = function(){ ouvrirFiche(cle, libelle); };
-        rangee.appendChild(bf);
-      }
-      if(g.fiche) planche(g.fiche, "Schéma du CAS " + g.cas);
-      planche("ventilation-03-configurations", "Table des cas");
-      planche("ventilation-04-dimensionnement", "Dimensionnement");
-      planche("ventilation-01-types-appareils", "Types A, B, C");
-      planche("ventilation-02-points-vigilance", "Points de vigilance");
-      corpsV.appendChild(rangee);
-    }
-    if(g.rappels && g.rappels.length){
-      var cr = bloc(cv, "À vérifier sur place", String(g.rappels.length), true);
-      g.rappels.forEach(function(r){ cr.appendChild(el("div","aide","• "+r)); });
-    }
-    if(g.reserves && g.reserves.length){
-      var cs = bloc(cv, "Réserves sur ces valeurs", String(g.reserves.length), true);
-      g.reserves.forEach(function(r){ cs.appendChild(el("div","aide","• "+r)); });
-    }
-    root.appendChild(cv);
-  }
 
   /* --- photos --- */
   carteMachinePhotos(root, m, !!m.notion);
@@ -2813,12 +2859,23 @@ function ouvrirSignatureClient(){
     "Votre signature vaut réception des documents ci-dessus. Elle ne vaut pas approbation des constatations techniques."));
   corps.appendChild(intro);
 
+  /* Neuf fois sur dix c'est le propriétaire qui signe. On propose son nom
+     d'office, et on dit d'où il vient pour que Rémi pense à le corriger
+     quand c'est le locataire, le fils ou le gardien qui est là. */
   var ch = el("div","champ plein");
   ch.appendChild(el("label",null,"Nom du signataire"));
-  var inp = el("input"); inp.type="text"; inp.value = V.signQui || V.present || "";
+  var repris = "";
+  var propose = txt(V.signQui);
+  if(!propose){ propose = txt(V.present); if(propose) repris = "personne présente"; }
+  if(!propose){ propose = txt(V.client); if(propose) repris = "titulaire du dossier"; }
+  var inp = el("input"); inp.type="text"; inp.value = propose || "";
   inp.placeholder = "NOM Prénom";
   inp.addEventListener("input", function(){ V.signQui = inp.value; sauver(); });
   ch.appendChild(inp);
+  if(repris && !txt(V.signQui)){
+    V.signQui = propose;                    /* proposé ET retenu : pas de case vide à l'envoi */
+    ch.appendChild(el("div","aide", "Repris du " + repris + ". Si ce n'est pas lui qui signe, corrige le nom."));
+  }
   corps.appendChild(ch);
 
   var toile = el("canvas"); toile.className = "sign-toile"; toile.width = 900; toile.height = 300;
@@ -2854,7 +2911,7 @@ function ouvrirSignatureClient(){
     if(vierge){ toast("Fais signer, ou touche « Client absent »","att"); return; }
     V.signClient = rognerToile(toile, ctx, 520);
     V.signRefus = 0;
-    if(!txt(V.signQui)) V.signQui = txt(V.present) || "";
+    if(!txt(V.signQui)) V.signQui = txt(V.present) || txt(V.client) || "";
     sauverTout(); dlg.close();
     toast("Signature enregistrée","ok");
     rendre();
@@ -2970,13 +3027,58 @@ function cablerRappelReleves(){
 function ficheDispo(cle){
   return typeof FICHES_REF !== "undefined" && FICHES_REF.some(function(f){ return f.cle === cle; });
 }
-function ouvrirFiche(cle, titre){
-  var f = (typeof FICHES_REF !== "undefined") ? FICHES_REF.filter(function(x){ return x.cle === cle; })[0] : null;
-  if(!f){ toast("Fiche introuvable","mal"); return; }
-  document.getElementById("ficheTitre").textContent = titre || "Fiche de référence";
-  document.getElementById("ficheImg").src = f.src;
+/* Une notice se feuillette. La version précédente ouvrait une image et
+   la refermait : pour trouver la bonne planche il fallait ressortir et
+   retaper. Ici on ouvre un cahier, avec ses onglets et ses flèches. */
+var _notice = {liste:[], i:0, titre:""};
+function ouvrirNotice(liste, titre, depart){
+  var dispo = (liste || []).filter(function(x){ return ficheDispo(x.cle); });
+  if(!dispo.length){ toast("Notice absente de cette version","mal"); return; }
+  _notice.liste = dispo; _notice.titre = titre || "Notice";
+  _notice.i = 0;
+  if(depart){
+    for(var j=0;j<dispo.length;j++) if(dispo[j].cle === depart){ _notice.i = j; break; }
+  }
+  var ong = document.getElementById("ficheOnglets");
+  ong.innerHTML = "";
+  dispo.forEach(function(f, j){
+    var b = el("button","chip mini", f.l); b.type = "button";
+    b.onclick = function(){ _notice.i = j; majNotice(); };
+    ong.appendChild(b);
+  });
+  majNotice();
   document.getElementById("dlgFiche").showModal();
 }
+function majNotice(){
+  var f = _notice.liste[_notice.i]; if(!f) return;
+  var src = FICHES_REF.filter(function(x){ return x.cle === f.cle; })[0];
+  document.getElementById("ficheTitre").textContent = _notice.titre + " — " + f.l;
+  document.getElementById("ficheImg").src = src ? src.src : "";
+  document.getElementById("fichePos").textContent = (_notice.i+1) + " / " + _notice.liste.length;
+  var ong = document.getElementById("ficheOnglets");
+  Array.prototype.forEach.call(ong.children, function(b, j){
+    b.setAttribute("aria-pressed", j === _notice.i ? "true" : "false");
+  });
+  var actif = ong.children[_notice.i];
+  if(actif && actif.scrollIntoView) actif.scrollIntoView({block:"nearest", inline:"nearest"});
+  document.getElementById("ficheImg").scrollTop = 0;
+}
+function feuilleter(pas){
+  if(!_notice.liste.length) return;
+  _notice.i = (_notice.i + pas + _notice.liste.length) % _notice.liste.length;
+  majNotice();
+}
+function cablerNotice(){
+  var p = document.getElementById("fichePrec"), s = document.getElementById("ficheSuiv");
+  if(p) p.onclick = function(){ feuilleter(-1); };
+  if(s) s.onclick = function(){ feuilleter(1); };
+  var d = document.getElementById("dlgFiche");
+  if(d) d.addEventListener("keydown", function(e){
+    if(e.key === "ArrowLeft"){ feuilleter(-1); e.preventDefault(); }
+    if(e.key === "ArrowRight"){ feuilleter(1); e.preventDefault(); }
+  });
+}
+function ouvrirFiche(cle, titre){ ouvrirNotice([{cle:cle, l:titre||"Planche"}], titre || "Fiche de référence", cle); }
 
 /* ============ photos ============
    Prises sur place, réduites tout de suite, gardées avec la fiche et
@@ -3116,13 +3218,21 @@ function payloadMachine(m, idx){
                       motif:"non relevable sur cet équipement"};
       return;
     }
-    if(f.type==="calc"){ val = valeurCalc(m,f); brut = estNb(val)?val:null; }
+    if(f.type==="calc"){
+      val = valeurCalc(m,f);
+      brut = estNb(val) ? val : (typeof val === "string" && val ? val : null);
+    }
     else if(f.type==="fixe"){ brut = f.valeur; val = f.valeur; }
     else { brut = (f.type==="num") ? n0(m.mes[f.k]) : propre(m.mes[f.k]); val = nb(m.mes[f.k]); }
     if(brut===null || brut===undefined || brut==="") return;
-    var v = verdict(f, estNb(val)?val:NaN);
-    mesures[f.l] = {valeur:brut, unite:f.u||null, verdict:v?v.t:null, alerte:v?(v.k!=="ok"):false};
+    var v = verdict(f, estNb(val)?val:NaN, m);
+    mesures[f.l] = {valeur:brut, unite:f.u||null, verdict:v?v.t:null,
+                    alerte: !!(v && v.k!=="ok" && !v.indicatif)};
   });
+  if(typeof ligneVentilation === "function"){
+    var lv = ligneVentilation(m);
+    if(lv) mesures[lv.k] = {valeur:lv.v, unite:null, verdict:null, alerte:lv.alerte};
+  }
 
   var sous = [];
   if(t.sousMachines){
@@ -3156,6 +3266,9 @@ function payloadMachine(m, idx){
     technologie_label: t.label,
     notion_page_id: m.notion || null,
     axonaut_id: m.axonaut || null,
+    /* Repris de la fiche Notion : c'est ce qui permettra d'envoyer
+       l'attestation au client sans aller la chercher à la main. */
+    email_client: propre(m.email),
     reglementaire: estReglementaire(m),
     hors_plage: horsPlage(m) ? (fmt(horsPlage(m).p,1)+" kW, "+horsPlage(m).sens+" "+horsPlage(m).seuil+" kW") : null,
     document_a_produire: estReglementaire(m) ? t.regl.doc : "Compte rendu d'entretien contractuel",
@@ -3204,14 +3317,21 @@ function resumeTexte(m, idx){
   L.push(""); L.push("-- Mesures --");
   t.mes.forEach(function(f){
     var val, aff;
-    if(f.type==="calc"){ val=valeurCalc(m,f); aff = estNb(val)?fmt(val,1):null; }
+    if(f.type==="calc"){
+      val = valeurCalc(m,f);
+      aff = estNb(val) ? fmt(val,1) : (typeof val === "string" && val ? val : null);
+    }
     else if(f.type==="fixe"){ val=f.valeur; aff=String(f.valeur); }
     else { aff = txt(m.mes[f.k]); val = nb(m.mes[f.k]); }
     if(m.na && m.na[f.k]){ ligne(f.l, "sans objet"); return; }
     if(aff===null) return;
-    var v = verdict(f, estNb(val)?val:NaN);
+    var v = verdict(f, estNb(val)?val:NaN, m);
     ligne(f.l, aff + (f.u?" "+f.u:"") + (v ? "  → "+v.t : ""));
   });
+  if(typeof ligneVentilation === "function"){
+    var lvt = ligneVentilation(m);
+    if(lvt) ligne(lvt.k, lvt.v);
+  }
   if(t.sousMachines && m.sous.length){
     L.push(""); L.push("-- "+t.sousMachines.label+" --");
     m.sous.forEach(function(ligneS, k){
@@ -3416,6 +3536,184 @@ function toast(msg, kind){
   toastTimer = setTimeout(function(){ if(t) t.remove(); }, 3600);
 }
 
+/* ============ mise à jour du parc et des clients ============
+   Le fichier de configuration était une photographie : au moment où j'écris,
+   81 sociétés créées dans Axonaut depuis l'export n'existaient pas sur la
+   tablette. Un client absent de la liste, c'est une fiche qui part avec un
+   nom mal orthographié et un dossier Drive créé en double.
+   La tablette va donc chercher elle-même la vérité :
+     — le parc dans Notion (base « Parc équipements KA-RÉ »),
+     — les clients dans Axonaut.
+   Elle passe par un scénario Make : ni la clé Axonaut ni le jeton Notion
+   ne descendent jamais sur la tablette. */
+
+var CLE_MAJ = "kare.maj.v1";
+var maj = lire(CLE_MAJ, {le:"", parc:0, clients:0});
+var DELAI_MAJ = 12 * 3600 * 1000;   /* au démarrage, pas plus d'une fois par demi-journée */
+
+/* ---- lecture d'une propriété Notion, quel que soit son type ---- */
+function valProp(p){
+  if(!p) return "";
+  var t = p.type;
+  if(t === "title" || t === "rich_text"){
+    return (p[t] || []).map(function(x){ return x.plain_text || ""; }).join("").trim();
+  }
+  if(t === "select")        return p.select ? (p.select.name || "") : "";
+  if(t === "multi_select")  return (p.multi_select || []).map(function(x){ return x.name; }).join(", ");
+  if(t === "number")        return (p.number === null || p.number === undefined) ? "" : String(p.number);
+  if(t === "date")          return p.date ? (p.date.start || "") : "";
+  if(t === "email")         return p.email || "";
+  if(t === "phone_number")  return p.phone_number || "";
+  if(t === "url")           return p.url || "";
+  if(t === "checkbox")      return p.checkbox ? "oui" : "non";
+  if(t === "formula"){
+    var f = p.formula; if(!f) return "";
+    if(f.string) return f.string;
+    if(f.number !== null && f.number !== undefined) return String(f.number);
+    if(f.date && f.date.start) return f.date.start;
+    return "";
+  }
+  return "";
+}
+/* Notion nomme les technologies pour l'œil, l'application pour le code. */
+var TECH_NOTION = {
+  "Chaudière gaz":       "chaudiere_gaz",
+  "Chaudière fioul":     "chaudiere_fioul",
+  "PAC air/eau":         "pac_air_eau",
+  "PAC air/air (clim)":  "clim_air_air",
+  "Clim réversible":     "clim_air_air",
+  "CET":                 "cet",
+  "Adoucisseur":         "adoucisseur",
+  "VMC":                 "vmc_df"
+};
+/* « Chaudière bois » et « Autre » n'ont pas de fiche : la machine reste
+   dans le parc, sans technologie. On ne l'invente pas. */
+
+function parcDepuisNotion(resultats){
+  var out = [];
+  (resultats || []).forEach(function(page){
+    var pr = page.properties || {};
+    var v  = function(k){ return valProp(pr[k]); };
+    var client = v("Client");
+    if(!client) return;                       /* une machine sans client ne sert à rien ici */
+    var marque = [v("Marque"), v("Modèle")].filter(Boolean).join(" ");
+    var ville  = v("Ville");
+    var adr    = v("Adresse du site");
+    var e = {
+      client:  client,
+      tech:    TECH_NOTION[v("Type équipement")] || "",
+      marque:  marque,
+      serie:   v("N° de série"),
+      puiss:   v("Puissance (kW)"),
+      annee:   v("Année"),
+      fluide:  v("Fluide frigorigène") === "Sans objet" ? "" : v("Fluide frigorigène"),
+      charge:  v("Charge fluide (kg)"),
+      nbui:    v("Nb unités intérieures"),
+      mes:     v("Date mise en service"),
+      adresse: adr || ville,
+      ville:   ville,
+      dernier: v("Dernier entretien"),
+      prochaine: v("À prévoir prochaine visite"),
+      statut:  v("Statut"),
+      email:   v("Email client"),
+      tel:     v("Téléphone"),
+      drive:   v("Dossier Drive"),
+      axonaut: v("ID société Axonaut"),
+      notion:  page.id || ""
+    };
+    Object.keys(e).forEach(function(k){ if(e[k] === "") delete e[k]; });
+    out.push(e);
+  });
+  return out;
+}
+
+function clientsDepuisAxonaut(donnees){
+  var out = [];
+  (donnees || []).forEach(function(s){
+    if(!s || s.is_disabled) return;
+    var nom = String(s.name || "").trim();
+    if(!nom) return;
+    var adresse = [s.address_street, s.address_zip_code, s.address_city]
+                    .map(function(x){ return String(x || "").trim(); })
+                    .filter(Boolean).join(" ");
+    var e = {nom:nom, ax:String(s.id || "")};
+    if(adresse) e.adresse = adresse;
+    if(s.is_customer) e.cli = 1;
+    if(s.is_supplier && !s.is_customer) e.f = 1;   /* fournisseur : gardé, mais rangé après */
+    out.push(e);
+  });
+  return out;
+}
+
+/* ---- l'appel ---- */
+function urlMaj(){
+  var u = txt(cfg.majUrl);
+  if(!u) return "";
+  return u + (u.indexOf("?") >= 0 ? "&" : "?") + "k=" + encodeURIComponent(cfg.secret || "");
+}
+/* fini(ok, message, detail) */
+function majParcEtClients(fini){
+  fini = fini || function(){};
+  var u = urlMaj();
+  if(!u){ fini(false, "Adresse de mise à jour non renseignée"); return; }
+  if(!navigator.onLine){ fini(false, "Hors connexion"); return; }
+
+  var minuteurAbandon = null, abandonne = false;
+  var ctrl = (typeof AbortController === "function") ? new AbortController() : null;
+  if(ctrl){ minuteurAbandon = setTimeout(function(){ abandonne = true; ctrl.abort(); }, 45000); }
+
+  fetch(u, {method:"GET", cache:"no-store", signal: ctrl ? ctrl.signal : undefined})
+    .then(function(r){
+      if(!r.ok) throw new Error("réponse " + r.status);
+      return r.text();
+    })
+    .then(function(brut){
+      clearTimeout(minuteurAbandon);
+      var d;
+      try{ d = JSON.parse(brut); }
+      catch(e){
+        /* Ne jamais dire « erreur » sans montrer ce qui est arrivé : c'est
+           ce qui m'a fait perdre une soirée sur le scénario précédent. */
+        throw new Error("réponse illisible — début : " + String(brut).slice(0, 120));
+      }
+      var np = parcDepuisNotion(d.parc);
+      var nc = clientsDepuisAxonaut(d.clients);
+      if(!np.length && !nc.length) throw new Error("réponse vide : ni parc ni clients");
+
+      if(np.length){ parc = np; ecrire(CLE_PARC, parc); }
+      if(nc.length){ clients = nc; ecrire(CLE_CLIENTS, clients); }
+      maj = {le: new Date().toISOString(), parc: np.length, clients: nc.length};
+      ecrire(CLE_MAJ, maj);
+      fini(true, np.length + " machines · " + nc.length + " clients", d.maj || "");
+    })
+    .catch(function(e){
+      clearTimeout(minuteurAbandon);
+      fini(false, abandonne ? "délai dépassé" : (e.message || "échec"));
+    });
+}
+/* Au démarrage : silencieux, sans bloquer, et pas plus d'une fois par
+   demi-journée. Rémi ne doit jamais attendre après le réseau. */
+function majAutomatique(){
+  if(!txt(cfg.majUrl) || !navigator.onLine) return;
+  var dernier = Date.parse(maj.le || "");
+  if(isFinite(dernier) && (Date.now() - dernier) < DELAI_MAJ) return;
+  majParcEtClients(function(ok, m){
+    if(ok){ majEtatMaj(); rendre(); toast("Parc et clients à jour — " + m, "ok"); }
+  });
+}
+function texteMaj(){
+  if(!maj.le) return "jamais mis à jour depuis Notion et Axonaut";
+  var d = new Date(maj.le);
+  if(isNaN(d.getTime())) return "date de mise à jour illisible";
+  var j = String(d.getDate()).padStart(2,"0") + "/" + String(d.getMonth()+1).padStart(2,"0") + "/" + d.getFullYear();
+  var h = String(d.getHours()).padStart(2,"0") + "h" + String(d.getMinutes()).padStart(2,"0");
+  return "dernière mise à jour le " + j + " à " + h + " — " + maj.parc + " machines, " + maj.clients + " clients";
+}
+function majEtatMaj(t){
+  var e = document.getElementById("majEtat");
+  if(e) e.textContent = t || texteMaj();
+}
+
 /* ============================================================
    Le document remis au client.
    Construit à l'impression : un document par machine, complet,
@@ -3535,14 +3833,26 @@ function modeleDocument(m, idx){
   t.mes.forEach(function(f){
     if(m.na && m.na[f.k]){ s4.push({k:f.l, v:"sans objet — non relevable sur cet équipement"}); return; }
     var val, aff;
-    if(f.type==="calc"){ val=valeurCalc(m,f); aff = estNb(val)?fmt(val,1):null; }
+    if(f.type==="calc"){
+      val = valeurCalc(m,f);
+      /* Un calcul peut rendre du texte : la classe énergétique vaut « B »,
+         pas un nombre. Ne garder que estNb() faisait disparaître la ligne
+         du document — et le document restait « à finir ». */
+      aff = estNb(val) ? fmt(val,1) : (typeof val === "string" && val ? val : null);
+    }
     else if(f.type==="fixe"){ val=f.valeur; aff=String(f.valeur); }
     else { aff = txt(m.mes[f.k]); val = nb(m.mes[f.k]); }
     if(aff===null) return;
-    var v = verdict(f, estNb(val)?val:NaN);
-    var alerte = !!(v && v.k!=="ok");
+    var v = verdict(f, estNb(val)?val:NaN, m);
+    var alerte = !!(v && v.k!=="ok" && !v.indicatif);
     s4.push({k:f.l, v:aff + (f.u?" "+f.u:""), alerte:alerte, verdict:alerte ? v.t : null});
   });
+  /* Le verdict d'aération du local se lit avec les mesures : c'est un
+     constat de la visite, au même titre qu'une valeur relevée. */
+  if(typeof ligneVentilation === "function"){
+    var lv = ligneVentilation(m);
+    if(lv) s4.push({k:lv.k, v:lv.v, alerte:lv.alerte, verdict:lv.alerte ? "non conforme" : null});
+  }
   if(t.sousMachines && m.sous.length){
     m.sous.forEach(function(l, k){
       var bouts=[];
@@ -4117,6 +4427,8 @@ function ouvrirReglages(){
   var t = document.querySelector("#dlgReglages .dlg-tete");
   if(t) t.textContent = "Réglages — version " + VERSION;
   $("#cfgWebhook").value = cfg.webhook || "";
+  $("#cfgMajUrl").value = cfg.majUrl || "";
+  majEtatMaj();
   $("#cfgSecret").value  = cfg.secret  || "";
   $("#cfgTech").value    = cfg.technicien || "";
   $("#cfgAppareils").value = cfg.appareils || "";
@@ -4160,11 +4472,36 @@ function ouvrirReglages(){
       "2 en aval de la chambre de combustion, 3 en amont. Suffixe P = conduit en surpression.</li>"+
       "</ul>"+
 
-      "<p><b>Aération du local (chaudière gaz) :</b> le mémo est bâti sur la <b>Fiche Visa Qualité Habitation 2026</b> "+
-      "(référentiel PG, tableau « Dimension des entrées d'air », points 7 à 11). Le pivot est le couple "+
-      "<b>sortie d'air × amenée d'air</b>, pas l'époque du logement. Ce référentiel vise la conformité de "+
-      "l'INSTALLATION ; l'entretien annuel, lui, n'impose que de vérifier que les orifices d'amenée d'air ne sont "+
-      "pas obstrués, et d'investiguer au-delà de 10 ppm de CO.</p>"+
+      "<p><b>Aération du local :</b> l'application ne calcule plus la section ou le module exigés. "+
+      "Elle donne accès à la notice — <b>Fiche Visa Qualité Habitation 2026</b> et <b>Fiches pratiques ventilation</b>, "+
+      "arrêté du 23 février 2018, art. 13 et 18 — et enregistre le verdict porté sur place. "+
+      "Le référentiel vise la conformité de l'INSTALLATION ; l'entretien annuel, lui, n'impose que de vérifier "+
+      "que les orifices d'amenée d'air ne sont pas obstrués, et d'investiguer au-delà de 10 ppm de CO. "+
+      "Le point de contrôle correspondant existe dans la liste réglementaire du <b>fioul</b> ; l'annexe 1 de "+
+      "l'arrêté du 15/09/2009 ne le cite pas pour le <b>gaz</b>, où le verdict figure donc comme constat de visite.</p>"+
+
+      "<p><b>Plages usuelles et seuils opposables.</b> Un seul jeu de seuils est opposable en 4 à 400 kW : "+
+      "le <b>CO ambiant</b> (10 ppm : anomalie et investigations ; 50 ppm : danger grave, arrêt et consignation). "+
+      "Tout le reste — CO2, O2, température des fumées, rendement lu à l'analyseur, pression de circuit, "+
+      "pression de vase, indice de noircissement, pression de pulvérisation — est affiché comme "+
+      "<b>plage usuelle indicative</b>. Une valeur qui en sort n'est jamais portée en anomalie sur le document "+
+      "du client. Les anciennes bornes opposables ont été corrigées le 26/08/2026 : un vase gonflé à 0,7 bar "+
+      "(valeur d'usine) et une chaudière fioul à 89 % de rendement partaient à tort en anomalie.</p>"+
+
+      "<p><b>RÉSERVE — NOx forfaitaires fioul.</b> La table de l'annexe 3 est appliquée dans l'alignement "+
+      "Sauermann (ancienne avant 1990 : 170 · flamme jaune : 140, 210 au-delà de 150 kW · flamme jaune à "+
+      "recirculation : 120, 180 · flamme bleue : 90 · radiant : 60 mg/kWh). Une autre reproduction sérieuse "+
+      "du même tableau donne les mêmes chiffres <b>décalés d'une ligne</b>. L'alignement retenu est le seul "+
+      "physiquement cohérent et il est confirmé par deux éditions du document, mais <b>il n'a pas été vérifié "+
+      "sur le PDF officiel de l'annexe 3</b> (tableau publié en image, Légifrance inaccessible). "+
+      "À contrôler une fois avant de considérer la table comme acquise. "+
+      "Les <b>NOx de référence fioul à 90 mg/kWh</b>, eux, sont confirmés par le modèle d'attestation COSTIC "+
+      "de novembre 2025 et par le guide Énergies Avenir.</p>"+
+
+      "<p><b>Classe énergétique fioul :</b> bascule en 2000 (et non 2005 comme le gaz), condensation plafonnée "+
+      "à B. Rubrique bornée par le modèle d'attestation aux appareils <b>antérieurs à 2015 et de moins de "+
+      "70 kW</b> ; au-delà, l'application affiche « non déterminée » plutôt qu'une classe inventée. "+
+      "Table confirmée par deux sources concordantes, pas par le texte primaire.</p>"+
 
       "<p><b>Réglé le 26/08/2026 par le modèle d'attestation 2023 :</b> les <b>NOx de référence à 35 mg/kWh</b> sont "+
       "la bonne valeur — c'est le niveau atteint par les meilleures technologies présentes sur le marché depuis 2009, "+
@@ -4193,6 +4530,7 @@ function importerConfig(fichier){
       var d = JSON.parse(r.result);
       var n = 0;
       if(d.webhook){ cfg.webhook = d.webhook; n++; }
+      if(d.majUrl){ cfg.majUrl = d.majUrl; n++; }
       if(d.secret){ cfg.secret = d.secret; n++; }
       if(d.technicien){ cfg.technicien = d.technicien; }
       var liste = d.parc || d.machines || (Array.isArray(d) ? d : null);
@@ -4230,6 +4568,16 @@ function cabler(){
   });
 
   $("#cfgWebhook").addEventListener("input", function(){ cfg.webhook=this.value.trim(); sauverCfg(); });
+  $("#cfgMajUrl").addEventListener("input", function(){ cfg.majUrl=this.value.trim(); sauverCfg(); });
+  $("#bMaj").addEventListener("click", function(){
+    var b = this;
+    b.disabled = true; majEtatMaj("mise à jour en cours…");
+    majParcEtClients(function(ok, m){
+      b.disabled = false;
+      if(ok){ majEtatMaj(); rendre(); toast("Parc et clients à jour — " + m, "ok"); }
+      else  { majEtatMaj("échec : " + m); toast("Mise à jour impossible : " + m, "mal"); }
+    });
+  });
   $("#cfgSecret").addEventListener("input",  function(){ cfg.secret=this.value.trim(); sauverCfg(); });
   $("#cfgTech").addEventListener("input",    function(){ cfg.technicien=this.value.trim(); sauverCfg(); });
   $("#cfgAppareils").addEventListener("input", function(){ cfg.appareils=this.value.trim(); sauverCfg(); });
@@ -4263,6 +4611,7 @@ function cabler(){
   };
   if(typeof cablerRappelSignature === "function") cablerRappelSignature();
   if(typeof cablerRappelReleves === "function") cablerRappelReleves();
+  if(typeof cablerNotice === "function") cablerNotice();
   $("#bNouveauClient").onclick = function(){
     $("#dlgApres").close(); nouvelleVisite(); toast("Nouvelle visite — à toi de jouer","ok");
   };
@@ -4294,6 +4643,8 @@ function demarrer(){
     }, 900);
   }
   majReseau(); majFile();
+  /* Le parc et les clients se rafraîchissent tout seuls, en arrière-plan. */
+  setTimeout(majAutomatique, 3000);
   majEtat(STOCK_OK ? "prêt" : "enregistrement indisponible", STOCK_OK ? "" : "mal");
   rendre();
   setTimeout(function(){ viderFile(false); }, 2000);
@@ -4334,10 +4685,21 @@ window.KARE = {
   modeleDocument: modeleDocument, documentPDF: documentPDF,
   nomPDF: nomPDF, pdfBase64: pdfBase64,
   pdfCouper: pdfCouper, pdfLargeur: pdfLargeur, pdfNettoie: pdfNettoie,
-  ventilationConcernee: ventilationConcernee, consigneVentilation: consigneVentilation,
+  ventilationConcernee: ventilationConcernee, ventDe: ventDe,
+  appliquerVentilation: appliquerVentilation, ligneVentilation: ligneVentilation,
+  ouvrirNotice: ouvrirNotice, feuilleter: feuilleter,
+  texteRef: texteRef, plageRef: plageRef, verdict: verdict,
+  noxGaz: noxGaz, noxFioul: noxFioul, classeEnergie: classeEnergie,
+  get notice(){ return NOTICE_VENT; },
   initCtrl: initCtrl, appliquerNP: appliquerNP, recalerConseils: recalerConseils,
   relevesManquants: relevesManquants,
   ouvrirFiche: ouvrirFiche, ficheDispo: ficheDispo, migrerMachine: migrerMachine,
+  ouvrirSignatureClient: ouvrirSignatureClient,
+  majParcEtClients: majParcEtClients, majAutomatique: majAutomatique,
+  parcDepuisNotion: parcDepuisNotion, clientsDepuisAxonaut: clientsDepuisAxonaut,
+  valProp: valProp, texteMaj: texteMaj,
+  get maj(){ return maj; },
+  technos: function(){ return TECHNOS; },
   get fiches(){ return (typeof FICHES_REF !== "undefined") ? FICHES_REF : []; }
 };
 
