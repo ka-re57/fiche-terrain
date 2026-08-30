@@ -1,1 +1,1 @@
-Test de publication depuis Make.
+ok
