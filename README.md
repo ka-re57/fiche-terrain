@@ -24,10 +24,17 @@ et qui reste dans le stockage local de la tablette après import.
 
 | Fichier | Rôle |
 |---|---|
-| `index.html` | l'application entière, en un seul fichier |
+| `index.html` | la coquille : en-tête, corps de page, appels des modules |
+| `app.css` | la feuille de style |
+| `app/*.js` | les treize modules, chargés dans l'ordre de leur numéro |
+| `fiches.js` | les seize planches de la notice ventilation et le logo |
 | `sw.js` | mise en cache pour le fonctionnement hors connexion |
 | `manifest.webmanifest` | installation sur l'écran d'accueil |
 | `icon-*.png` | icônes |
+
+Chaque URL porte le numéro de version (`?v=3.8`). Une nouvelle version donne
+donc de nouvelles adresses, et il est impossible qu'une coquille récente
+charge un module périmé resté en cache.
 
 ## Réserves
 
