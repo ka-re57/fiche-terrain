@@ -16,7 +16,12 @@ function communeDe(adr){
   var m = a.match(/\b\d{5}\s+([^,;]+)$/);
   if(m) return m[1].trim();
   var bouts = a.split(",");
-  return bouts.length > 1 ? bouts[bouts.length-1].trim() : null;
+  if(bouts.length > 1) return bouts[bouts.length-1].trim();
+  /* Le 02/09, l'adresse valait « Faulquemont » tout court : pas de code postal,
+     pas de virgule, donc aucune commune trouvée alors qu'elle était sous les
+     yeux. Une adresse courte et sans numéro de rue EST une commune. */
+  if(a.length <= 40 && !/\d/.test(a) && a.split(/\s+/).length <= 4) return a;
+  return null;
 }
 var RESERVES =
   "Le présent document rend compte des vérifications, mesures et constatations réalisées le jour de la visite, "+
