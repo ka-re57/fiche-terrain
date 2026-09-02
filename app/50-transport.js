@@ -16,8 +16,11 @@ function parcProps(m){
   function rt(k, v){ v = txt(v); if(v) P[k] = {rich_text:[{text:{content:String(v).slice(0,1900)}}]}; }
   function num(k, v){ var x = nb(v); if(estNb(x)) P[k] = {number:x}; }
   function sel(k, v){ v = txt(v); if(v) P[k] = {select:{name:v}}; }
-  var titre = [t.label, txt(m.ident.marque)].filter(Boolean).join(" — ")
-              + (txt(V.client) ? " · " + txt(V.client) : "");
+  /* Même convention de nom que les fiches déjà au parc : « REMY Hervé —
+     CET — Faulquemont ». Le client d'abord, pour que le tri alphabétique
+     regroupe ses machines. */
+  var titre = [txt(V.client), t.label, txt(V.ville) || communeDe(V.adresse)]
+                .filter(Boolean).join(" — ");
   P["Équipement"] = {title:[{text:{content:titre.slice(0,1900)}}]};
   rt("Client", V.client);
   rt("Adresse du site", V.adresse);
@@ -137,7 +140,7 @@ function payloadMachine(m, idx){
        en texte JSON, il écrirait « [object Object] ». On lui mâche le travail. */
     parc_props_json: m.notion ? null : JSON.stringify(parcProps(m)),
     parc: (m.notion ? null : {
-      titre: [t.label, propre(m.ident.marque)].filter(Boolean).join(" — "),
+      titre: [propre(V.client), t.label, propre(V.ville)].filter(Boolean).join(" — "),
       type_notion: (typeof NOTION_TECH === "object" && NOTION_TECH[m.tech]) || null,
       client: propre(V.client), adresse: propre(V.adresse), ville: propre(V.ville),
       email: propre(V.email), tel: propre(V.tel),

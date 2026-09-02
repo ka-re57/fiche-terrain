@@ -2,8 +2,8 @@
    La page elle-même : réseau d'abord, cache en secours -> on a toujours la dernière version,
    et ça marche quand même hors connexion.
    Les icônes et le manifeste : cache d'abord, ils ne changent presque jamais. */
-var CACHE = "kare-fiche-v3-11";
-var FICHIERS = ["./","./index.html","./app.css?v=3.11","./fiches.js?v=3.11","./logo.png?v=3.11","./manifest.webmanifest","./icon-192.png","./icon-512.png","./icon-maskable-512.png","./app/30-catalogue.js?v=3.11","./app/40-noyau.js?v=3.11","./app/44-ventilation.js?v=3.11","./app/45-vues.js?v=3.11","./app/47-signature-client.js?v=3.11","./app/48-photos.js?v=3.11","./app/50-transport.js?v=3.11","./app/52-maj.js?v=3.11","./app/55-document.js?v=3.11","./app/56-pdf.js?v=3.11","./app/57-doc-pdf.js?v=3.11","./app/58-cerfa.js?v=3.11","./app/60-boot.js?v=3.11"];
+var CACHE = "kare-fiche-v3-12";
+var FICHIERS = ["./","./index.html","./app.css?v=3.12","./fiches.js?v=3.12","./logo.png?v=3.12","./manifest.webmanifest","./icon-192.png","./icon-512.png","./icon-maskable-512.png","./app/30-catalogue.js?v=3.12","./app/40-noyau.js?v=3.12","./app/44-ventilation.js?v=3.12","./app/45-vues.js?v=3.12","./app/47-signature-client.js?v=3.12","./app/48-photos.js?v=3.12","./app/50-transport.js?v=3.12","./app/52-maj.js?v=3.12","./app/55-document.js?v=3.12","./app/56-pdf.js?v=3.12","./app/57-doc-pdf.js?v=3.12","./app/58-cerfa.js?v=3.12","./app/60-boot.js?v=3.12"];
 
 self.addEventListener("install", function(e){
   e.waitUntil(
