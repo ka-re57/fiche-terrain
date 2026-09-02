@@ -1,5 +1,5 @@
 "use strict";
-var VERSION = "3.9";
+var VERSION = "3.10";
 
 /* ============ stockage ============ */
 var CLE_VISITE = "kare.visite.v1", CLE_CFG = "kare.cfg.v1", CLE_PARC = "kare.parc.v1", CLE_FILE = "kare.file.v1";
@@ -547,7 +547,15 @@ function noxFioul(m){
 function classeEnergie(m){
   var tech = sansAccents(txt(m.ident.techno) || ""), an = nb(m.ident.annee);
   if(!tech || !estNb(an)) return null;
-  if(an >= 2015) return "étiquette ErP du fabricant";
+  /* Après septembre 2015 la table ne vaut plus : la classe est celle de
+     l'étiquette ErP. Si Rémi l'a relevée sur place, c'est elle qui compte ;
+     sinon on écrit une phrase qui se tient sur un document client, pas une
+     consigne à soi-même. */
+  if(an >= 2015){
+    var lue = txt((m.mes||{}).classe_erp);
+    if(lue && lue !== "étiquette absente ou illisible") return lue;
+    return "non déterminée — classe portée sur l'étiquette ErP du fabricant";
+  }
   /* Le modèle d'attestation borne la rubrique : « si antérieure à 2015 et de
      moins de 70 kW ». Au-delà, on n'invente pas une classe. */
   var p = nb(m.ident.puiss);

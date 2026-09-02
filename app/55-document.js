@@ -115,6 +115,7 @@ function modeleDocument(m, idx){
   /* 4 — mesures */
   var s4 = [], sousM = [];
   t.mes.forEach(function(f){
+    if(f.horsDoc) return;             /* saisie de service : elle nourrit un calcul, elle ne s'imprime pas */
     if(m.na && m.na[f.k]){ s4.push({k:f.l, v:"sans objet — non relevable sur cet équipement"}); return; }
     var val, aff;
     if(f.type==="calc"){
@@ -122,15 +123,36 @@ function modeleDocument(m, idx){
       /* Un calcul peut rendre du texte : la classe énergétique vaut « B »,
          pas un nombre. Ne garder que estNb() faisait disparaître la ligne
          du document — et le document restait « à finir ». */
-      aff = estNb(val) ? fmt(val,1) : (typeof val === "string" && val ? val : null);
+      /* Un forfait entier n'a pas à s'écrire « 45,0 » : sur un document,
+         la décimale vide donne l'air d'une précision qu'on n'a pas. */
+      aff = estNb(val) ? (val === Math.round(val) ? String(val) : fmt(val,1))
+                       : (typeof val === "string" && val ? val : null);
     }
     else if(f.type==="fixe"){ val=f.valeur; aff=String(f.valeur); }
-    else { aff = txt(m.mes[f.k]); val = nb(m.mes[f.k]); }
+    else {
+      aff = txt(m.mes[f.k]); val = nb(m.mes[f.k]);
+      /* Rémi tape « 91.4 » au pavé numérique de la tablette. À côté d'un
+         « 92,4 » calculé, le point fait tache sur un document français. */
+      if(f.type === "num" && estNb(val)) aff = aff.replace(".", ",");
+    }
     if(aff===null) return;
     var v = verdict(f, estNb(val)?val:NaN, m);
     var alerte = !!(v && v.k!=="ok" && !v.indicatif);
-    s4.push({k:f.l, v:aff + (f.u?" "+f.u:""), alerte:alerte, verdict:alerte ? v.t : null});
+    s4.push({kk:f.k, k:f.l, v:aff + (f.u?" "+f.u:""), alerte:alerte, verdict:alerte ? v.t : null});
   });
+  /* Sur une chaudière à condensation, le rendement évalué et le rendement de
+     référence sortent de la même formule d'annexe 2 : deux lignes, le même
+     nombre. Sur un document client ça ressemble à une erreur de saisie. On
+     n'en garde qu'une, et on dit en toutes lettres ce que la comparaison
+     donne — l'information de référence n'est pas perdue, elle est écrite. */
+  (function(){
+    var iR = -1, iRef = -1;
+    s4.forEach(function(l, i){ if(l.kk === "rdt") iR = i; if(l.kk === "rdt_ref") iRef = i; });
+    if(iR < 0 || iRef < 0) return;
+    if(s4[iR].v !== s4[iRef].v) return;
+    s4[iR].v = s4[iR].v + " — au niveau du rendement de référence d'un appareil de même puissance (annexe 2)";
+    s4.splice(iRef, 1);
+  })();
   /* Le verdict d'aération du local se lit avec les mesures : c'est un
      constat de la visite, au même titre qu'une valeur relevée. */
   if(typeof ligneVentilation === "function"){
@@ -194,7 +216,13 @@ function modeleDocument(m, idx){
       technicien: {
         nom: "Le technicien — "+(cfg.technicien||"Rémi KATA"),
         image: cfg.signature || null,
-        lieuDate: "Fait à " + (txt(V.ville) || communeDe(V.adresse) || "…") + ", le " + dateFr(V.date)
+        /* Sans commune connue, on n'imprime pas « Fait à … » : trois points de
+           suspension sur un document signé, ça fait brouillon. La date seule
+           suffit, elle est ce qui fait foi. */
+        lieuDate: (function(){
+          var lieu = txt(V.ville) || communeDe(V.adresse) || "";
+          return (lieu ? "Fait à " + lieu + ", le " : "Le ") + dateFr(V.date);
+        })()
       },
       client: (cfg.signClient === "non") ? null : {
         nom: "Le commanditaire",
