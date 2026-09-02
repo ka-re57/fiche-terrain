@@ -33,6 +33,11 @@ input,select,textarea,button{font:inherit; color:inherit}
 .barre .logo{height:22px; width:auto; margin-right:auto; display:block}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .barre .logo{filter:invert(1)}}
 :root[data-theme="dark"] .barre .logo{filter:invert(1)}
+.maj-bandeau{position:sticky; top:0; z-index:29; display:flex; gap:8px; align-items:center; flex-wrap:wrap;
+  padding:9px 12px; background:var(--attf); color:var(--att); border-bottom:1px solid var(--trait);
+  font-family:var(--ui); font-size:13.5px; font-weight:600}
+.maj-bandeau span{margin-right:auto}
+.maj-bandeau[hidden]{display:none}
 .pastille{font-family:var(--ui); font-size:12.5px; font-weight:600; letter-spacing:.03em; padding:3px 9px; border-radius:999px; background:var(--carte2); color:var(--texte2); border:1px solid var(--trait2); white-space:nowrap}
 .pastille.ok{background:var(--okf); color:var(--ok); border-color:transparent}
 .pastille.att{background:var(--attf); color:var(--att); border-color:transparent}

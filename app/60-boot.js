@@ -179,6 +179,10 @@ function cabler(){
       });
   };
   $("#bVider").onclick = function(){ fileEcrire([]); toast("File vidée"); };
+  $("#bMajAppli").onclick = function(){ chercherMaj(true); };
+  var bi = $("#bMajInstaller"), bt = $("#bMajPlusTard");
+  if(bi) bi.onclick = installerMaj;
+  if(bt) bt.onclick = function(){ var b = $("#majBandeau"); if(b) b.hidden = true; };
   $("#bReset").onclick = function(){
     if(this.dataset.arme!=="1"){ this.dataset.arme="1"; this.textContent="Confirmer l'effacement"; var b=this;
       setTimeout(function(){ if(b.dataset.arme==="1"){ b.dataset.arme=""; b.textContent="Effacer cette visite"; } },6000); return; }
@@ -226,9 +230,75 @@ function demarrer(){
   setTimeout(function(){ viderFile(false); }, 2000);
   if("serviceWorker" in navigator){
     window.addEventListener("load", function(){
-      navigator.serviceWorker.register("sw.js").catch(function(){});
+      navigator.serviceWorker.register("sw.js").then(brancherMaj).catch(function(){});
     });
   }
+}
+
+/* ---- Mise à jour de l'application --------------------------------------
+   Rien à désinstaller, jamais. Le navigateur va chercher la nouvelle version
+   tout seul ; quand elle est prête et rangée hors ligne, un bandeau le dit et
+   Rémi choisit le moment. Une visite en cours n'est jamais perdue : elle vit
+   dans le stockage de la tablette, pas dans la page.                        */
+var SW_REG = null, SW_PRET = null, SW_RECHARGE = false;
+
+function brancherMaj(reg){
+  if(!reg) return;
+  SW_REG = reg;
+  /* Au tout premier lancement il n'y a pas encore de version en place : ce qui
+     s'installe n'est pas une mise à jour, c'est l'application elle-même. On ne
+     dérange donc pas Rémi avec un bandeau. */
+  var deja = !!navigator.serviceWorker.controller;
+  if(deja && reg.waiting) annoncerMaj(reg.waiting);
+  reg.addEventListener("updatefound", function(){
+    var nv = reg.installing;
+    if(!nv) return;
+    nv.addEventListener("statechange", function(){
+      if(nv.state !== "installed") return;
+      if(deja) annoncerMaj(nv);
+      else majAppliEtat("application installée hors ligne");
+    });
+  });
+  navigator.serviceWorker.addEventListener("controllerchange", function(){
+    if(SW_RECHARGE) return;
+    SW_RECHARGE = true;
+    location.reload();
+  });
+  chercherMaj(false);
+  setInterval(function(){ if(navigator.onLine) chercherMaj(false); }, 30*60*1000);
+  window.addEventListener("online", function(){ chercherMaj(false); });
+}
+
+function annoncerMaj(sw){
+  SW_PRET = sw;
+  var b = document.getElementById("majBandeau");
+  if(b) b.hidden = false;
+  majAppliEtat("une nouvelle version attend d'être installée");
+}
+
+function chercherMaj(direct){
+  if(!SW_REG){ if(direct) majAppliEtat("mise à jour indisponible sur ce navigateur"); return; }
+  if(!navigator.onLine){ if(direct) majAppliEtat("hors connexion — réessaie quand tu auras du réseau"); return; }
+  if(direct) majAppliEtat("recherche…");
+  SW_REG.update().then(function(){
+    if(!direct) return;
+    setTimeout(function(){
+      if(!SW_PRET) majAppliEtat("tu es déjà sur la dernière version (" + VERSION + ")");
+    }, 1500);
+  }).catch(function(){ if(direct) majAppliEtat("recherche impossible"); });
+}
+
+function installerMaj(){
+  if(!SW_PRET) return;
+  majAppliEtat("installation…");
+  SW_PRET.postMessage({type:"PRENDRE_LA_MAIN"});
+  /* filet de sécurité si controllerchange ne vient pas */
+  setTimeout(function(){ if(!SW_RECHARGE){ SW_RECHARGE = true; location.reload(); } }, 2500);
+}
+
+function majAppliEtat(t){
+  var e = document.getElementById("majAppliEtat");
+  if(e) e.textContent = t;
 }
 if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", demarrer);
 else demarrer();

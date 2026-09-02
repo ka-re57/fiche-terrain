@@ -76,7 +76,11 @@ function champ(parent, obj, cle, libelle, o){
   /* La plage usuelle s'affiche AVANT de saisir : c'est à ce moment-là
      qu'elle sert. « dans la plage » après coup, c'est trop tard pour
      savoir si on tient la bonne valeur. */
-  if(o.plage) d.appendChild(el("div","ref-plage", o.plage));
+  if(o.plage !== undefined){
+    var dp = el("div","ref-plage", o.plage || "");
+    dp.hidden = !o.plage;
+    d.appendChild(dp);
+  }
   /* L'explication vit SOUS le champ, jamais dans le champ : un texte
      d'aide en placeholder se coupe sur un téléphone et disparaît dès
      qu'on saisit. C'est justement là qu'on en a besoin. */
@@ -532,16 +536,28 @@ function vueMachine(root, m){
     so.title = "Cette mesure n'est pas relevable sur cette machine";
     so.onclick = function(){ basculerSansObjet(m, f.k); sauver(); rendre(); };
     slot.appendChild(so);
-    champ(parent, m.mes, f.k, f.l, {type:f.type, opts:f.opts, u:f.u, suffixe:m.mid, slot:slot,
+    var entree = champ(parent, m.mes, f.k, f.l, {type:f.type, opts:f.opts, u:f.u, suffixe:m.mid, slot:slot,
       aide: f.aide || "", plage: texteRef(f, m),
-      auMaj:function(){ majVerdict(); majs.forEach(function(fn){fn();}); appliquerLiens(m); rendreOnglets(); }});
-    function majVerdict(){
+      auMaj:function(){ rafraichir(); majs.forEach(function(fn){fn();}); appliquerLiens(m); rendreOnglets(); }});
+    /* La plage usuelle dépend souvent de l'appareil : condensation ou non,
+       brûleur atmosphérique ou non. Changer la technologie ou le brûleur
+       APRÈS avoir saisi la mesure doit donc redessiner le verdict.
+       Sans ça, la pastille restait figée sur l'ancienne plage — le document
+       était juste, mais l'écran mentait. */
+    function rafraichir(){
       var v = verdict(f, nb(m.mes[f.k]), m);
       slot.innerHTML="";
       if(v) slot.appendChild(el("span","verdict "+(v.indicatif && v.k==="ok" ? "info" : v.k), v.t));
       else slot.appendChild(so);
+      var d = entree && entree.parentNode;
+      var dp = d && d.querySelector(".ref-plage");
+      if(dp){
+        var t = texteRef(f, m);
+        dp.textContent = t; dp.hidden = !t;
+      }
     }
-    majVerdict();
+    majs.push(rafraichir);
+    rafraichir();
   }
   var c3 = el("div","carte");
   c3.appendChild(el("h2",null,"Mesures"));

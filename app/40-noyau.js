@@ -1,5 +1,5 @@
 "use strict";
-var VERSION = "3.8";
+var VERSION = "3.9";
 
 /* ============ stockage ============ */
 var CLE_VISITE = "kare.visite.v1", CLE_CFG = "kare.cfg.v1", CLE_PARC = "kare.parc.v1", CLE_FILE = "kare.file.v1";
@@ -85,7 +85,9 @@ function majEtat(t, k){
 function machineVierge(cle){
   var t = TECHNOS[cle];
   var m = {mid: idUnique("m"), tech: cle, ident:{}, ctrl:{}, mes:{}, sous:[], anomalies:"", actions:"", conseils:{}, note:""};
-  if(t && t.sousMachines) m.sous = [{}];
+  /* Une clim a toujours au moins une unité intérieure ; une VMC n'a pas
+     à ouvrir une bouche vide qu'on ne remplira pas. */
+  if(t && t.sousMachines) m.sous = t.sousMachines.vide ? [] : [{}];
   m.ctrlManuel = {}; m.na = {}; m.naAuto = {};
   m.prochaine = "";
   if(t){

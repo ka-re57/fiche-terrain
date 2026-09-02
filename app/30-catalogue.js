@@ -311,7 +311,7 @@ TECHNOS.chaudiere_gaz = {
     {k:"techno", l:"Technologie", type:"liste", opts:["condensation","basse température","standard","atmosphérique ancienne"],
      aide:"technologie de combustion, à ne pas confondre avec le brûleur : « standard » = chaudière traditionnelle haute température, sans condensation ni basse température. Une chaudière standard peut très bien avoir un brûleur atmosphérique."},
     {k:"bruleur", l:"Type de brûleur", type:"liste", opts:["prémélange total","prémélange partiel","atmosphérique","air soufflé"],
-     aide:"le brûleur, pas la technologie. C'est lui qui donne la valeur forfaitaire des NOx (annexe 3) et qui décide si les mesures de combustion s'appliquent : elles ne sont obligatoires que sur les brûleurs à air soufflé. Repris d'une visite à l'autre."},
+     aide:"Bloc rapporté avec son propre moteur et un flexible gaz → air soufflé. Brûleur en cylindre ou toile métallique, venturi, turbine intégrée (toute condensation récente) → prémélange total. Rampes sans ventilateur, coupe-tirage → atmosphérique. Rampes AVEC ventilateur, sans condensation → prémélange partiel. C'est ce choix qui fixe les NOx portés sur l'attestation : 45, 130, 170 ou 300 mg/kWh. Repris d'une visite à l'autre."},
     {k:"evac", l:"Type et évacuation", type:"liste", opts:["C étanche ventouse","B1 raccordé non étanche","B22 / B23 raccordé sans coupe-tirage","VMC gaz"],
      aide:"norme NF EN 1749. B = l'air de combustion est pris dans la pièce ; C = circuit étanche (ventouse). B1 a un coupe-tirage, B2 n'en a pas : B22 ventilateur en aval de la chambre de combustion, B23 en amont (brûleur prémix). Le suffixe P signale un conduit en surpression. Renseigné une fois, repris ensuite : c'est lui qui fait disparaître les points sans objet (VMC gaz, CO d'ambiance sur étanche)."},
     {k:"annee", l:"Année de fabrication", type:"num", aide:"sert au calcul du rendement forfaitaire"},
@@ -618,28 +618,13 @@ TECHNOS.adoucisseur = {
       "Entretien avec le client : goût et odeur de l'eau, traces de calcaire, consommation de sel, incidents depuis la dernière visite",
       "Relevé de l'index du compteur volumétrique et calcul du volume traité depuis la dernière visite",
       "Examen visuel : corrosion, fuites aux raccords, état des flexibles, propreté du local",
-      "Contrôle du by-pass : manœuvre complète des vannes, vérification que le client sait s'en servir",
-      "Contrôle de la protection contre les retours d'eau en amont",
       "Contrôle et nettoyage ou remplacement du filtre amont",
-      "Mesure du TH de l'eau brute au piquage amont",
-      "Mesure du TH de l'eau adoucie au point de puisage le plus proche en aval",
-      "Mesure du TH en sortie de colonne avant mélange (doit être proche de 0 °f)",
-      "Réglage de la vanne de mélange pour viser un TH résiduel de 8 à 15 °f",
-      "Mesure de la pression d'entrée et contrôle du réducteur de pression",
-      "Bac à sel : niveau, recherche de pont de sel, présence de boue saline ou d'insolubles",
-      "Nettoyage du bac à sel, du puits à saumure et de la crépine ; contrôle du flotteur et du clapet de sécurité",
+      "Mesure du TH de l'eau brute et du TH de l'eau adoucie, réglage de la vanne de mélange pour un TH résiduel de 8 à 15 °f",
+      "Bac à sel : niveau, recherche de pont de sel, nettoyage du bac, du puits à saumure et de la crépine",
       "Démontage, nettoyage et remontage de l'injecteur (venturi) et de son filtre",
-      "Contrôle du corps de vanne et des joints de piston, recherche d'une fuite interne vers l'égout",
-      "Régénération manuelle complète : détassage, aspiration de saumure, rinçage lent, renvoi d'eau, rinçage rapide",
-      "Contrôle de l'écoulement à l'égout et de la garde d'air",
-      "Nouvelle mesure du TH après régénération",
+      "Régénération manuelle de contrôle et nouvelle mesure du TH après régénération",
       "Désinfection des résines et du bac à sel avec un produit compatible eau de consommation, puis rinçage complet",
-      "Contrôle du paramétrage : dureté d'entrée, dureté de sortie, volume, heure, régénération forcée tous les 4 à 7 jours",
-      "Contrôle de la pile de sauvegarde, remise à l'heure, effacement des alarmes",
-      "Vérification qu'un point d'eau froide non adoucie reste disponible pour la boisson",
-      "Alerte écrite si un membre du foyer suit un régime pauvre en sodium (environ 8 mg/L de sodium par °f éliminé)",
-      "Contrôle de la température de l'ECS en aval et recherche de bras morts",
-      "Recharge en sel, remise en service, purge, contrôle final d'absence de fuite"
+      "Contrôle du paramétrage, recharge en sel, remise en service et contrôle final d'absence de fuite"
     ],
     mes: [
       "Vérification préalable : TH du réseau, pression et débit disponibles, dimensionnement selon le nombre d'occupants",
@@ -718,26 +703,14 @@ TECHNOS.vmc_df = {
   ctrl: {
     entretien: [
       "Entretien avec le client : bruit, courants d'air froid, condensation ou moisissures, odeurs, date du dernier changement de filtres",
-      "Contrôle de l'accessibilité et de l'état du caisson : fixation, suspension antivibratile, calorifuge, trappe d'accès",
-      "Mise hors tension et consignation avant ouverture du caisson",
-      "Filtres : relevé de la classe et de l'encrassement, remplacement systématique, pose dans le bon sens, référence et date notées",
+      "Filtres : relevé de l'encrassement, remplacement systématique, pose dans le bon sens, référence et date notées",
       "Contrôle de l'alarme filtre et remise à zéro du compteur",
-      "Échangeur : extraction, contrôle de l'encrassement et de l'étanchéité entre les deux flux, nettoyage et séchage complet",
-      "Contrôle du joint périphérique et du calorifuge de l'échangeur",
-      "Ventilateurs de soufflage et de reprise : propreté des roues, balourd, jeu et bruit de roulement, resserrage",
-      "Bac et siphon de condensats : nettoyage, amorçage, contrôle de la pente et de la garde d'air",
-      "By-pass d'été : manœuvre complète, contrôle du clapet, du servomoteur et des seuils programmés",
-      "Préchauffage antigel : fonctionnement, sécurité thermique et réarmement, cohérence du seuil",
-      "Réseau de gaines : écrasement, percement, déboîtement, étanchéité des raccords, calorifuge sur air neuf, rejet et volumes non chauffés",
-      "Pièges à son : présence, position, absence d'affaissement",
-      "Bouches d'extraction et de soufflage : dépose, nettoyage, contrôle du repérage et du réglage, remise en place",
-      "Prise d'air neuf et rejet extérieur : grilles dégagées, grillage anti-rongeurs, absence de recyclage entre rejet et prise d'air",
-      "Mesure des débits à chaque bouche au cône et anémomètre, en petite et en grande vitesse",
-      "Comparaison des débits mesurés aux valeurs de référence et, s'il existe, au rapport de vérification du chantier",
-      "Contrôle de l'équilibrage entre insufflation et extraction (écart cible 10 % maximum)",
-      "Relevé des températures air extérieur, soufflage, reprise et rejet ; calcul du rendement apparent de l'échangeur",
-      "Contrôle du transit d'air : détalonnage des portes, absence d'entrée d'air ajoutée en menuiserie",
-      "Régulation et télécommande : horloges, programmes, cohérence des sondes hygro, CO2 ou COV, essai des modes"
+      "Échangeur : contrôle de l'encrassement, nettoyage et séchage complet",
+      "Bac et siphon de condensats : nettoyage, amorçage, contrôle de la garde d'air",
+      "Ventilateurs de soufflage et de reprise : propreté des roues, bruit de roulement",
+      "Bouches d'extraction et de soufflage : dépose, nettoyage, remise en place et réglage conservé",
+      "Prise d'air neuf et rejet extérieur : grilles dégagées, absence de recyclage entre rejet et prise d'air",
+      "Mesure des débits totaux extrait et soufflé et contrôle de l'équilibrage"
     ],
     mes: [
       "Contrôle de l'implantation de la centrale : hors gel, accessible, suspension antivibratile",
@@ -782,6 +755,7 @@ TECHNOS.vmc_df = {
   sousMachines: {
     label: "Bouches",
     singulier: "bouche",
+    vide: true,          /* aucune bouche ouverte d'office : on n'en ajoute que si on en mesure une */
     champs: [
       {k:"piece", l:"Pièce"},
       {k:"sens", l:"Sens", type:"liste", opts:["extraction","soufflage"]},
@@ -832,22 +806,13 @@ TECHNOS.cet = {
   ctrl: {
     entretien: [
       "Entretien avec le client : confort en eau chaude, temps de chauffe, bruit, consommation, incidents",
-      "Contrôle de l'implantation : volume du local, ventilation, température ambiante d'exploitation",
       "Contrôle du groupe de sécurité : manœuvre, écoulement libre, absence d'entartrage, siphon et garde d'air",
       "Vérification de l'anode et remplacement si nécessaire, ou contrôle du courant imposé",
-      "Contrôle et détartrage du corps de chauffe électrique d'appoint si accessible",
       "Nettoyage du filtre à air et de l'évaporateur",
       "Contrôle de l'écoulement des condensats et nettoyage du bac",
       "Contrôle du ventilateur : propreté, bruit, débit",
-      "Contrôle des gaines d'air et de leur calorifuge (configuration gainée)",
-      "Contrôle du circuit frigorifique : pressions le cas échéant, absence de trace d'huile, givrage anormal",
-      "Contrôle des sondes de température et de leur cohérence",
       "Contrôle du fonctionnement de l'appoint électrique et de sa logique d'enclenchement",
-      "Contrôle de la température de consigne et du cycle anti-légionelle",
-      "Contrôle du mitigeur thermostatique en sortie et de la limitation à 50 °C aux points de puisage des pièces destinées à la toilette",
-      "Contrôle du raccordement électrique, de la terre et de la protection différentielle",
-      "Contrôle du réglage horaire et de l'asservissement heures creuses ou photovoltaïque",
-      "Vidange partielle et contrôle de l'état intérieur si prévu par le constructeur"
+      "Contrôle de la température de consigne, du cycle anti-légionelle et de la limitation à 50 °C aux points de puisage des pièces destinées à la toilette"
     ],
     mes: [
       "Contrôle du local : volume minimal, ventilation, température d'exploitation, hors gel",
