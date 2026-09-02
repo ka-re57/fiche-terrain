@@ -50,6 +50,17 @@ var TECH_NOTION = {
 };
 /* « Chaudière bois » et « Autre » n'ont pas de fiche : la machine reste
    dans le parc, sans technologie. On ne l'invente pas. */
+/* Le chemin inverse : quand la machine n'est pas encore au parc, c'est
+   l'appli qui doit dire à Notion de quel type d'équipement il s'agit. */
+var NOTION_TECH = {
+  chaudiere_gaz:   "Chaudière gaz",
+  chaudiere_fioul: "Chaudière fioul",
+  pac_air_eau:     "PAC air/eau",
+  clim_air_air:    "PAC air/air (clim)",
+  cet:             "CET",
+  adoucisseur:     "Adoucisseur",
+  vmc_df:          "VMC"
+};
 
 function parcDepuisNotion(resultats){
   var out = [];
@@ -105,6 +116,14 @@ function clientsDepuisAxonaut(donnees){
                     .filter(Boolean).join(" ");
     var e = {nom:nom, ax:String(s.id || "")};
     if(adresse) e.adresse = adresse;
+    /* L'adresse mail conditionne l'envoi automatique de l'attestation :
+       autant la récupérer ici plutôt que de la ressaisir sur le pas de porte. */
+    var mail = String(s.email || "").trim();
+    if(mail && mail.indexOf("@") > 0) e.email = mail;
+    var tel = String(s.phone_number || s.phone || "").trim();
+    if(tel) e.tel = tel;
+    var ville = String(s.address_city || "").trim();
+    if(ville) e.ville = ville;
     if(s.is_customer) e.cli = 1;
     if(s.is_supplier) e.f = 1;   /* aussi fournisseur : gardé, mais rangé après */
     out.push(e);

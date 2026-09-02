@@ -180,7 +180,7 @@ function vueVisite(root){
         ligne.appendChild(el("span","choisi-nom", V.client));
         var chg = el("button","btn mini","Changer"); chg.type="button";
         chg.onclick = function(){
-          V.client=""; V.adresse=""; V.ville=""; V.axonaut=null;
+          V.client=""; V.adresse=""; V.ville=""; V.email=""; V.tel=""; V.axonaut=null;
           sauver(); rendre();
           var r = document.getElementById("rechClient");
           if(r){ r.value=""; r.focus(); }
@@ -198,13 +198,14 @@ function vueVisite(root){
       var k = cleNom(p.client);
       if(vus[k]) return;
       vus[k] = 1;
-      pool.push({nom:p.client, adresse:p.adresse, parc:1});
+      pool.push({nom:p.client, adresse:p.adresse, ville:p.ville, email:p.email, tel:p.tel, parc:1});
     });
     (clients||[]).forEach(function(c){
       var k = cleNom(c.nom);
       if(vus[k]) return;
       vus[k] = 1;
-      pool.push({nom:c.nom, adresse:c.adresse, ax:c.ax, cli:c.cli, f:c.f});
+      pool.push({nom:c.nom, adresse:c.adresse, ville:c.ville, email:c.email, tel:c.tel,
+                 ax:c.ax, cli:c.cli, f:c.f});
     });
     var trouves = pool.filter(function(c){
       var t = sansAcc(c.nom) + " " + sansAcc(c.adresse);
@@ -235,6 +236,9 @@ function vueVisite(root){
       b.onclick = function(){
         V.client = c.nom;
         if(c.adresse && !txt(V.adresse)) V.adresse = c.adresse;
+        if(c.ville   && !txt(V.ville))   V.ville   = c.ville;
+        if(c.email   && !txt(V.email))   V.email   = c.email;
+        if(c.tel     && !txt(V.tel))     V.tel     = c.tel;
         if(c.ax) V.axonaut = c.ax;
         sauver(); rendre();
       };
@@ -247,6 +251,10 @@ function vueVisite(root){
 
   champ(g, V, "adresse", "Adresse", {});
   champ(g, V, "ville", "Commune", {ph:"reprise de l'adresse si vide"});
+  champ(g, V, "email", "Adresse mail du client", {type:"email",
+    ph:"pour l'envoi de l'attestation",
+    aide:"sans elle, l'attestation ne peut pas partir toute seule : elle reste à envoyer à la main. Reprise du parc ou d'Axonaut quand on la connaît."});
+  champ(g, V, "tel", "Téléphone", {type:"tel", opt:true});
   champ(g, V, "present", "Personne présente", {});
   root.appendChild(c1);
 

@@ -317,7 +317,7 @@ window.KARE = {
   ajouterMachine: ajouterMachine, aller: aller, rendre: rendre,
   valeurCalc: valeurCalc, verdict: verdict, verdictCO: verdictCO,
   anomaliesDe: anomaliesDe, avancement: avancement,
-  payloadMachine: payloadMachine, resumeTexte: resumeTexte,
+  payloadMachine: payloadMachine, resumeTexte: resumeTexte, parcProps: parcProps,
   fileLire: fileLire, fileEcrire: fileEcrire, viderFile: viderFile,
   envoyer: envoyer, sauverTout: sauverTout, sauverCfg: sauverCfg,
   visiteVierge: visiteVierge, majReseau: majReseau, telecharger: telecharger,

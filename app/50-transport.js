@@ -1,6 +1,44 @@
 /* ============ construction du message ============ */
 function etatLisible(v){ return v==="ok" ? "contrôlé" : v==="non" ? "NON CONTRÔLÉ" : v==="np" ? "non présent" : "non renseigné"; }
 
+/* Options de la base « Parc équipements KA-RÉ » : on n'envoie à Notion que
+   ce qu'elle sait recevoir. Une option inconnue fait échouer tout l'appel. */
+var FLUIDES_NOTION = ["R32","R410A","R290","R454B","R134a","R407C","R404A","Sans objet"];
+function perioNotion(p){
+  var x = sansAccents(String(p || "").toLowerCase());
+  if(x.indexOf("2 ans") >= 0 || x.indexOf("biennale") >= 0) return "Biennale";
+  if(x.indexOf("annuelle") === 0 || x.indexOf("par an") >= 0) return "Annuelle";
+  return "Ponctuel";
+}
+/* Les propriétés de la fiche équipement, au format Notion. */
+function parcProps(m){
+  var t = techDe(m), P = {};
+  function rt(k, v){ v = txt(v); if(v) P[k] = {rich_text:[{text:{content:String(v).slice(0,1900)}}]}; }
+  function num(k, v){ var x = nb(v); if(estNb(x)) P[k] = {number:x}; }
+  function sel(k, v){ v = txt(v); if(v) P[k] = {select:{name:v}}; }
+  var titre = [t.label, txt(m.ident.marque)].filter(Boolean).join(" — ")
+              + (txt(V.client) ? " · " + txt(V.client) : "");
+  P["Équipement"] = {title:[{text:{content:titre.slice(0,1900)}}]};
+  rt("Client", V.client);
+  rt("Adresse du site", V.adresse);
+  rt("Ville", V.ville);
+  rt("ID société Axonaut", V.axonaut);
+  if(txt(V.email)) P["Email client"]  = {email: txt(V.email)};
+  if(txt(V.tel))   P["Téléphone"]     = {phone_number: txt(V.tel)};
+  sel("Type équipement", (typeof NOTION_TECH === "object") ? NOTION_TECH[m.tech] : null);
+  rt("Marque", m.ident.marque);
+  rt("N° de série", m.ident.serie);
+  num("Année", m.ident.annee);
+  num("Puissance (kW)", m.ident.puiss);
+  var fl = txt(m.ident.fluide);
+  sel("Fluide frigorigène", (fl && FLUIDES_NOTION.indexOf(fl) >= 0) ? fl : null);
+  num("Charge fluide (kg)", m.ident.charge);
+  num("Nb unités intérieures", m.ident.nbui);
+  sel("Statut", "Entretien ponctuel");
+  sel("Périodicité retenue", perioNotion(t.regl && t.regl.periodicite));
+  return P;
+}
+
 function payloadMachine(m, idx){
   var t = techDe(m), lc = listeCtrl(m);
   var ident = {}, i;
@@ -71,7 +109,8 @@ function payloadMachine(m, idx){
     axonaut_id: m.axonaut || null,
     /* Repris de la fiche Notion : c'est ce qui permettra d'envoyer
        l'attestation au client sans aller la chercher à la main. */
-    email_client: propre(m.email),
+    /* La fiche du parc d'abord ; à défaut ce que Rémi a saisi sur place. */
+    email_client: propre(m.email) || propre(V.email),
     /* Fiche fluides frigorigènes : ce qui alimentera le CERFA 15497*04
        et, en fin d'année, la déclaration annuelle de l'article R. 543-100. */
     cerfa: (typeof payloadCerfa === "function") ? payloadCerfa(m) : null,
@@ -81,9 +120,34 @@ function payloadMachine(m, idx){
     periodicite: t.regl.periodicite,
     base_reglementaire: t.regl.cadre,
     client: {
-      nom: propre(V.client), adresse: propre(V.adresse),
+      nom: propre(V.client), adresse: propre(V.adresse), ville: propre(V.ville),
+      email: propre(V.email), tel: propre(V.tel),
       contact: propre(V.contact), present: propre(V.present)
     },
+    /* De quoi créer la fiche équipement quand la machine n'est pas encore au
+       parc. Sans ça, rien ne se déclenche : pas de ligne d'intervention, pas
+       de date de prochain entretien, et l'appareil sort des radars l'année
+       suivante — c'est exactement ce qui s'est passé le 02/09.
+       Le bloc « parc » est lisible par un humain (mail interne) ; le champ
+       parc_props est la même chose au format attendu par Notion, prêt à être
+       recopié tel quel dans l'appel d'API — c'est ici, où on peut le tester,
+       que se traitent les valeurs vides et les types, pas dans Make. */
+    parc_props: m.notion ? null : parcProps(m),
+    /* La même chose déjà sérialisée : Make ne sait pas transformer un objet
+       en texte JSON, il écrirait « [object Object] ». On lui mâche le travail. */
+    parc_props_json: m.notion ? null : JSON.stringify(parcProps(m)),
+    parc: (m.notion ? null : {
+      titre: [t.label, propre(m.ident.marque)].filter(Boolean).join(" — "),
+      type_notion: (typeof NOTION_TECH === "object" && NOTION_TECH[m.tech]) || null,
+      client: propre(V.client), adresse: propre(V.adresse), ville: propre(V.ville),
+      email: propre(V.email), tel: propre(V.tel),
+      marque: propre(m.ident.marque), serie: propre(m.ident.serie),
+      annee: n0(m.ident.annee), puissance: n0(m.ident.puiss),
+      fluide: propre(m.ident.fluide), charge_kg: n0(m.ident.charge),
+      nb_ui: n0(m.ident.nbui),
+      axonaut: propre(V.axonaut),
+      periodicite: t.regl.periodicite || null
+    }),
     technicien: cfg.technicien || "Rémi KATA",
     appareils_mesure: t.sansAppareils ? null : propre(cfg.appareils || V.appareils),
     identification: ident,
