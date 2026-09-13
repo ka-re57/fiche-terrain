@@ -192,6 +192,102 @@ function cablerRappelReleves(){
   };
 }
 
+/* ============ avant d'envoyer ============
+   Un seul écran qui montre exactement ce qui va partir : la date de la visite,
+   l'adresse du client, et la liste des fiches avec ce qu'il leur manque. Rémi
+   décoche ce qu'il ne veut pas envoyer. Trois problèmes de terrain réglés là :
+   une visite dont la date a vieilli dans la tablette, une attestation qui ne
+   peut pas partir faute d'adresse, et une fiche commencée pour rien qui
+   partait quand même parce qu'il n'y avait pas moyen de l'écarter. */
+var _suiteEnvoi = null;
+function aujourdhui(){
+  var d = new Date(), p = function(n){ return (n<10?"0":"")+n; };
+  return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate());
+}
+function dateDepassee(){
+  var d = txt(V.date);
+  return !!(d && d !== aujourdhui());
+}
+function avantEnvoi(suite){
+  var d = document.getElementById("dlgEnvoi");
+  if(!d){ suite(); return; }
+
+  /* la date */
+  var zd = document.getElementById("envoiDate");
+  zd.innerHTML = "";
+  if(dateDepassee()){
+    var a = el("div","alerte att");
+    a.appendChild(el("span","", "Cette visite est datée du " + dateFr(V.date) + ", pas d'aujourd'hui. "));
+    var bj = el("button","btn mini p","Mettre à la date du jour"); bj.type="button";
+    bj.style.marginTop = "6px"; bj.style.display = "block";
+    bj.onclick = function(){ V.date = aujourdhui(); sauver(); avantEnvoi(_suiteEnvoi || suite); rendre(); };
+    a.appendChild(bj);
+    zd.appendChild(a);
+  } else {
+    zd.appendChild(el("div","mini","Visite du " + dateFr(V.date)));
+  }
+
+  /* l'adresse mail */
+  var im = document.getElementById("envoiMail");
+  im.value = txt(V.email) || "";
+  var note = document.getElementById("envoiMailNote");
+  var aBesoin = V.machines.some(function(m){ return !m.notion && !txt(m.email); });
+  note.textContent = txt(V.email)
+    ? "L'attestation partira à cette adresse."
+    : (aBesoin ? "Sans adresse, les documents sont archivés mais rien ne part au client."
+               : "Reprise de la fiche du parc si elle y figure.");
+
+  /* les fiches */
+  V.aEnvoyer = V.aEnvoyer || {};
+  var c = document.getElementById("envoiCorps");
+  c.innerHTML = "";
+  var manque = {};
+  relevesManquants().forEach(function(x){ manque[x.mid] = x.n; });
+  V.machines.forEach(function(m, i){
+    if(V.aEnvoyer[m.mid] === undefined) V.aEnvoyer[m.mid] = true;
+    var t = techDe(m) || {};
+    var lab = el("label","choix-fiche");
+    var cb = el("input"); cb.type = "checkbox"; cb.checked = !!V.aEnvoyer[m.mid];
+    cb.onchange = function(){ V.aEnvoyer[m.mid] = cb.checked; sauver(); majBoutonEnvoi(); };
+    lab.appendChild(cb);
+    var tx = el("div","txt");
+    tx.appendChild(el("div","t1", (t.label || m.tech) + (libelleMachine(m) ? " — " + libelleMachine(m) : "")));
+    var n = manque[m.mid] || 0;
+    tx.appendChild(el("div", n ? "t2 att" : "t2",
+      n ? (n + (n>1 ? " points non relevés" : " point non relevé") + " — ils s'imprimeront « non renseigné »")
+        : ((t.regl && t.regl.doc) || "Compte rendu")));
+    lab.appendChild(tx);
+    c.appendChild(lab);
+  });
+  _suiteEnvoi = suite;
+  majBoutonEnvoi();
+  d.showModal();
+}
+function fichesCochees(){
+  V.aEnvoyer = V.aEnvoyer || {};
+  return V.machines.filter(function(m){ return V.aEnvoyer[m.mid] !== false; });
+}
+function majBoutonEnvoi(){
+  var b = document.getElementById("bEnvoiGo");
+  if(!b) return;
+  var n = fichesCochees().length;
+  b.textContent = n ? ("Envoyer " + n + (n>1 ? " fiches" : " fiche")) : "Rien à envoyer";
+  b.disabled = !n;
+}
+function cablerEnvoi(){
+  var d = document.getElementById("dlgEnvoi");
+  if(!d) return;
+  document.getElementById("bEnvoiGo").onclick = function(){
+    var im = document.getElementById("envoiMail");
+    var v = txt(im.value);
+    if(v && v.indexOf("@") < 1){ toast("Cette adresse mail n'a pas l'air valable","att"); return; }
+    V.email = v || "";
+    sauver();
+    d.close();
+    var f = _suiteEnvoi; _suiteEnvoi = null; if(f) f();
+  };
+}
+
 /* ============ fiches de référence ============
    Les planches consultées sur le terrain vivent DANS l'appli, pas sur Drive :
    une cave n'a pas de réseau, et c'est justement là qu'on se pose la question.

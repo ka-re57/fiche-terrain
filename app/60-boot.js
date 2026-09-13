@@ -191,6 +191,7 @@ function cabler(){
   };
   if(typeof cablerRappelSignature === "function") cablerRappelSignature();
   if(typeof cablerRappelReleves === "function") cablerRappelReleves();
+  if(typeof cablerEnvoi === "function") cablerEnvoi();
   if(typeof cablerNotice === "function") cablerNotice();
   $("#bNouveauClient").onclick = function(){
     $("#dlgApres").close(); nouvelleVisite(); toast("Nouvelle visite — à toi de jouer","ok");
@@ -338,7 +339,8 @@ window.KARE = {
   noxGaz: noxGaz, noxFioul: noxFioul, classeEnergie: classeEnergie,
   get notice(){ return NOTICE_VENT; },
   initCtrl: initCtrl, appliquerNP: appliquerNP, recalerConseils: recalerConseils,
-  relevesManquants: relevesManquants,
+  relevesManquants: relevesManquants, avantEnvoi: avantEnvoi, fichesCochees: fichesCochees,
+  dateDepassee: dateDepassee, aujourdhui: aujourdhui,
   ouvrirFiche: ouvrirFiche, ficheDispo: ficheDispo, migrerMachine: migrerMachine,
   ouvrirSignatureClient: ouvrirSignatureClient,
   majParcEtClients: majParcEtClients, majAutomatique: majAutomatique,

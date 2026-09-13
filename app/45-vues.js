@@ -806,5 +806,30 @@ function vueMachine(root, m){
   champ(c6, m, "note", "Précisions", {plein:true, type:"zone", suffixe:m.mid});
   root.appendChild(c6);
 
+  /* Supprimer la fiche depuis la fiche elle-même. Le petit × de la liste des
+     machines existait déjà, mais personne ne le trouve quand on est en train
+     de remplir un relevé qu'on veut abandonner. */
+  var c7 = el("div","carte");
+  var bsup = el("button","btn d","Supprimer cette fiche"); bsup.type="button";
+  bsup.style.width = "100%";
+  bsup.onclick = function(){
+    if(bsup.dataset.arme !== "1"){
+      bsup.dataset.arme = "1";
+      bsup.textContent = "Appuie encore pour supprimer définitivement";
+      setTimeout(function(){
+        if(bsup.dataset.arme === "1"){ bsup.dataset.arme=""; bsup.textContent="Supprimer cette fiche"; }
+      }, 5000);
+      return;
+    }
+    var mid = m.mid;
+    V.machines = V.machines.filter(function(x){ return x.mid !== mid; });
+    if(V.aEnvoyer) delete V.aEnvoyer[mid];
+    vue = "visite"; sauver(); rendre();
+    toast("Fiche supprimée");
+  };
+  c7.appendChild(bsup);
+  c7.appendChild(el("div","mini","Le relevé de cette machine sera perdu. Les autres fiches de la visite ne bougent pas."));
+  root.appendChild(c7);
+
   majs.forEach(function(fn){fn();});
 }

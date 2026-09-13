@@ -10,6 +10,13 @@ function perioNotion(p){
   if(x.indexOf("annuelle") === 0 || x.indexOf("par an") >= 0) return "Annuelle";
   return "Ponctuel";
 }
+/* Le nom d'une fiche équipement, à un seul endroit : il sert à la créer, et
+   il sert à la retrouver ensuite. Les deux ne doivent jamais diverger. */
+function titreParc(m){
+  var t = techDe(m);
+  return [txt(V.client), t && t.label, txt(V.ville) || communeDe(V.adresse)]
+           .filter(Boolean).join(" — ");
+}
 /* Les propriétés de la fiche équipement, au format Notion. */
 function parcProps(m){
   var t = techDe(m), P = {};
@@ -19,8 +26,7 @@ function parcProps(m){
   /* Même convention de nom que les fiches déjà au parc : « REMY Hervé —
      CET — Faulquemont ». Le client d'abord, pour que le tri alphabétique
      regroupe ses machines. */
-  var titre = [txt(V.client), t.label, txt(V.ville) || communeDe(V.adresse)]
-                .filter(Boolean).join(" — ");
+  var titre = titreParc(m);
   P["Équipement"] = {title:[{text:{content:titre.slice(0,1900)}}]};
   rt("Client", V.client);
   rt("Adresse du site", V.adresse);
@@ -42,7 +48,10 @@ function parcProps(m){
   return P;
 }
 
-function payloadMachine(m, idx){
+/* _envoiValide : l'écran « ce qui va partir » a été vu et validé pour cet
+   envoi-là. On ne le redemande pas en boucle, et il revient au suivant. */
+var _envoiValide = false;
+function payloadMachine(m, idx, total){
   var t = techDe(m), lc = listeCtrl(m);
   var ident = {}, i;
   t.ident.forEach(function(f){ var v=propre(m.ident[f.k]); if(v!==null) ident[f.l]=v; });
@@ -103,7 +112,7 @@ function payloadMachine(m, idx){
     visite_id: V.id,
     fiche_id: m.mid,
     machine_num: idx+1,
-    machines_total: V.machines.length,
+    machines_total: total || V.machines.length,
     date: V.date,
     type_intervention: (INTERV.filter(function(x){return x.c===V.interv;})[0]||{}).cle || "entretien",
     technologie: m.tech,
@@ -112,8 +121,10 @@ function payloadMachine(m, idx){
     axonaut_id: m.axonaut || null,
     /* Repris de la fiche Notion : c'est ce qui permettra d'envoyer
        l'attestation au client sans aller la chercher à la main. */
-    /* La fiche du parc d'abord ; à défaut ce que Rémi a saisi sur place. */
-    email_client: propre(m.email) || propre(V.email),
+    /* Ce que Rémi a saisi sur place d'abord : s'il a pris la peine de taper une
+       adresse devant le client, c'est qu'elle est plus à jour que celle du
+       parc. Elle ira d'ailleurs corriger le parc en repartant. */
+    email_client: propre(V.email) || propre(m.email),
     /* Fiche fluides frigorigènes : ce qui alimentera le CERFA 15497*04
        et, en fin d'année, la déclaration annuelle de l'article R. 543-100. */
     cerfa: (typeof payloadCerfa === "function") ? payloadCerfa(m) : null,
@@ -135,12 +146,16 @@ function payloadMachine(m, idx){
        parc_props est la même chose au format attendu par Notion, prêt à être
        recopié tel quel dans l'appel d'API — c'est ici, où on peut le tester,
        que se traitent les valeurs vides et les types, pas dans Make. */
+    /* Le nom exact de la fiche équipement, toujours envoyé : c'est par lui que
+       Make retrouve la fiche qu'il vient de créer, sans avoir à lire le
+       résultat d'une autre route du routeur — ce qui ne marche pas. */
+    parc_titre: titreParc(m),
     parc_props: m.notion ? null : parcProps(m),
     /* La même chose déjà sérialisée : Make ne sait pas transformer un objet
        en texte JSON, il écrirait « [object Object] ». On lui mâche le travail. */
     parc_props_json: m.notion ? null : JSON.stringify(parcProps(m)),
     parc: (m.notion ? null : {
-      titre: [propre(V.client), t.label, propre(V.ville)].filter(Boolean).join(" — "),
+      titre: titreParc(m),
       type_notion: (typeof NOTION_TECH === "object" && NOTION_TECH[m.tech]) || null,
       client: propre(V.client), adresse: propre(V.adresse), ville: propre(V.ville),
       email: propre(V.email), tel: propre(V.tel),
@@ -328,20 +343,22 @@ function envoyer(){
   if(!txt(V.client)){ toast("Renseigne le nom du client d'abord","att"); aller("visite"); return; }
   if(!cfg.webhook){ toast("Adresse d'envoi non renseignée — voir Réglages","mal"); return; }
   if(typeof avecSignature === "function" && signatureManquante()){ avecSignature(envoyer); return; }
-  if(typeof avecReleves === "function" && !_relevesAcceptes && relevesManquants().length){ avecReleves(envoyer); return; }
-  _relevesAcceptes = false;
+  if(typeof avantEnvoi === "function" && !_envoiValide){ _envoiValide = true; avantEnvoi(envoyer); return; }
+  _envoiValide = false;
+  var aPartir = (typeof fichesCochees === "function") ? fichesCochees() : V.machines;
+  if(!aPartir.length){ toast("Aucune fiche cochée","att"); return; }
   sauverTout();
   toast("Préparation des documents…");
-  Promise.all(V.machines.map(function(m,i){
+  Promise.all(aPartir.map(function(m,i){
     return documentPDF(m,i).then(function(u8){
-      var p = payloadMachine(m,i);
+      var p = payloadMachine(m,i,aPartir.length);
       p.pdf_nom = nomPDF(m,i);
       p.pdf_base64 = pdfBase64(u8);
       p.pdf_octets = u8.length;
       return p;
     }).catch(function(e){
       /* Un PDF raté ne doit jamais faire perdre le relevé : la fiche part sans lui. */
-      var p = payloadMachine(m,i);
+      var p = payloadMachine(m,i,aPartir.length);
       p.pdf_erreur = propre(String(e && e.message ? e.message : e));
       return p;
     });
@@ -350,7 +367,7 @@ function envoyer(){
     ps.forEach(fileAjouter);
     /* Les photos suivent la fiche : quand elles arrivent, le dossier client existe. */
     var nPh = 0;
-    V.machines.forEach(function(m, i){
+    aPartir.forEach(function(m, i){
       (m.photos||[]).forEach(function(ph, k){
         var pp = payloadPhoto(m, ph, k, i);
         if(pp.photo_base64 && fileAjouter(pp)) nPh++;

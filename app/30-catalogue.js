@@ -146,6 +146,13 @@ TECHNOS.clim_air_air = {
 
 /* ---------- PAC AIR/EAU ---------- */
 TECHNOS.pac_air_eau = {
+  /* Même point de contrôle que sur une chaudière gaz, et le même piège :
+     sans ballon, il n'y a pas d'anode à vérifier. */
+  np: [
+    {sauf:{ecs:["ballon"]},
+     points:["Ballon a accumulation"],
+     pourquoi:"production d'eau chaude sans ballon à accumulation : aucune anode ni accessoire de ballon à vérifier"}
+  ],
   label: "Pompe à chaleur air/eau",
   court: "PAC air/eau",
   icone: "♨",
@@ -284,9 +291,23 @@ TECHNOS.chaudiere_gaz = {
     {sauf:{bruleur:["air souffle"]},
      points:["Bruleur a air souffle"],
      pourquoi:"brûleur non soufflé : mesures propres au brûleur soufflé sans objet"},
-    {si:{ecs:["aucune"]},
+    /* Le 02/09, une chaudière à production instantanée est repartie avec
+       « Ballon à accumulation : vérification des anodes — contrôlé ». On ne
+       coche donc ce point que lorsqu'il y a réellement un ballon : ni en
+       instantanée, ni en micro-accumulation (cuve de quelques litres, sans
+       anode), ni bien sûr quand il n'y a pas d'eau chaude du tout. */
+    {sauf:{ecs:["ballon"]},
      points:["Ballon a accumulation"],
-     pourquoi:"pas de production d'eau chaude sur cet appareil"}
+     pourquoi:"production d'eau chaude sans ballon à accumulation : aucune anode ni accessoire de ballon à vérifier"},
+    /* Le conseil de ramonage était déjà retiré sur un appareil étanche
+       (voir conseilsSi), mais le point de contrôle, lui, se cochait quand
+       même : le document conseillait donc de ne rien dire au client tout en
+       déclarant qu'on le lui avait dit. Un type C n'a pas de conduit de
+       fumée à ramoner ; son conduit de raccordement est nettoyé et son
+       étanchéité vérifiée au titre de l'entretien lui-même. */
+    {si:{evac:["C etanche"]},
+     points:["Rappel au client de son obligation de ramonage"],
+     pourquoi:"appareil étanche de type C : pas de conduit de fumée à ramoner. Le conduit de raccordement est nettoyé et son étanchéité vérifiée au titre de l'entretien annuel"}
   ],
   label: "Chaudière gaz",
   court: "Chaudière gaz",
@@ -463,7 +484,12 @@ TECHNOS.chaudiere_fioul = {
   np: [
     {si:{cuve_type:["aucune","sans cuve"]},
      points:["Cuve :"],
-     pourquoi:"pas de cuve sur cette installation"}
+     pourquoi:"pas de cuve sur cette installation"},
+    /* Même logique que le ballon sur le gaz : une chaudière standard ne
+       produit pas de condensats, il n'y a ni siphon ni neutralisateur. */
+    {sauf:{techno:["condensation"]},
+     points:["Condensation :"],
+     pourquoi:"chaudière sans condensation : ni siphon de condensats ni neutralisateur"}
   ],
   label: "Chaudière fioul",
   court: "Chaudière fioul",
