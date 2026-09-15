@@ -88,7 +88,21 @@ select{appearance:none; background-image:linear-gradient(45deg,transparent 50%,v
 .chip[aria-pressed="true"]{background:var(--marque); border-color:var(--marque); color:var(--surmarque)}
 
 /* ---------- points de contrôle ---------- */
-.pc-ligne{display:flex; gap:8px; align-items:center; padding:5px 0; border-bottom:1px solid var(--trait2)}
+.pc-ligne{display:flex; flex-wrap:wrap; gap:8px; align-items:center; padding:5px 0; border-bottom:1px solid var(--trait2)}
+.pc-motif{flex:1 0 100%; padding:2px 0 4px 0}
+.pc-motif input{width:100%; border:1.5px solid var(--mal); border-radius:7px; padding:8px 10px; font-size:13.5px; font-family:var(--ui); background:var(--carte)}
+.pc-motif input:not(:placeholder-shown){border-color:var(--trait)}
+.pc-motif .chips{margin-top:4px}
+.aide-releve{background:var(--carte2); border:1px solid var(--trait2); border-radius:9px; padding:10px 12px; margin:6px 0 10px; font-size:13px; line-height:1.45}
+.aide-releve h4{margin:8px 0 3px; font-size:12.5px; text-transform:uppercase; letter-spacing:.03em; color:var(--texte2)}
+.aide-releve h4:first-child{margin-top:0}
+.aide-releve ul{margin:0; padding-left:18px}
+.aide-releve li{margin:2px 0}
+.aide-releve .att{color:var(--mal); font-weight:600}
+.doc-nc{margin-top:6px}
+.doc-nc .l{display:flex; gap:8px; padding:2px 0; font-size:9.5pt}
+.doc-nc .l b{flex:0 0 auto}
+.doc-nc .motif{color:var(--texte2); font-style:italic}
 .pc-ligne:last-child{border-bottom:0}
 .pc-lib{flex:1; font-size:13.5px; line-height:1.3; min-width:0}
 .pc-etats{flex:0 0 auto; display:flex; gap:5px}
@@ -312,3 +326,11 @@ dialog.plein{width:min(96vw,1100px); max-width:96vw}
 .fiche-corps img{display:block; width:100%; height:auto; min-width:700px}
 .exig-ecart{font-size:11.5px; line-height:1.4; color:var(--att); background:var(--attf);
   border-radius:8px; padding:6px 8px; margin-top:5px}
+
+.facture-ligne{margin-top:6px; padding:8px 10px; border:1px dashed var(--trait); border-radius:8px; background:var(--carte)}
+.facture-ligne label{display:flex; align-items:flex-start; gap:8px; font-size:13.5px; line-height:1.35; cursor:pointer}
+.facture-ligne input[type=checkbox]{width:20px; height:20px; margin-top:1px; flex:0 0 auto}
+.facture-ligne .chips{margin-top:6px}
+.t2.mal{color:var(--mal); font-weight:600}
+.aide.mal{color:var(--mal); font-weight:600}
+.aide.att{color:var(--att); font-weight:600}
