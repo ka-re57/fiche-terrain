@@ -208,9 +208,33 @@ function dateDepassee(){
   var d = txt(V.date);
   return !!(d && d !== aujourdhui());
 }
+/* L'adresse mail est le seul maillon que l'appli ne peut pas deviner. Elle
+   etait proposee, pas exigee : un appui sur le bouton vert et le document
+   partait aux archives sans jamais atteindre le client, sans rien dire.
+   Desormais l'envoi sans adresse existe toujours - un client sans mail, ca
+   arrive - mais il se demande deux fois et il se nomme. */
+var _sansMail = false;
+function besoinMail(){
+  return fichesCochees().some(function(m){ return !txt(m.email); });
+}
+function majNoteMail(){
+  var im = document.getElementById("envoiMail");
+  var note = document.getElementById("envoiMailNote");
+  if(!im || !note) return;
+  var v = txt(im.value);
+  note.className = "mini";
+  if(v){ note.textContent = "L'attestation partira à cette adresse."; return; }
+  if(besoinMail()){
+    note.className = "mini att";
+    note.textContent = "Sans adresse, le document est archivé mais rien ne part au client.";
+  } else {
+    note.textContent = "Reprise de la fiche du parc si elle y figure.";
+  }
+}
 function avantEnvoi(suite){
   var d = document.getElementById("dlgEnvoi");
   if(!d){ suite(); return; }
+  _sansMail = false;
 
   /* la date */
   var zd = document.getElementById("envoiDate");
@@ -230,12 +254,10 @@ function avantEnvoi(suite){
   /* l'adresse mail */
   var im = document.getElementById("envoiMail");
   im.value = txt(V.email) || "";
-  var note = document.getElementById("envoiMailNote");
-  var aBesoin = V.machines.some(function(m){ return !m.notion && !txt(m.email); });
-  note.textContent = txt(V.email)
-    ? "L'attestation partira à cette adresse."
-    : (aBesoin ? "Sans adresse, les documents sont archivés mais rien ne part au client."
-               : "Reprise de la fiche du parc si elle y figure.");
+  im.oninput = function(){
+    if(_sansMail){ _sansMail = false; }
+    majBoutonEnvoi(); majNoteMail();
+  };
 
   /* les fiches */
   V.aEnvoyer = V.aEnvoyer || {};
@@ -253,24 +275,89 @@ function avantEnvoi(suite){
     var tx = el("div","txt");
     tx.appendChild(el("div","t1", (t.label || m.tech) + (libelleMachine(m) ? " — " + libelleMachine(m) : "")));
     var n = manque[m.mid] || 0;
+    var docs = (t.regl && t.regl.doc) || "Compte rendu";
+    if(typeof cerfaRequis === "function" && cerfaRequis(m)) docs += " + fiche d'intervention fluides (CERFA 15497*04)";
     tx.appendChild(el("div", n ? "t2 att" : "t2",
       n ? (n + (n>1 ? " points non relevés" : " point non relevé") + " — ils s'imprimeront « non renseigné »")
-        : ((t.regl && t.regl.doc) || "Compte rendu")));
+        : docs));
+    /* Un point NON CONTRÔLÉ sans motif bloque l'envoi : sur le document,
+       ce serait un travail non fait. */
+    var sm = (typeof nonControlesSansMotif === "function") ? nonControlesSansMotif(m) : [];
+    if(sm.length){
+      var lm = el("div","t2 mal", sm.length + (sm.length>1 ? " points non contrôlés sans motif" : " point non contrôlé sans motif") + " — motif obligatoire");
+      var bm = el("button","btn mini","Compléter"); bm.type = "button"; bm.style.marginLeft = "8px";
+      bm.onclick = function(ev){ ev.preventDefault(); d.close(); aller(m.mid); };
+      lm.appendChild(bm);
+      tx.appendChild(lm);
+    }
+    /* La facture au forfait : proposée cochée, Rémi décoche s'il facture à la main. */
+    var ff = (typeof forfaitEntretien === "function") ? forfaitEntretien(m) : null;
+    if(ff){
+      var dec = decisionFacture(m);
+      var lf = el("div","facture-ligne");
+      var cbf = el("input"); cbf.type = "checkbox"; cbf.checked = !!dec.creer;
+      cbf.onchange = function(){ dec.creer = cbf.checked; sauver(); majBoutonEnvoi(); };
+      var lbf = el("label");
+      lbf.appendChild(cbf);
+      var txf = el("span");
+      function texteFacture(){
+        var ttc = Math.round(ff.ht * (1 + dec.tva/100) * 100) / 100;
+        return " Facturer : " + ff.libelle + " — " + ff.ht + " € HT, TVA " + dec.tva + " % = " + String(ttc).replace(".", ",") + " € TTC";
+      }
+      txf.textContent = texteFacture();
+      lbf.appendChild(txf);
+      lf.appendChild(lbf);
+      var tv = el("div","chips petit");
+      [10, 20].forEach(function(taux){
+        var bt = el("button","chip mini", "TVA " + taux + " %"); bt.type = "button";
+        bt.setAttribute("aria-pressed", dec.tva === taux ? "true" : "false");
+        bt.onclick = function(){
+          dec.tva = taux; sauver(); txf.textContent = texteFacture();
+          Array.prototype.forEach.call(tv.children, function(x){ x.setAttribute("aria-pressed", x === bt ? "true" : "false"); });
+        };
+        tv.appendChild(bt);
+      });
+      lf.appendChild(tv);
+      if(ff.detail) lf.appendChild(el("div","mini", ff.detail));
+      lf.appendChild(el("div","mini", cfg.factureAuto === "oui"
+        ? "La facture sera créée dans Axonaut à l'envoi. Une facture émise ne s'annule pas : décoche si tu factures autrement."
+        : "Facturation automatique désactivée (Réglages) : la ligne est notée dans le relevé, rien ne part vers Axonaut."));
+      tx.appendChild(lf);
+    } else if(V.interv === "entretien"){
+      tx.appendChild(el("div","mini","Pas de forfait connu pour cette machine : facture à faire à la main."));
+    }
     lab.appendChild(tx);
     c.appendChild(lab);
   });
   _suiteEnvoi = suite;
   majBoutonEnvoi();
+  majNoteMail();
   d.showModal();
 }
 function fichesCochees(){
   V.aEnvoyer = V.aEnvoyer || {};
   return V.machines.filter(function(m){ return V.aEnvoyer[m.mid] !== false; });
 }
+function motifsManquants(){
+  if(typeof nonControlesSansMotif !== "function") return 0;
+  return fichesCochees().reduce(function(a, m){ return a + nonControlesSansMotif(m).length; }, 0);
+}
 function majBoutonEnvoi(){
   var b = document.getElementById("bEnvoiGo");
   if(!b) return;
   var n = fichesCochees().length;
+  var mm = motifsManquants();
+  if(mm && n){
+    b.textContent = "Motif manquant sur " + mm + (mm>1 ? " points" : " point");
+    b.classList.remove("att"); b.disabled = true;
+    return;
+  }
+  if(_sansMail && n){
+    b.textContent = "Envoyer sans prévenir le client";
+    b.classList.add("att"); b.disabled = false;
+    return;
+  }
+  b.classList.remove("att");
   b.textContent = n ? ("Envoyer " + n + (n>1 ? " fiches" : " fiche")) : "Rien à envoyer";
   b.disabled = !n;
 }
@@ -281,7 +368,15 @@ function cablerEnvoi(){
     var im = document.getElementById("envoiMail");
     var v = txt(im.value);
     if(v && v.indexOf("@") < 1){ toast("Cette adresse mail n'a pas l'air valable","att"); return; }
+    /* Deux appuis pour partir sans adresse : le premier arme, le second envoie. */
+    if(!v && besoinMail() && !_sansMail){
+      _sansMail = true; majBoutonEnvoi(); majNoteMail();
+      toast("Sans adresse, le client ne recevra rien. Retape pour envoyer quand même.","att");
+      return;
+    }
     V.email = v || "";
+    _sansMail = false;
+    _envoiValide = true;
     sauver();
     d.close();
     var f = _suiteEnvoi; _suiteEnvoi = null; if(f) f();

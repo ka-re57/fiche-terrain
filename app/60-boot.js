@@ -1,4 +1,22 @@
 /* ============ réglages ============ */
+var OUTILS_CHAMPS = [["cfgAnalyseurMarque","analyseur_marque"],["cfgAnalyseurRef","analyseur_ref"],
+                     ["cfgDetecteurRepere","detecteur_repere"],["cfgDetecteurControle","detecteur_controle"],
+                     ["cfgMesureMarque","mesure_marque"],["cfgMesureRef","mesure_ref"]];
+/* Sous la date de contrôle du détecteur : l'échéance à 12 mois, et le
+   nombre de jours qui restent — ou le retard. */
+function majEcheanceDetecteur(){
+  var e = $("#cfgDetecteurEcheance"); if(!e) return;
+  var d = txt((cfg.outils||{}).detecteur_controle);
+  e.className = "aide";
+  if(!d){ e.textContent = "les deux sont exigés sur la fiche d'intervention fluides (CERFA 15497*04). Le contrôle du détecteur se fait tous les 12 mois"; return; }
+  var c = new Date(d + "T00:00:00"); if(isNaN(c)){ e.textContent = ""; return; }
+  var lim = new Date(c); lim.setFullYear(lim.getFullYear() + 1);
+  var jours = Math.round((lim - new Date(aujourdhui() + "T00:00:00")) / 86400000);
+  var quand = dateFr(lim.getFullYear() + "-" + String(lim.getMonth()+1).padStart(2,"0") + "-" + String(lim.getDate()).padStart(2,"0"));
+  if(jours < 0){ e.className = "aide mal"; e.textContent = "contrôle périmé depuis le " + quand + " (" + (-jours) + " j) : à refaire avant la prochaine fiche fluides"; }
+  else if(jours <= 60){ e.className = "aide att"; e.textContent = "prochain contrôle avant le " + quand + " — dans " + jours + " jour" + (jours>1?"s":"") + " : prends rendez-vous"; }
+  else e.textContent = "valable jusqu'au " + quand + " (contrôle tous les 12 mois)";
+}
 function ouvrirReglages(){
   var t = document.querySelector("#dlgReglages .dlg-tete");
   if(t) t.textContent = "Réglages — version " + VERSION;
@@ -8,7 +26,10 @@ function ouvrirReglages(){
   $("#cfgSecret").value  = cfg.secret  || "";
   $("#cfgTech").value    = cfg.technicien || "";
   $("#cfgAppareils").value = cfg.appareils || "";
+  OUTILS_CHAMPS.forEach(function(x){ var e = $("#"+x[0]); if(e) e.value = (cfg.outils||{})[x[1]] || ""; });
+  majEcheanceDetecteur();
   $("#cfgMode").value = cfg.modeControles || "declare";
+  $("#cfgFactureAuto").value = cfg.factureAuto || "non";
   $("#cfgSignClient").value = cfg.signClient || "oui";
   if(window.__signatureInit) window.__signatureInit();
   var ip = $("#infoParc");
@@ -157,6 +178,11 @@ function cabler(){
   $("#cfgSecret").addEventListener("input",  function(){ cfg.secret=this.value.trim(); sauverCfg(); });
   $("#cfgTech").addEventListener("input",    function(){ cfg.technicien=this.value.trim(); sauverCfg(); });
   $("#cfgAppareils").addEventListener("input", function(){ cfg.appareils=this.value.trim(); sauverCfg(); });
+  $("#cfgFactureAuto").addEventListener("change", function(){ cfg.factureAuto=this.value; sauverCfg(); });
+  OUTILS_CHAMPS.forEach(function(x){
+    var e = $("#"+x[0]); if(!e) return;
+    e.addEventListener("input", function(){ cfg.outils = cfg.outils || {}; cfg.outils[x[1]] = this.value.trim(); sauverCfg(); majEcheanceDetecteur(); });
+  });
   $("#cfgSignClient").addEventListener("change", function(){ cfg.signClient=this.value; sauverCfg(); });
   $("#cfgMode").addEventListener("change", function(){
     cfg.modeControles = this.value; sauverCfg(); recalerControles(); sauverTout(); rendre();
@@ -349,6 +375,12 @@ window.KARE = {
   get maj(){ return maj; },
   technos: function(){ return TECHNOS; },
   machineAFluide: machineAFluide, cerfaDe: cerfaDe, cerfaRequis: cerfaRequis,
+  circuitOuvert: circuitOuvert, natureDeclencheFiche: natureDeclencheFiche,
+  nonControlesDe: nonControlesDe, nonControlesSansMotif: nonControlesSansMotif, appareilsPour: appareilsPour, techDe: techDe,
+  detecteurPerime: detecteurPerime, OUTILS_DEFAUT: OUTILS_DEFAUT, majEcheanceDetecteur: majEcheanceDetecteur,
+  tSaturation: tSaturation, aideReleveFrigo: aideReleveFrigo,
+  forfaitEntretien: forfaitEntretien, payloadFacture: payloadFacture, decisionFacture: decisionFacture,
+  cerfaPDF: cerfaPDF, cerfaPDFAsync: cerfaPDFAsync, cerfaValeurs: cerfaValeurs, cerfaBase: cerfaBase, nomCERFA: nomCERFA,
   teqCO2: teqCO2, gwpDe: gwpDe, familleFluide: familleFluide,
   periodiciteEtancheite: periodiciteEtancheite, payloadCerfa: payloadCerfa,
   signatureDetenteurRequise: signatureDetenteurRequise, anomaliesCerfa: anomaliesCerfa,

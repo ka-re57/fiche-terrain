@@ -45,7 +45,9 @@ function cerfaDe(m){
   if(!m.cerfa) m.cerfa = {nature:"", vierge:"", recycle:"", regenere:"",
                           traitement:"", reutil:"", contenant:"", bsff:"",
                           fuite:"", loca:"", repare:"", detecteur:"", detecteurLe:"",
-                          detectionPerm:"", obs:""};
+                          detectionPerm:"", mano:"", recherche:"", obs:""};
+  if(m.cerfa.mano === undefined) m.cerfa.mano = "";
+  if(m.cerfa.recherche === undefined) m.cerfa.recherche = "";
   return m.cerfa;
 }
 function fluideDe(m){ return txt((m.ident||{}).fluide) || ""; }
@@ -85,12 +87,31 @@ function signatureDetenteurRequise(m){
   var t = teqCO2(m);
   return estNb(t) && t > 5;
 }
-/* La fiche est due dès qu'il y a manipulation OU contrôle d'étanchéité. */
+/* Règle posée par Rémi le 14/09/2026, et c'est la sienne qui fait foi :
+   la fiche est due quand on cherche une fuite ou qu'on touche au gaz —
+   branchement du manomètre compris, puisque brancher, c'est ouvrir le circuit.
+   Un entretien annuel sans recherche de fuite et sans branchement ne la
+   déclenche pas : cocher « maintenance » ne suffit plus, sinon toute PAC
+   entretenue traînait une fiche due que personne n'établissait. */
+var NATURES_SANS_FICHE = ["maintenance"];
+function natureDeclencheFiche(v){
+  if(!v) return false;
+  for(var i=0;i<NATURES_CERFA.length;i++){
+    if(NATURES_CERFA[i].l === v || NATURES_CERFA[i].v === v)
+      return NATURES_SANS_FICHE.indexOf(NATURES_CERFA[i].v) < 0;
+  }
+  return true;
+}
+/* Une recherche de fuite déclenche la fiche même quand elle ne trouve rien :
+   c'est la recherche qui est l'acte, pas son résultat. */
+function circuitOuvert(m){
+  var c = cerfaDe(m);
+  return c.recherche === "oui" || c.mano === "oui"
+      || c.fuite === "oui" || quantiteManipulee(m) > 0;
+}
 function cerfaRequis(m){
   if(!machineAFluide(m)) return false;
-  var c = cerfaDe(m);
-  if(c.nature) return true;
-  return quantiteManipulee(m) > 0;
+  return circuitOuvert(m) || natureDeclencheFiche(cerfaDe(m).nature);
 }
 function nb0(v){ var x = nb(v); return estNb(x) ? x : 0; }
 function quantiteChargee(m){ var c = cerfaDe(m); return nb0(c.vierge) + nb0(c.recycle) + nb0(c.regenere); }
@@ -110,6 +131,12 @@ function anomaliesCerfa(m){
     out.push("fluide manipulé sans identification du contenant");
   if(cerfaRequis(m) && !txt(c.nature))
     out.push("nature de l'intervention non renseignée sur la fiche fluides");
+  if(cerfaRequis(m)){
+    var dLe = txt(c.detecteurLe) || txt((cfg.outils||{}).detecteur_controle);
+    if(!dLe) out.push("date du dernier contrôle du détecteur de fuite inconnue : elle est exigée sur la fiche");
+    else if(detecteurPerime(dLe, V.date))
+      out.push("détecteur de fuite contrôlé le " + dateFr(dLe) + " : plus de 12 mois à la date de la visite, le contrôle est à refaire (la fiche reste valable, la date réelle y figure)");
+  }
   return out;
 }
 /* Ce qui part vers Make, et de là vers Notion et le CERFA. */
@@ -118,6 +145,15 @@ function payloadCerfa(m){
   var c = cerfaDe(m), p = periodiciteEtancheite(m);
   return {
     requis: cerfaRequis(m),
+    requis_motif: cerfaRequis(m)
+      ? (quantiteManipulee(m) > 0 ? "manipulation de fluide"
+        : c.fuite === "oui" ? "fuite constatée"
+        : c.recherche === "oui" ? "recherche de fuite"
+        : c.mano === "oui" ? "branchement du manomètre sur le circuit"
+        : "nature de l'intervention : " + c.nature)
+      : null,
+    recherche: c.recherche || null,
+    mano: c.mano || null,
     nature: c.nature || null,
     fluide: fluideDe(m) || null,
     famille: familleFluide(m) || null,

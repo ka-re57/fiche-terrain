@@ -39,6 +39,8 @@ var WINANSI = {"€":128,"‚":130,"ƒ":131,"„":132,"…":133,"†":134,"‡":
 
 function pdfNettoie(s){
   s = String(s===null||s===undefined ? "" : s);
+  /* Helvetica en WinAnsi n'a pas de delta grec : « ΔT » sortait « ?T ». */
+  s = s.replace(/ΔT/g, "Delta T").replace(/Δ/g, "Delta");
   var out = "";
   for(var i=0;i<s.length;i++){
     var c = s[i];

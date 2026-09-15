@@ -127,6 +127,11 @@ function dessinerPDF(mo, im){
     (sec.puces||[]).forEach(function(x){ puce(x.t, x.grave); });
     if(sec.puces && sec.puces.length) y += 3;
     if(sec.tableau) sec.tableau.forEach(function(r){ ligneTableau(r.lib, r.etat, r.grave); });
+    if(sec.nonControles && sec.nonControles.length){
+      saut(20); y += 4;
+      p.texte(x0 + 2, y, "Points non contrôlés", {taille:7.5, gras:true}); y += 11;
+      sec.nonControles.forEach(function(x){ ligne(x.lib, "motif : " + x.motif, false); });
+    }
     (sec.lignes||[]).forEach(function(l){ ligne(l.k, l.v + (l.verdict ? "  — "+l.verdict : ""), l.alerte); });
     if(sec.sousTitre){
       saut(20); y += 4;

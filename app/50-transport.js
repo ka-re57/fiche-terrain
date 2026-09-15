@@ -167,7 +167,12 @@ function payloadMachine(m, idx, total){
       periodicite: t.regl.periodicite || null
     }),
     technicien: cfg.technicien || "Rémi KATA",
-    appareils_mesure: t.sansAppareils ? null : propre(cfg.appareils || V.appareils),
+    appareils_mesure: t.sansAppareils ? null : propre((typeof appareilsPour === "function" ? appareilsPour(m) : null) || cfg.appareils || V.appareils),
+    /* Les points non contrôlés, avec leur motif : ils ne sont plus des écarts. */
+    non_controles: (typeof nonControlesDe === "function") ? nonControlesDe(m).map(function(x){ return {point:x.lib, motif:propre(x.motif) || null}; }) : [],
+    /* La facture d'entretien au forfait, si Rémi l'a validée et si la
+       facturation automatique est activée. */
+    facture: (typeof payloadFacture === "function") ? payloadFacture(m) : null,
     identification: ident,
     controles: ctrl,
     controles_controles: nOk, controles_non: nNon, controles_np: nNp, controles_total: lc.length,
@@ -197,7 +202,7 @@ function resumeTexte(m, idx){
   ligne("Intervention", (INTERV.filter(function(x){return x.c===V.interv;})[0]||{}).l);
   ligne("Technicien", cfg.technicien||"Rémi KATA");
   ligne("Personne présente", V.present);
-  ligne("Appareils de mesure", cfg.appareils || V.appareils);
+  ligne("Appareils de mesure", (typeof appareilsPour === "function" ? appareilsPour(m) : null) || cfg.appareils || V.appareils);
   L.push(""); L.push("-- Identification --");
   t.ident.forEach(function(f){ ligne(f.l, txt(m.ident[f.k])); });
   L.push(""); L.push("-- Points de contrôle --");
@@ -343,7 +348,10 @@ function envoyer(){
   if(!txt(V.client)){ toast("Renseigne le nom du client d'abord","att"); aller("visite"); return; }
   if(!cfg.webhook){ toast("Adresse d'envoi non renseignée — voir Réglages","mal"); return; }
   if(typeof avecSignature === "function" && signatureManquante()){ avecSignature(envoyer); return; }
-  if(typeof avantEnvoi === "function" && !_envoiValide){ _envoiValide = true; avantEnvoi(envoyer); return; }
+  /* _envoiValide n'est posé QUE par la validation de l'écran (47-signature-client) :
+     annuler l'écran laisse le drapeau à faux, sinon l'appui suivant sautait
+     l'écran et partait sans l'adresse mail. */
+  if(typeof avantEnvoi === "function" && !_envoiValide){ avantEnvoi(envoyer); return; }
   _envoiValide = false;
   var aPartir = (typeof fichesCochees === "function") ? fichesCochees() : V.machines;
   if(!aPartir.length){ toast("Aucune fiche cochée","att"); return; }
@@ -355,7 +363,16 @@ function envoyer(){
       p.pdf_nom = nomPDF(m,i);
       p.pdf_base64 = pdfBase64(u8);
       p.pdf_octets = u8.length;
-      return p;
+      /* La fiche d'intervention fluides, quand elle est due : le vrai
+         formulaire, rempli. Un CERFA raté ne bloque jamais l'attestation. */
+      if(typeof cerfaPDFAsync !== "function") return p;
+      return cerfaPDFAsync(m).then(function(c8){
+        if(c8){ p.cerfa_pdf_nom = nomCERFA(m); p.cerfa_pdf_base64 = pdfBase64(c8); p.cerfa_pdf_octets = c8.length; }
+        return p;
+      }).catch(function(e){
+        p.cerfa_pdf_erreur = propre(String(e && e.message ? e.message : e));
+        return p;
+      });
     }).catch(function(e){
       /* Un PDF raté ne doit jamais faire perdre le relevé : la fiche part sans lui. */
       var p = payloadMachine(m,i,aPartir.length);
@@ -397,14 +414,20 @@ function telecharger(){
   var faits = 0;
   V.machines.reduce(function(chaine, m, i){
     return chaine.then(function(){
-      return documentPDF(m, i).then(function(u8){
+      function poser(u8, nom){
         var b = new Blob([u8], {type:"application/pdf"});
         var u = URL.createObjectURL(b);
         var a = document.createElement("a");
-        a.href = u; a.download = nomPDF(m, i);
+        a.href = u; a.download = nom;
         document.body.appendChild(a); a.click();
         setTimeout(function(){ URL.revokeObjectURL(u); a.remove(); }, 2000);
         faits++;
+      }
+      return documentPDF(m, i).then(function(u8){
+        poser(u8, nomPDF(m, i));
+        /* et la fiche fluides quand elle est due : le vrai formulaire, rempli */
+        if(typeof cerfaPDFAsync !== "function") return;
+        return cerfaPDFAsync(m).then(function(c8){ if(c8) poser(c8, nomCERFA(m)); });
       });
     });
   }, Promise.resolve()).then(function(){

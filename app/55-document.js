@@ -102,7 +102,7 @@ function modeleDocument(m, idx){
     L("Date de la visite", dateFr(V.date)),
     L("Nature de l'intervention", (INTERV.filter(function(x){return x.c===V.interv;})[0]||{}).l),
     L("Intervenant", (cfg.technicien||"Rémi KATA")+" — "+KARE_ENTETE.raison+" — "+KARE_ENTETE.tel),
-    t.sansAppareils ? null : L("Appareils de mesure utilisés", cfg.appareils)
+    t.sansAppareils ? null : L("Appareils de mesure utilisés", (typeof appareilsPour === "function") ? appareilsPour(m) : cfg.appareils)
   ]);
 
   /* 2 — identification */
@@ -116,6 +116,9 @@ function modeleDocument(m, idx){
     var e = m.ctrl["c"+i];
     return {lib:lib, etat:e||"", grave:(e==="non")};
   });
+  /* Les points non contrôlés ont leur bloc, avec le motif : un ✗ seul dans
+     le tableau ressemblait à un travail non fait. Le motif dit pourquoi. */
+  var nonCtrl = (typeof nonControlesDe === "function") ? nonControlesDe(m) : [];
 
   /* 4 — mesures */
   var s4 = [], sousM = [];
@@ -205,7 +208,8 @@ function modeleDocument(m, idx){
       {titre:"1 — Commanditaire et intervention", lignes:s1},
       {titre:"2 — Identification de l'équipement", lignes:s2, sinon:"—"},
       {titre:"3 — Points de contrôle",
-       legende:"État de chaque point : contrôlé, NON CONTRÔLÉ, ou NP lorsque l'organe n'est pas présent sur l'installation.", tableau:tableau},
+       legende:"État de chaque point : contrôlé, NON CONTRÔLÉ, ou NP lorsque l'organe n'est pas présent sur l'installation.", tableau:tableau,
+       nonControles: nonCtrl.length ? nonCtrl.map(function(x){ return {lib:x.lib, motif:x.motif || "motif non renseigné"}; }) : null},
       {titre:"4 — Mesures et relevés", lignes:s4, sinon:"Aucune mesure relevée.",
        sousTitre:(sousM.length ? t.sousMachines.label : null), sousLignes:sousM},
       {titre:"5 — Défauts constatés et actions réalisées",
@@ -280,6 +284,18 @@ function documentMachine(m, idx){
         tr.appendChild(td2); tb.appendChild(tr);
       });
       s.appendChild(tb);
+    }
+    if(sec.nonControles && sec.nonControles.length){
+      var nc = el("div","doc-nc");
+      nc.appendChild(el("h3",null,"Points non contrôlés"));
+      sec.nonControles.forEach(function(x){
+        var l = el("div","l");
+        l.appendChild(el("b",null,"✗"));
+        var tx = el("span",null, x.lib + " — ");
+        tx.appendChild(el("span","motif", x.motif));
+        l.appendChild(tx); nc.appendChild(l);
+      });
+      s.appendChild(nc);
     }
     (sec.lignes||[]).forEach(function(l){
       ligneDoc(s, l.k, l.v + (l.verdict ? "   ⚠ "+l.verdict : ""));

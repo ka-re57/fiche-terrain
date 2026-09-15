@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fiche terrain KA-RÉ</title>
+<meta name="description" content="Relevé d'intervention KA-RÉ — chaudière, PAC, clim, adoucisseur, VMC, chauffe-eau thermodynamique.">
+<meta name="theme-color" content="#0D3B66">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="KA-RÉ">
+<link rel="stylesheet" href="app.css?v=3.21">
+</head>
+<body>
+<div class="barre">
+  <img class="logo" src="logo.png?v=3.21" alt="KA-RÉ">
+  <span class="pastille" id="pEtat">—</span>
+  <span class="pastille" id="pReseau">—</span>
+  <span class="pastille noprint" id="pFile" hidden>0 en attente</span>
+  <button type="button" class="btn mini noprint" id="bReglages">Réglages</button>
+</div>
+
+<div class="maj-bandeau noprint" id="majBandeau" hidden>
+  <span id="majBandeauTexte">Une nouvelle version de l'application est prête.</span>
+  <button type="button" class="btn mini p" id="bMajInstaller">Installer maintenant</button>
+  <button type="button" class="btn mini" id="bMajPlusTard">Plus tard</button>
+</div>
+
+<div class="onglets noprint" id="onglets" role="tablist"></div>
+
+<main id="app"></main>
+
+<div class="piedbar noprint">
+  <button type="button" class="btn" id="bImprimer">Imprimer</button>
+  <button type="button" class="btn" id="bFichier">Fichier</button>
+  <button type="button" class="btn p" id="bEnvoyer">Envoyer</button>
+</div>
+
+<dialog id="dlgMachine">
+  <div class="dlg-tete">Ajouter une machine</div>
+  <div class="dlg-corps" id="listeTechnos"></div>
+  <div class="dlg-pied"><button type="button" class="btn" data-fermer>Annuler</button></div>
+</dialog>
+
+<dialog id="dlgFiche" class="plein">
+  <div class="dlg-tete" id="ficheTitre">Notice</div>
+  <div class="fiche-onglets" id="ficheOnglets"></div>
+  <div class="dlg-corps fiche-corps"><img id="ficheImg" alt="Planche de la notice"></div>
+  <div class="dlg-pied fiche-pied">
+    <button type="button" class="btn" id="fichePrec">‹ Précédente</button>
+    <span class="fiche-pos" id="fichePos"></span>
+    <button type="button" class="btn" id="ficheSuiv">Suivante ›</button>
+    <button type="button" class="btn p" data-fermer>Fermer</button>
+  </div>
+</dialog>
+
+<dialog id="dlgRestant">
+  <div class="dlg-tete">Des relevés ne sont pas renseignés</div>
+  <div class="dlg-corps">
+    <div id="restantCorps"></div>
+    <p class="aide">Ces points figureront sur le document du client avec la mention « non renseigné ». Si tu ne peux pas les prendre sur cet appareil, marque-les plutôt « sans objet » : c'est plus juste et ça se justifie.</p>
+  </div>
+  <div class="dlg-pied">
+    <button type="button" class="btn" id="bRestantEnvoyer">Envoyer quand même</button>
+    <button type="button" class="btn p" id="bRestantVoir">Aller les compléter</button>
+  </div>
+</dialog>
+
+<dialog id="dlgEnvoi">
+  <div class="dlg-tete">Ce qui va partir</div>
+  <div class="dlg-corps">
+    <div id="envoiDate"></div>
+    <div class="champ plein" style="margin-bottom:10px">
+      <label for="envoiMail">Adresse mail du client</label>
+      <input type="email" id="envoiMail" placeholder="sans elle, l'attestation ne part pas au client" autocomplete="off">
+      <div class="mini" id="envoiMailNote"></div>
+    </div>
+    <div id="envoiCorps"></div>
+    <p class="aide">Décoche une fiche pour ne pas l'envoyer. Elle reste sur la tablette, tu pourras l'envoyer plus tard ou la supprimer.</p>
+  </div>
+  <div class="dlg-pied">
+    <button type="button" class="btn" data-fermer>Annuler</button>
+    <button type="button" class="btn p" id="bEnvoiGo">Envoyer</button>
+  </div>
+</dialog>
+
+<dialog id="dlgSignRappel">
+  <div class="dlg-tete">Le client n'a pas signé</div>
+  <div class="dlg-corps">
+    <p class="aide">La signature du commanditaire vaut preuve de remise du document. Si le client n'est pas là, le document doit le dire — c'est ce qui te protège en cas de contestation.</p>
+  </div>
+  <div class="dlg-pied">
+    <button type="button" class="btn" id="bSignPlusTard">Continuer sans</button>
+    <button type="button" class="btn" id="bSignAbsent">Client absent</button>
+    <button type="button" class="btn p" id="bSignMaintenant">Faire signer</button>
+  </div>
+</dialog>
+
+<dialog id="dlgApres">
+  <div class="dlg-tete" id="apresTitre">Fiche envoyée</div>
+  <div class="dlg-corps">
+    <p class="aide" id="apresTexte">Tu peux enchaîner sur le client suivant : la visite en cours sera remise à zéro.</p>
+  </div>
+  <div class="dlg-pied">
+    <button type="button" class="btn" data-fermer>Rester sur ce client</button>
+    <button type="button" class="btn p" id="bNouveauClient">Client suivant</button>
+  </div>
+</dialog>
+
+<dialog id="dlgSignClient">
+  <div class="dlg-tete">Signature du client</div>
+  <div class="dlg-corps" id="signClientCorps"></div>
+  <div class="dlg-pied"><button type="button" class="btn" data-fermer>Fermer</button></div>
+</dialog>
+
+<dialog id="dlgReglages">
+  <div class="dlg-tete">Réglages</div>
+  <div class="dlg-corps">
+    <div class="alerte info">Ces réglages restent sur cette tablette. Ils ne sont jamais publiés avec l'application.</div>
+    <div class="champ plein" style="margin-bottom:10px">
+      <label for="cfgFichier">Fichier de configuration KA-RÉ</label>
+      <div class="aide">Le fichier <b>config_KA-RE.json</b> contient le parc clients, l'adresse d'envoi et la clé. À importer une seule fois.</div>
+      <input type="file" id="cfgFichier" accept=".json,application/json" style="margin-top:6px">
+    </div>
+    <div class="champ plein" style="margin-bottom:10px">
+      <label for="cfgWebhook">Adresse d'envoi (Make)</label>
+      <input type="text" id="cfgWebhook" placeholder="collée depuis le fichier de configuration" autocomplete="off">
+    </div>
+    <div class="champ plein" style="margin-bottom:10px">
+      <label for="cfgMajUrl">Adresse de mise à jour (parc et clients)</label>
+      <input type="text" id="cfgMajUrl" placeholder="collée depuis le fichier de configuration" autocomplete="off">
+      <div class="mini" id="majEtat">—</div>
+      <button type="button" class="btn mini p" id="bMaj" style="margin-top:6px; width:100%">Mettre à jour le parc et les clients</button>
+      <div class="mini">Va chercher les machines dans Notion et les clients dans Axonaut. Se fait aussi tout seul à l'ouverture, une fois par demi-journée, quand il y a du réseau.</div>
+    </div>
+    <div class="champ plein" style="margin-bottom:10px">
+      <label for="cfgSecret">Clé partagée</label>
+      <input type="text" id="cfgSecret" placeholder="clé" autocomplete="off">
+    </div>
+    <div class="champ plein" style="margin-bottom:10px">
+      <label for="cfgTech">Nom du technicien</label>
+      <input type="text" id="cfgTech" placeholder="Rémi KATA" autocomplete="off">
+    </div>
+    <div class="champ plein" style="margin-bottom:10px">
+      <label>Ma signature</label>
+      <div class="mini">Tracée une seule fois, apposée sur tous les documents.</div>
+      <canvas id="cfgSign" class="sign-toile" width="600" height="200"></canvas>
+      <div style="display:flex; gap:7px; margin-top:6px">
+        <button type="button" class="btn mini" id="bSignEffacer">Effacer</button>
+        <button type="button" class="btn mini p" id="bSignGarder">Enregistrer</button>
+        <span class="mini" id="signEtat" style="align-self:center"></span>
+      </div>
+    </div>
+    <div class="champ plein" style="margin-bottom:10px">
+      <label for="cfgSignClient">Bloc de signature du client</label>
+      <select id="cfgSignClient">
+        <option value="oui">Afficher — je le fais signer</option>
+        <option value="non">Ne pas afficher</option>
+      </select>
+    </div>
+    <div class="champ plein" style="margin-bottom:10px">
+      <label for="cfgMode">Points de contrôle</label>
+      <select id="cfgMode">
+        <option value="declare">Tout coché — je pointe les exceptions</option>
+        <option value="aFaire">Rien coché — liste de ce qu'il me reste à faire</option>
+      </select>
+      <div class="mini">Dans les deux cas, un point se coche tout seul dès que la mesure qui le prouve est renseignée.</div>
+    </div>
+    <div class="champ plein" style="margin-bottom:10px">
+      <label for="cfgFactureAuto">Facturation automatique des entretiens</label>
+      <select id="cfgFactureAuto">
+        <option value="non">Désactivée — je facture à la main</option>
+        <option value="oui">Activée — Axonaut crée la facture au forfait à l'envoi</option>
+      </select>
+      <div class="mini">Grille HT : chaudière gaz 150 € · PAC air/eau 210 € · clim 150 € + 50 € par unité intérieure · adoucisseur 120 €. TVA 10 % par défaut. La ligne est proposée cochée sur l'écran d'envoi, tu décoches pour facturer autrement. Une facture émise ne s'annule pas.</div>
+    </div>
+    <details class="repl ouvert" open>
+      <summary>Ma caisse à outils</summary>
+      <div class="mini" style="margin:4px 0 8px">Seulement ce que les textes exigent. Repris d'office sur les documents selon la machine : l'analyseur sur les chaudières, le détecteur et l'appareil de mesure sur PAC, clim et chauffe-eau thermodynamique. Modifiable sur une fiche si tu empruntes du matériel.</div>
+      <div class="g2">
+        <div class="champ"><label for="cfgAnalyseurMarque">Analyseur de combustion — marque</label><input id="cfgAnalyseurMarque" type="text" placeholder="Sauermann" autocomplete="off"></div>
+        <div class="champ"><label for="cfgAnalyseurRef">Analyseur — référence</label><input id="cfgAnalyseurRef" type="text" placeholder="Si-CA 130" autocomplete="off"><div class="aide">marque et référence sont exigées sur l'attestation chaudière</div></div>
+        <div class="champ"><label for="cfgDetecteurRepere">Détecteur de fuite — n° de série ou repère</label><input id="cfgDetecteurRepere" type="text" placeholder="ex. LINSTRUMENT LT-100-PRO2 n° LD23120463" autocomplete="off"></div>
+        <div class="champ"><label for="cfgDetecteurControle">Détecteur — dernier contrôle le</label><input id="cfgDetecteurControle" type="date"><div class="aide" id="cfgDetecteurEcheance">les deux sont exigés sur la fiche d'intervention fluides (CERFA 15497*04). Le contrôle du détecteur se fait tous les 12 mois</div></div>
+        <div class="champ"><label for="cfgMesureMarque">Appareil de mesure frigorifique — marque</label><input id="cfgMesureMarque" type="text" placeholder="Testo" autocomplete="off"></div>
+        <div class="champ"><label for="cfgMesureRef">Appareil de mesure — référence</label><input id="cfgMesureRef" type="text" placeholder="549i (manomètres) · 115i (thermomètres)" autocomplete="off"><div class="aide">manifold ou thermomètre avec lequel tu relèves : marque et référence sont exigées sur l'attestation PAC</div></div>
+      </div>
+      <div class="champ plein" style="margin-top:6px">
+        <label for="cfgAppareils">Autres appareils (facultatif, texte libre)</label>
+        <textarea id="cfgAppareils" placeholder="ne sert que si la caisse à outils est vide"></textarea>
+      </div>
+    </details>
+    <details class="repl">
+      <summary>Parc clients embarqué</summary>
+      <div id="infoParc">—</div>
+    </details>
+    <details class="repl">
+      <summary>Fiches enregistrées sur cette tablette</summary>
+      <div id="infoVisites">—</div>
+    </details>
+    <details class="repl">
+      <summary>Sources et réserves réglementaires</summary>
+      <div id="infoSources"></div>
+    </details>
+    <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap">
+      <button type="button" class="btn mini" id="bMajAppli">Chercher une mise à jour</button>
+      <span class="mini" id="majAppliEtat" style="align-self:center"></span>
+      <button type="button" class="btn mini" id="bTester">Tester l'envoi</button>
+      <button type="button" class="btn mini" id="bVider">Vider la file d'attente</button>
+      <button type="button" class="btn mini d" id="bReset">Effacer cette visite</button>
+    </div>
+  </div>
+  <div class="dlg-pied"><button type="button" class="btn p" data-fermer>Fermer</button></div>
+</dialog>
+
+<script src="fiches.js?v=3.21"></script>
+<script src="cerfa.js?v=3.21"></script>
+<script src="app/30-catalogue.js?v=3.21"></script>
+<script src="app/40-noyau.js?v=3.21"></script>
+<script src="app/42-fluides.js?v=3.21"></script>
+<script src="app/43-aide-frigo.js?v=3.21"></script>
+<script src="app/44-ventilation.js?v=3.21"></script>
+<script src="app/45-vues.js?v=3.21"></script>
+<script src="app/47-signature-client.js?v=3.21"></script>
+<script src="app/48-photos.js?v=3.21"></script>
+<script src="app/49-facture.js?v=3.21"></script>
+<script src="app/50-transport.js?v=3.21"></script>
+<script src="app/52-maj.js?v=3.21"></script>
+<script src="app/55-document.js?v=3.21"></script>
+<script src="app/56-pdf.js?v=3.21"></script>
+<script src="app/57-doc-pdf.js?v=3.21"></script>
+<script src="app/58-cerfa.js?v=3.21"></script>
+<script src="app/59-cerfa-pdf.js?v=3.21"></script>
+<script src="app/60-boot.js?v=3.21"></script>
+</body>
+</html>

@@ -6,16 +6,20 @@ var RAPPELS = ["Prévoir plus de temps","Matériel à emporter","Pièce à comma
    visite. Les autres restent accessibles, repliées sous « Autres mesures ».
    Une technologie absente de cette table affiche tout, à plat. */
 var ESSENTIELLES = {
-  chaudiere_gaz: ["co_amb","co_fum","tfum","co2","o2","rdt_mes","pcirc","pvase","emboue","isol","dimension","tirage"],
-  chaudiere_fioul:["co_amb","co_fum","tfum","co2","o2","indice","rdt_mes","pcirc","pvase","p_pulve","emboue","isol"],
-  pac_air_eau:   ["t_ext","t_dep","t_ret","tstat","tdyn","intens","bp","hp","pcirc","pvase","emboue","isol"],
-  clim_air_air:  ["text","mode","ue_rep","ue_souf","tstat","tdyn","intens","voyant","etanch"],
+  chaudiere_gaz: ["co_amb","co_fum","tfum","co2","o2","rdt_mes","pcirc","pcirc_fin","pvase","pvase_fin","emboue","isol","dimension","tirage"],
+  chaudiere_fioul:["co_amb","co_fum","tfum","co2","o2","indice","rdt_mes","pcirc","pcirc_fin","pvase","pvase_fin","p_pulve","emboue","isol"],
+  pac_air_eau:   ["mode","text","tdep","tret","dt_eau","ue_rep","ue_souf","dt_ue","tstat","tdyn","intens","pcirc","pcirc_fin","pvase","pvase_fin","emboue","isol","classe_reg"],
+  clim_air_air:  ["text","mode","ue_rep","ue_souf","dt_ue","tstat","tdyn","intens","voyant","etanch"],
   adoucisseur:   ["th_brut","th_adouci","pression","sel","index","regen_ok","regen_fin"],
   vmc_df:        ["debit_ext","debit_souf","equilibrage","t_ext","t_souf","t_rep","t_rej","filtres_etat","filtres_ref","siphon"],
   cet:           ["consigne","antilegio","t_puisage","groupe_secu","anode_etat","appoint"]
 };
 /* Mesures conservées au catalogue mais jamais proposées à la saisie. */
 var MASQUEES = {};
+/* Le circuit frigorifique a son propre volet sur l'écran, avec l'aide au
+   branchement : ces mesures n'apparaissent ni parmi les essentielles ni
+   sous « Autres mesures ». */
+var FRIGO = ["bp","hp","t_evap","t_cond","t_asp","t_liq","sh","sr","sh_lu","sr_lu"];
 
 /* ============================================================
    CATALOGUE DES TECHNOLOGIES — KA-RÉ
@@ -25,6 +29,22 @@ var MASQUEES = {};
    Sources et réserves : voir la page "Sources" de l'application.
    ============================================================ */
 var TECHNOS = {};
+
+/* Plages usuelles qui dépendent du mode d'essai. Repères de terrain, jamais
+   opposables : l'écart d'air sur l'unité extérieure se lit d'abord comme un
+   indice d'encrassement ou de bas régime. */
+function modeDe(m){
+  var v = (m && m.mes && m.mes.mode) ? String(m.mes.mode) : "";
+  return v === "froid" ? "froid" : "chaud";
+}
+function refDtUE(m){
+  return modeDe(m) === "froid"
+    ? {min:6, max:14, note:"en froid, l'unité extérieure rejette la chaleur : l'air ressort plus chaud"}
+    : {min:3, max:8,  note:"en chaud, l'unité extérieure prend la chaleur : l'air ressort plus froid, d'autant moins qu'il fait doux"};
+}
+function refSH(m){
+  return modeDe(m) === "froid" ? {min:5, max:8} : {min:5, max:10};
+}
 
 /* ---------- CLIMATISATION AIR/AIR ---------- */
 TECHNOS.clim_air_air = {
@@ -50,7 +70,7 @@ TECHNOS.clim_air_air = {
   },
   ident: [
     {k:"marque", l:"Marque et modèle (unité extérieure)"},
-    {k:"serie", l:"N° de série"},
+    {k:"serie", l:"N° de série", raccourcis:["Plaque illisible"]},
     {k:"puiss", l:"Puissance nominale", u:"kW", type:"num", aide:"la plus élevée entre chaud et froid"},
     {k:"nbui", l:"Nombre d'unités intérieures", type:"num", opt:true},
     {k:"fluide", l:"Fluide frigorigène", type:"liste", opts:["R32","R410A","R290","R454B","R407C","autre"]},
@@ -106,13 +126,20 @@ TECHNOS.clim_air_air = {
   },
   mes: [
     {k:"text", l:"Température extérieure", u:"°C", type:"num"},
-    {k:"mode", l:"Mode d'essai", type:"liste", opts:["froid","chaud"]},
-    {k:"ue_rep", l:"Unité extérieure — reprise", u:"°C", type:"num"},
-    {k:"ue_souf", l:"Unité extérieure — soufflage", u:"°C", type:"num"},
-    {k:"bp", l:"Pression BP (aspiration)", u:"bar", type:"num"},
-    {k:"hp", l:"Pression HP (refoulement)", u:"bar", type:"num"},
-    {k:"sh", l:"Surchauffe", u:"K", type:"num", ref:{min:5, max:8}, nature:"professionnel", aide:"5 à 8 K en froid, 5 à 10 K en chaud"},
-    {k:"sr", l:"Sous-refroidissement", u:"K", type:"num", ref:{min:3, max:8}, nature:"professionnel"},
+    {k:"mode", l:"Mode d'essai", type:"liste", opts:["froid","chaud"], aide:"c'est lui qui dit où brancher et quelles valeurs attendre — voir l'aide au relevé plus bas"},
+    {k:"ue_rep", l:"Unité extérieure — air aspiré", u:"°C", type:"num", aide:"à l'arrière de la batterie, hors soleil et hors soufflage"},
+    {k:"ue_souf", l:"Unité extérieure — air soufflé", u:"°C", type:"num", aide:"au centre du flux du ventilateur"},
+    {k:"dt_ue", l:"Écart d'air sur l'unité extérieure", u:"K", type:"calc", calc:"absdiff:ue_rep,ue_souf", ref:refDtUE, nature:"professionnel", aide:"en froid l'air ressort plus chaud, en chaud plus froid. Trop faible : batterie encrassée, ventilateur, ou machine à bas régime. Trop fort : débit d'air insuffisant"},
+    {k:"bp", l:"Pression BP (aspiration)", u:"bar", type:"num", aide:"relative, lue au manifold"},
+    {k:"hp", l:"Pression HP (refoulement)", u:"bar", type:"num", aide:"relative, lue au manifold"},
+    {k:"t_evap", l:"Température d'évaporation", u:"°C", type:"calc", calc:"t_sat:bp,dew", nature:"professionnel", besoin:[{k:"fluide",l:"fluide (identification)"},{k:"bp",l:"pression BP"}], aide:"déduite de la BP et du fluide"},
+    {k:"t_cond", l:"Température de condensation", u:"°C", type:"calc", calc:"t_sat:hp,bub", nature:"professionnel", besoin:[{k:"fluide",l:"fluide (identification)"},{k:"hp",l:"pression HP"}], aide:"déduite de la HP et du fluide"},
+    {k:"t_asp", l:"Température ligne d'aspiration", u:"°C", type:"num", opt:true, aide:"sonde de contact isolée, sur le gros tube (gaz) près de la vanne de service, ou à 10-20 cm du compresseur"},
+    {k:"t_liq", l:"Température ligne liquide", u:"°C", type:"num", opt:true, aide:"sonde de contact isolée, sur le petit tube (liquide) à la vanne de service"},
+    {k:"sh", l:"Surchauffe", u:"K", type:"calc", calc:"surchauffe", ref:refSH, nature:"professionnel", besoin:[{k:"fluide",l:"fluide (identification)"},{k:"bp",l:"pression BP"},{k:"t_asp",l:"température ligne d'aspiration"}], aide:"T° aspiration − T° d'évaporation. 5 à 8 K en froid, 5 à 10 K en chaud. Trop faible : risque de coup de liquide. Trop forte : manque de fluide ou détendeur"},
+    {k:"sr", l:"Sous-refroidissement", u:"K", type:"calc", calc:"sous_refroidissement", ref:{min:3, max:8}, nature:"professionnel", besoin:[{k:"fluide",l:"fluide (identification)"},{k:"hp",l:"pression HP"},{k:"t_liq",l:"température ligne liquide"}], aide:"T° de condensation − T° liquide. Trop faible : manque de fluide. Trop fort : excès de charge ou condenseur encrassé"},
+    {k:"sh_lu", l:"Surchauffe lue (manifold électronique)", u:"K", type:"num", opt:true, horsDoc:true, aide:"seulement si tu n'as pas posé de sonde : la valeur lue remplace le calcul"},
+    {k:"sr_lu", l:"Sous-refroidissement lu (manifold électronique)", u:"K", type:"num", opt:true, horsDoc:true},
     {k:"tstat", l:"Tension statique", u:"V", type:"num", min:207, max:253, nature:"réglementaire", aide:"230 V ±10 % — mesure exigée par l'annexe 1"},
     {k:"tdyn", l:"Tension dynamique", u:"V", type:"num", min:207, max:253, nature:"réglementaire", aide:"une chute de plus de 5 % révèle une section de câble insuffisante"},
     {k:"intens", l:"Intensité absorbée", u:"A", type:"num", nature:"professionnel", aide:"comparer à l'intensité de plaque"},
@@ -171,7 +198,7 @@ TECHNOS.pac_air_eau = {
   ident: [
     {k:"marque", l:"Marque et modèle (unité extérieure)"},
     {k:"modele_ui", l:"Module hydraulique / unité intérieure", opt:true},
-    {k:"serie", l:"N° de série"},
+    {k:"serie", l:"N° de série", raccourcis:["Plaque illisible"]},
     {k:"puiss", l:"Puissance nominale", u:"kW", type:"num"},
     {k:"fluide", l:"Fluide frigorigène", type:"liste", opts:["R32","R410A","R290","R454C","autre"]},
     {k:"charge", l:"Charge de fluide", u:"kg", type:"num", opt:true},
@@ -240,25 +267,33 @@ TECHNOS.pac_air_eau = {
     ]
   },
   mes: [
+    {k:"mode", l:"Mode d'essai", type:"liste", opts:["chaud","froid"], aide:"c'est lui qui dit où brancher et quelles valeurs attendre — voir l'aide au relevé plus bas"},
     {k:"text", l:"Température extérieure", u:"°C", type:"num", aide:"indispensable pour interpréter toutes les autres mesures"},
     {k:"tdep", l:"Température de départ d'eau", u:"°C", type:"num", ref:{max:55}, nature:"professionnel", aide:"30-35 °C plancher, 40-50 °C radiateurs BT. Au-delà de 55 °C le COP s'effondre"},
     {k:"tret", l:"Température de retour d'eau", u:"°C", type:"num"},
     {k:"dt_eau", l:"ΔT départ / retour", u:"K", type:"calc", calc:"absdiff:tdep,tret", ref:{min:4, max:10}, nature:"professionnel", aide:"4-6 K plancher, 5-8 K radiateurs. Trop faible : débit excessif. Trop élevé : débit insuffisant, filtre colmaté, circuit embouè"},
-    {k:"ue_rep", l:"Unité extérieure — air aspiré", u:"°C", type:"num"},
-    {k:"ue_souf", l:"Unité extérieure — air soufflé", u:"°C", type:"num"},
-    {k:"pcirc", l:"Pression du circuit à froid", u:"bar", type:"num", ref:{min:1, max:2}, nature:"professionnel"},
-    {k:"pvase", l:"Pression de gonflage du vase", u:"bar", type:"num", ref:{min:0.8, max:1.5}, nature:"professionnel", aide:"pression statique moins 0,3 bar, vase isolé et vidé côté eau"},
-    {k:"bp", l:"Pression BP", u:"bar", type:"num", aide:"le cas échéant : ne jamais percer un circuit scellé"},
-    {k:"hp", l:"Pression HP", u:"bar", type:"num", aide:"le cas échéant"},
-    {k:"sh", l:"Surchauffe", u:"K", type:"num", ref:{min:4, max:8}, nature:"professionnel"},
-    {k:"sr", l:"Sous-refroidissement", u:"K", type:"num", ref:{min:3, max:8}, nature:"professionnel"},
+    {k:"ue_rep", l:"Unité extérieure — air aspiré", u:"°C", type:"num", aide:"à l'arrière de la batterie, hors soleil et hors soufflage"},
+    {k:"ue_souf", l:"Unité extérieure — air soufflé", u:"°C", type:"num", aide:"au centre du flux du ventilateur"},
+    {k:"dt_ue", l:"Écart d'air sur l'unité extérieure", u:"K", type:"calc", calc:"absdiff:ue_rep,ue_souf", ref:refDtUE, nature:"professionnel", aide:"en chaud l'air ressort plus froid, en froid plus chaud. Trop faible : batterie encrassée, ventilateur, ou machine à bas régime — pousser la consigne. Trop fort : débit d'air insuffisant"},
+    {k:"pcirc", l:"Pression du circuit à l'arrivée", u:"bar", type:"num", ref:{min:1, max:2}, nature:"professionnel", aide:"telle que trouvée, avant toute intervention"},
+    {k:"pcirc_fin", l:"Pression du circuit après intervention", u:"bar", type:"num", ref:{min:1, max:2}, nature:"professionnel", opt:true, aide:"à renseigner seulement si tu as fait un appoint ou une purge"},
+    {k:"pvase", l:"Pression de gonflage du vase à l'arrivée", u:"bar", type:"num", ref:{min:0.8, max:1.5}, nature:"professionnel", aide:"pression statique moins 0,3 bar, vase isolé et vidé côté eau"},
+    {k:"pvase_fin", l:"Pression de gonflage du vase après regonflage", u:"bar", type:"num", ref:{min:0.8, max:1.5}, nature:"professionnel", opt:true, aide:"seulement si tu as regonflé"},
+    {k:"bp", l:"Pression BP", u:"bar", type:"num", aide:"relative, lue au manifold. Le cas échéant : ne jamais percer un circuit scellé"},
+    {k:"hp", l:"Pression HP", u:"bar", type:"num", aide:"relative, lue au manifold. Le cas échéant"},
+    {k:"t_evap", l:"Température d'évaporation", u:"°C", type:"calc", calc:"t_sat:bp,dew", nature:"professionnel", besoin:[{k:"fluide",l:"fluide (identification)"},{k:"bp",l:"pression BP"}], aide:"déduite de la BP et du fluide"},
+    {k:"t_cond", l:"Température de condensation", u:"°C", type:"calc", calc:"t_sat:hp,bub", nature:"professionnel", besoin:[{k:"fluide",l:"fluide (identification)"},{k:"hp",l:"pression HP"}], aide:"déduite de la HP et du fluide"},
+    {k:"t_asp", l:"Température ligne d'aspiration", u:"°C", type:"num", opt:true, aide:"sonde de contact isolée, sur le tube d'aspiration à 10-20 cm du compresseur"},
+    {k:"t_liq", l:"Température ligne liquide", u:"°C", type:"num", opt:true, aide:"sonde de contact isolée, sur la ligne liquide en sortie de condenseur"},
+    {k:"sh", l:"Surchauffe", u:"K", type:"calc", calc:"surchauffe", ref:refSH, nature:"professionnel", besoin:[{k:"fluide",l:"fluide (identification)"},{k:"bp",l:"pression BP"},{k:"t_asp",l:"température ligne d'aspiration"}], aide:"T° aspiration − T° d'évaporation. Trop faible : risque de coup de liquide. Trop forte : manque de fluide ou détendeur"},
+    {k:"sr", l:"Sous-refroidissement", u:"K", type:"calc", calc:"sous_refroidissement", ref:{min:3, max:8}, nature:"professionnel", besoin:[{k:"fluide",l:"fluide (identification)"},{k:"hp",l:"pression HP"},{k:"t_liq",l:"température ligne liquide"}], aide:"T° de condensation − T° liquide. Trop faible : manque de fluide. Trop fort : excès de charge ou condenseur encrassé"},
+    {k:"sh_lu", l:"Surchauffe lue (manifold électronique)", u:"K", type:"num", opt:true, horsDoc:true, aide:"seulement si tu n'as pas posé de sonde : la valeur lue remplace le calcul"},
+    {k:"sr_lu", l:"Sous-refroidissement lu (manifold électronique)", u:"K", type:"num", opt:true, horsDoc:true},
     {k:"tstat", l:"Tension statique", u:"V", type:"num", min:207, max:253, nature:"réglementaire"},
     {k:"tdyn", l:"Tension dynamique", u:"V", type:"num", min:207, max:253, nature:"réglementaire"},
     {k:"intens", l:"Intensité absorbée", u:"A", type:"num", nature:"professionnel"},
-    {k:"ph", l:"pH de l'eau du circuit", u:"pH", type:"num", ref:{min:8.2, max:10}, nature:"professionnel", aide:"NF EN 12828, installations sans aluminium"},
-    {k:"th", l:"Dureté de l'eau (TH)", u:"°f", type:"num", ref:{max:15}, nature:"professionnel"},
     {k:"emboue", l:"Embouement constaté", type:"liste", opts:["non","léger","marqué"]},
-    {k:"classe_reg", l:"Classe du régulateur", type:"liste", opts:["IV","V","VI","VII","VIII","inférieure ou absente"], nature:"réglementaire", aide:"doit relever des classes IV à VIII"},
+    {k:"classe_reg", l:"Classe du régulateur", type:"liste", opts:["IV","V","VI","VII","VIII","inférieure ou absente"], nature:"réglementaire", aide:"classes de la communication 2014/C 207/02, à lire sur la notice du régulateur ou de la télécommande : I thermostat d'ambiance tout ou rien · II loi d'eau seule, générateur modulant · III loi d'eau seule, générateur tout ou rien · IV thermostat d'ambiance TPI · V thermostat d'ambiance modulant (OpenTherm, eBus) · VI loi d'eau + sonde d'ambiance, modulant · VII loi d'eau + sonde d'ambiance, tout ou rien · VIII régulation multi-zones modulante. L'arrêté exige IV à VIII. Une PAC récente pilotée par sa propre télécommande avec sonde extérieure est presque toujours en VI ; avec un simple thermostat modulant, en V ; avec un thermostat tout ou rien d'ancienne chaudière, en I : à signaler"},
     {k:"isol", l:"Isolation des réseaux hors volume chauffé", type:"liste", opts:["présente et en bon état","dégradée","absente","sans objet"], nature:"réglementaire"}
   ],
   sousMachines: null,
@@ -326,7 +361,7 @@ TECHNOS.chaudiere_gaz = {
   },
   ident: [
     {k:"marque", l:"Marque et modèle"},
-    {k:"serie", l:"N° de série"},
+    {k:"serie", l:"N° de série", raccourcis:["Plaque illisible"]},
     {k:"puiss", l:"Puissance nominale utile", u:"kW", type:"num"},
     {k:"combustible", l:"Combustible", type:"liste", opts:["gaz naturel","propane","butane"]},
     {k:"techno", l:"Technologie", type:"liste", opts:["condensation","basse température","standard","atmosphérique ancienne"],
@@ -438,8 +473,10 @@ TECHNOS.chaudiere_gaz = {
      aide:"à renseigner pour les appareils mis sur le marché après septembre 2015 : la classe ne se calcule plus, elle est écrite sur l'étiquette énergie collée sur l'appareil ou sur sa notice. Elle vient alors se porter d'office sur l'attestation."},
     {k:"tirage", l:"Dépression / tirage du conduit", u:"Pa", type:"num", nature:"professionnel",
      ref:{min:3, max:20, note:"en valeur absolue"}, absRef:true},
-    {k:"pcirc", l:"Pression du circuit à froid", u:"bar", type:"num", ref:{min:1, max:1.5}, nature:"professionnel"},
-    {k:"pvase", l:"Pression de gonflage du vase", u:"bar", type:"num", ref:{min:0.5, max:1, note:"souvent 0,7 bar sortie d'usine"}, nature:"professionnel", aide:"régler 0,2 à 0,5 bar sous la pression de remplissage à froid, vase isolé et vidangé côté eau. Règle : hauteur d'eau au-dessus du vase divisée par 10, minimum 0,5 bar"},
+    {k:"pcirc", l:"Pression du circuit à l'arrivée", u:"bar", type:"num", ref:{min:1, max:1.5}, nature:"professionnel", aide:"telle que trouvée, à froid, avant toute intervention"},
+    {k:"pcirc_fin", l:"Pression du circuit après intervention", u:"bar", type:"num", ref:{min:1, max:1.5}, nature:"professionnel", opt:true, aide:"seulement si tu as fait un appoint ou une purge"},
+    {k:"pvase", l:"Pression de gonflage du vase à l'arrivée", u:"bar", type:"num", ref:{min:0.5, max:1, note:"souvent 0,7 bar sortie d'usine"}, nature:"professionnel", aide:"régler 0,2 à 0,5 bar sous la pression de remplissage à froid, vase isolé et vidangé côté eau. Règle : hauteur d'eau au-dessus du vase divisée par 10, minimum 0,5 bar"},
+    {k:"pvase_fin", l:"Pression de gonflage du vase après regonflage", u:"bar", type:"num", ref:{min:0.5, max:1}, nature:"professionnel", opt:true, aide:"seulement si tu as regonflé"},
     {k:"emboue", l:"Embouement constaté", type:"liste", opts:["non","léger","marqué"], nature:"réglementaire"},
     {k:"isol", l:"Isolation des réseaux hors volume chauffé", type:"liste", opts:["présente et en bon état","dégradée","absente","sans objet"], nature:"réglementaire"},
     {k:"dimension", l:"Dimensionnement au regard des besoins", type:"liste", opts:["adapté","surdimensionné","sous-dimensionné"], nature:"réglementaire"}
@@ -508,7 +545,7 @@ TECHNOS.chaudiere_fioul = {
   },
   ident: [
     {k:"marque", l:"Marque et modèle de la chaudière"},
-    {k:"serie", l:"N° de série"},
+    {k:"serie", l:"N° de série", raccourcis:["Plaque illisible"]},
     {k:"puiss", l:"Puissance nominale", u:"kW", type:"num"},
     {k:"techno", l:"Type", type:"liste", opts:["condensation","basse température","standard"]},
     {k:"combustible", l:"Combustible", type:"liste", opts:["FOD","biofioul F10","biofioul F30"]},
@@ -597,8 +634,10 @@ TECHNOS.chaudiere_fioul = {
      aide:"à renseigner pour les appareils mis sur le marché après septembre 2015 : la classe ne se calcule plus, elle est écrite sur l'étiquette énergie collée sur l'appareil ou sur sa notice. Elle vient alors se porter d'office sur l'attestation."},
     {k:"ppulv", l:"Pression de pulvérisation", u:"bar", type:"num", ref:{min:10, max:14, note:"12 bar en sortie d'usine"}, nature:"professionnel", aide:"suivre d'abord la plaque du brûleur et le tableau du gicleur"},
     {k:"tirage", l:"Dépression au foyer / tirage", u:"Pa", type:"num", ref:{min:10, max:30}, nature:"professionnel"},
-    {k:"pcirc", l:"Pression du circuit à froid", u:"bar", type:"num", ref:{min:1, max:2}, nature:"professionnel"},
-    {k:"pvase", l:"Pression de gonflage du vase", u:"bar", type:"num", ref:{min:0.5, max:1, note:"souvent 0,7 bar sortie d'usine"}, nature:"professionnel"},
+    {k:"pcirc", l:"Pression du circuit à l'arrivée", u:"bar", type:"num", ref:{min:1, max:2}, nature:"professionnel", aide:"telle que trouvée, à froid, avant toute intervention"},
+    {k:"pcirc_fin", l:"Pression du circuit après intervention", u:"bar", type:"num", ref:{min:1, max:2}, nature:"professionnel", opt:true, aide:"seulement si tu as fait un appoint ou une purge"},
+    {k:"pvase", l:"Pression de gonflage du vase à l'arrivée", u:"bar", type:"num", ref:{min:0.5, max:1, note:"souvent 0,7 bar sortie d'usine"}, nature:"professionnel"},
+    {k:"pvase_fin", l:"Pression de gonflage du vase après regonflage", u:"bar", type:"num", ref:{min:0.5, max:1}, nature:"professionnel", opt:true, aide:"seulement si tu as regonflé"},
     {k:"tdep", l:"Température de départ d'eau", u:"°C", type:"num"},
     {k:"tret", l:"Température de retour d'eau", u:"°C", type:"num", aide:"en condensation, un retour au-delà de 55 °C empêche la condensation"},
     {k:"cuve_etat", l:"État de la cuve et de la rétention", type:"liste", opts:["conforme","à surveiller","non conforme"]},
@@ -639,7 +678,7 @@ TECHNOS.adoucisseur = {
   },
   ident: [
     {k:"marque", l:"Marque et modèle"},
-    {k:"serie", l:"N° de série"},
+    {k:"serie", l:"N° de série", raccourcis:["Plaque illisible"]},
     {k:"annee", l:"Année de pose", type:"num", opt:true},
     {k:"resine", l:"Volume de résine", u:"L", type:"num", opt:true},
     {k:"bypass", l:"By-pass présent et manœuvrable", type:"liste", opts:["oui","non","grippé"], opt:true},
@@ -724,7 +763,7 @@ TECHNOS.vmc_df = {
   },
   ident: [
     {k:"marque", l:"Marque et modèle de la centrale"},
-    {k:"serie", l:"N° de série"},
+    {k:"serie", l:"N° de série", raccourcis:["Plaque illisible"]},
     {k:"annee", l:"Année de pose", type:"num", opt:true},
     {k:"echangeur", l:"Type d'échangeur", type:"liste", opts:["à flux croisés","à contre-courant","rotatif","enthalpique"], opt:true},
     {k:"filtres", l:"Classe des filtres", type:"liste", opts:["ISO Coarse (G4)","ePM10 (M5)","ePM1 (F7)","ePM1 (F9)"], opt:true},
@@ -827,7 +866,7 @@ TECHNOS.cet = {
   },
   ident: [
     {k:"marque", l:"Marque et modèle"},
-    {k:"serie", l:"N° de série"},
+    {k:"serie", l:"N° de série", raccourcis:["Plaque illisible"]},
     {k:"volume", l:"Volume du ballon", u:"L", type:"num"},
     {k:"puiss", l:"Puissance calorifique", u:"kW", type:"num", opt:true},
     {k:"config", l:"Configuration", type:"liste", opts:["sur air ambiant","sur air extérieur (gainé)","split","double service"], opt:true},

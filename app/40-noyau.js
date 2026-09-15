@@ -1,5 +1,5 @@
 "use strict";
-var VERSION = "3.16";
+var VERSION = "3.21";
 
 /* ============ stockage ============ */
 var CLE_VISITE = "kare.visite.v1", CLE_CFG = "kare.cfg.v1", CLE_PARC = "kare.parc.v1", CLE_FILE = "kare.file.v1";
@@ -41,6 +41,56 @@ function idUnique(p){ return (p||"id")+"_"+Date.now().toString(36)+"_"+Math.rand
 
 /* ============ configuration ============ */
 var cfg = lire(CLE_CFG, {webhook:"", secret:"", technicien:"Rémi KATA", appareils:"", modeControles:"declare", signature:"", signClient:"oui"});
+/* Ma caisse à outils : ce que les textes exigent, et rien d'autre.
+   — combustion : marque et référence de l'analyseur (attestation chaudière)
+   — frigorifique : repère du détecteur de fuite et date de son dernier
+     contrôle (CERFA 15497*04), marque et référence de l'appareil de mesure
+     (attestation PAC). */
+if(cfg.factureAuto === undefined) cfg.factureAuto = "non";
+/* La caisse à outils KA-RÉ, relevée dans les documents déjà établis (Drive) :
+   — analyseur Sauermann Si-CA 130, n° 1D2347000015 (facture MEQUISA du
+     28/03/2024 ; n° repris sur les attestations chaudière 2025) ;
+   — détecteur de fuite LINSTRUMENT LT-100-PRO2 n° LD23120463, dernier
+     contrôle le 14/10/2025 (registre fluides, fiches de relevé clim) ;
+   — manomètres Testo 549i et thermomètres Testo 115i (fiches PAC Kieffer).
+   Pré-remplis une seule fois : ensuite ce sont les Réglages qui font foi,
+   y compris un champ que Rémi aurait vidé exprès. */
+var OUTILS_DEFAUT = {
+  analyseur_marque:"Sauermann", analyseur_ref:"Si-CA 130 n° 1D2347000015",
+  detecteur_repere:"LINSTRUMENT LT-100-PRO2 n° LD23120463", detecteur_controle:"2025-10-14",
+  mesure_marque:"Testo", mesure_ref:"549i (manomètres) · 115i (thermomètres)"
+};
+cfg.outils = cfg.outils || {};
+Object.keys(OUTILS_DEFAUT).forEach(function(k){
+  if(cfg.outils[k] === undefined) cfg.outils[k] = "";
+  if(!cfg.outilsPreremplis && !txt(cfg.outils[k])) cfg.outils[k] = OUTILS_DEFAUT[k];
+});
+if(!cfg.outilsPreremplis){ cfg.outilsPreremplis = true; ecrire(CLE_CFG, cfg); }
+/* Le contrôle du détecteur vaut 12 mois. Vrai si, à la date donnée, il est
+   dépassé ; null quand la date de contrôle manque. */
+function detecteurPerime(dateCtrl, dateJour){
+  if(!txt(dateCtrl)) return null;
+  var c = new Date(dateCtrl + "T00:00:00"), j = new Date((txt(dateJour) || aujourdhui()) + "T00:00:00");
+  if(isNaN(c) || isNaN(j)) return null;
+  var lim = new Date(c); lim.setFullYear(lim.getFullYear() + 1);
+  return j > lim;
+}
+/* Les appareils de mesure à porter sur un document, selon la famille de la machine. */
+function appareilsPour(m){
+  var t = techDe(m); if(!t || t.sansAppareils) return null;
+  var o = cfg.outils || {}, bouts = [];
+  if(t.famille === "combustion"){
+    var an = [txt(o.analyseur_marque), txt(o.analyseur_ref)].filter(Boolean).join(" ");
+    if(an) bouts.push("analyseur de combustion " + an);
+  } else if(t.famille === "thermo"){
+    var mes = [txt(o.mesure_marque), txt(o.mesure_ref)].filter(Boolean).join(" ");
+    if(mes) bouts.push(mes);
+    var det = txt(o.detecteur_repere);
+    if(det) bouts.push("détecteur de fuite " + det + (txt(o.detecteur_controle) ? " (contrôlé le " + dateFr(o.detecteur_controle) + ")" : ""));
+  }
+  if(!bouts.length) return txt(cfg.appareils) || null;   /* l'ancien champ libre, s'il est encore rempli */
+  return bouts.join(" · ");
+}
 var parc = lire(CLE_PARC, []);
 var CLE_CLIENTS = "kare.clients.v1";
 var clients = lire(CLE_CLIENTS, []);
@@ -462,6 +512,24 @@ function valeurCalc(m, champ, source){
     var p=c.slice(8).split(","), a=nb(source[p[0]]), b=nb(source[p[1]]);
     return (estNb(a)&&estNb(b)) ? Math.round(Math.abs(b-a)*10)/10 : NaN;
   }
+  /* Frigorifique : la pression lue au manifold devient une température de
+     saturation, et c'est l'écart avec la sonde de contact qui fait la
+     surchauffe et le sous-refroidissement. Sans sonde, la valeur lue sur un
+     manifold électronique fait l'affaire. */
+  if(c.indexOf("t_sat:")===0){
+    var q = c.slice(6).split(",");
+    return tSaturation((m.ident||{}).fluide, source[q[0]], q[1]);
+  }
+  if(c==="surchauffe"){
+    var tev = tSaturation((m.ident||{}).fluide, source.bp, "dew"), tasp = nb(source.t_asp);
+    if(estNb(tev) && estNb(tasp)) return Math.round((tasp - tev)*10)/10;
+    var shl = nb(source.sh_lu); return estNb(shl) ? shl : NaN;
+  }
+  if(c==="sous_refroidissement"){
+    var tco = tSaturation((m.ident||{}).fluide, source.hp, "bub"), tliq = nb(source.t_liq);
+    if(estNb(tco) && estNb(tliq)) return Math.round((tco - tliq)*10)/10;
+    var srl = nb(source.sr_lu); return estNb(srl) ? srl : NaN;
+  }
   if(c==="rendement_gaz")      return rendementGaz(m);
   if(c==="rendement_ref_gaz")  return rendementRefGaz(m);
   if(c==="nox_gaz")            return noxGaz(m);
@@ -628,6 +696,19 @@ function verdict(champ, val, m){
   return {k:"ok", t:"dans la plage usuelle", indicatif:true};
 }
 
+/* Les points non contrôlés, avec le motif que Rémi a donné. */
+function nonControlesDe(m){
+  var lc = listeCtrl(m), out = [];
+  for(var i=0;i<lc.length;i++){
+    if(m.ctrl["c"+i] === "non")
+      out.push({i:i, lib:lc[i], motif:txt((m.ctrlMotif||{})["c"+i]) || ""});
+  }
+  return out;
+}
+function nonControlesSansMotif(m){
+  return nonControlesDe(m).filter(function(x){ return !x.motif; });
+}
+
 /* ============ avancement ============ */
 function avancement(m){
   var t=techDe(m); if(!t) return {fait:0, total:0};
@@ -647,7 +728,9 @@ function anomaliesDe(m){
     var lv = ligneVentilation(m);
     if(lv && lv.alerte) out.push({type:"aération", lib:lv.k+" : "+lv.v});
   }
-  for(i=0;i<lc.length;i++) if(m.ctrl["c"+i]==="non") out.push({type:"contrôle", lib:lc[i]});
+  /* Un point NON CONTRÔLÉ n'est pas un défaut de l'installation : c'est un
+     point que Rémi n'a pas pu vérifier, avec son motif. Il a son propre bloc
+     sur le document (nonControlesDe) et ne se mêle plus aux anomalies. */
   for(i=0;i<t.mes.length;i++){
     var ch=t.mes[i], val = ch.type==="calc" ? valeurCalc(m,ch) : nb(m.mes[ch.k]);
     var v = verdict(ch, val, m);

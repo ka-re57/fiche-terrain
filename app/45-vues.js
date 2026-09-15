@@ -73,6 +73,23 @@ function champ(parent, obj, cle, libelle, o){
   if(o.ph) i.placeholder = o.ph;
   i.addEventListener("input", function(){ obj[cle]=i.value; if(o.auMaj) o.auMaj(); sauver(); });
   d.appendChild(i);
+  /* Une valeur qui revient souvent se pose d'un appui, sans la taper :
+     « Plaque illisible » sur un numéro de série, par exemple. */
+  if(o.raccourcis && o.raccourcis.length && o.type !== "liste"){
+    var wr = el("div","chips petit"); wr.style.marginTop = "4px";
+    o.raccourcis.forEach(function(x){
+      var br = el("button","chip mini", x); br.type = "button";
+      br.setAttribute("aria-pressed", String(obj[cle]||"") === x ? "true" : "false");
+      br.onclick = function(){
+        var deja = String(obj[cle]||"") === x;
+        obj[cle] = deja ? "" : x; i.value = obj[cle];
+        br.setAttribute("aria-pressed", deja ? "false" : "true");
+        if(o.auMaj) o.auMaj(); sauver();
+      };
+      wr.appendChild(br);
+    });
+    d.appendChild(wr);
+  }
   /* La plage usuelle s'affiche AVANT de saisir : c'est à ce moment-là
      qu'elle sert. « dans la plage » après coup, c'est trop tard pour
      savoir si on tient la bonne valeur. */
@@ -124,14 +141,20 @@ function calcule(parent, libelle, o, fn){
    de l'écran et il faut redescendre le chercher. Deux réponses, les deux
    utiles au doigt : le titre reste collé en haut pendant qu'on fait défiler,
    et un bouton « Replier » ferme le volet depuis le bas. */
+/* rendre() redessine tout l'écran à chaque saisie : sans mémoire, un volet
+   ouvert se refermait à chaque clic sur un bouton. On retient l'état de
+   chaque volet par son titre, le temps de la session. */
+var _voletsOuverts = {};
 function bloc(parent, titre, compteur, ouvert){
   var d = el("details","repl"+(ouvert?" ouvert":""));
+  if(_voletsOuverts[titre] !== undefined) ouvert = _voletsOuverts[titre];
   if(ouvert) d.open = true;
+  d.addEventListener("toggle", function(){ _voletsOuverts[titre] = d.open; });
   var s = el("summary", null, titre);
   if(compteur) s.appendChild(el("span","cpt", compteur));
   d.appendChild(s);
   var corps = el("div"); d.appendChild(corps);
-  if(!ouvert){
+  {
     var pied = el("div","repl-pied noprint");
     var b = el("button","btn mini","▴  Replier « "+titre+" »"); b.type="button";
     b.onclick = function(){
@@ -411,7 +434,7 @@ function vueMachine(root, m){
   }
   function poserIdent(parent, f){
     var repris = m.identRepris && m.identRepris[f.k];
-    champ(parent, m.ident, f.k, f.l, {type:f.type, opts:f.opts, u:f.u, ph:f.aide||f.ph, suffixe:m.mid,
+    champ(parent, m.ident, f.k, f.l, {type:f.type, opts:f.opts, u:f.u, ph:f.aide||f.ph, suffixe:m.mid, raccourcis:f.raccourcis,
       aide: repris ? ("repris de la visite précédente — corrige si ça a changé") : f.aide,
       auMaj:function(){
         if(m.identRepris) delete m.identRepris[f.k];   /* saisi à la main : ce n'est plus un report */
@@ -485,9 +508,35 @@ function vueMachine(root, m){
       resume.textContent = nj+"/"+idxMesure.length+" relevés · "+gestesOk+"/"+idxGeste.length+" gestes"
                          + (idxSO.length ? " · "+idxSO.length+" sans objet" : "");
     } else {
-      non.forEach(function(l){ var d=el("div","exc mal"); d.textContent="✗ "+l; resume.appendChild(d); });
+      non.forEach(function(l){
+        var i = lc.indexOf(l), motif = txt((m.ctrlMotif||{})["c"+i]);
+        var d=el("div","exc mal"); d.textContent="✗ "+l+(motif ? " — "+motif : " — MOTIF À DONNER"); resume.appendChild(d);
+      });
       np.forEach(function(l){ var d=el("div","exc"); d.textContent="NP  "+l; resume.appendChild(d); });
     }
+  }
+  /* Un point NON CONTRÔLÉ appelle un motif : sans lui, sur l'attestation,
+     un point non coché ressemble à un travail non fait. Le motif s'écrit
+     sous la ligne dès que ✗ est choisi, et il est exigé avant l'envoi. */
+  m.ctrlMotif = m.ctrlMotif || {};
+  function poserMotif(l, i){
+    var deja = l.querySelector(".pc-motif");
+    if(m.ctrl["c"+i] !== "non"){ if(deja) deja.remove(); return; }
+    if(deja) return;
+    var w = el("div","pc-motif");
+    var inp = el("input"); inp.type = "text";
+    inp.placeholder = "motif obligatoire — ex. organe inaccessible, appareil à l'arrêt, client absent";
+    inp.value = m.ctrlMotif["c"+i] || "";
+    inp.addEventListener("input", function(){ m.ctrlMotif["c"+i] = inp.value; sauver(); rendreOnglets(); });
+    w.appendChild(inp);
+    var ch = el("div","chips petit");
+    ["Organe inaccessible","Appareil à l'arrêt","Pièce manquante","Client absent","Sécurité"].forEach(function(x){
+      var b = el("button","chip mini", x); b.type = "button";
+      b.onclick = function(){ m.ctrlMotif["c"+i] = x; inp.value = x; sauver(); rendreOnglets(); };
+      ch.appendChild(b);
+    });
+    w.appendChild(ch);
+    l.appendChild(w);
   }
   lc.forEach(function(lib, i){
     var l = el("div","pc-ligne");
@@ -505,11 +554,13 @@ function vueMachine(root, m){
         Array.prototype.forEach.call(e.children, function(x){
           x.setAttribute("aria-pressed", m.ctrl["c"+i]===x.dataset.v ? "true":"false");
         });
+        poserMotif(l, i);
         majCpt(); rendreOnglets(); sauver();
       };
       e.appendChild(b);
     });
     l.appendChild(e);
+    poserMotif(l, i);
     if(idxSO.indexOf(i) >= 0 && corpsSO){
       if(npAuto["c"+i] && typeof npAuto["c"+i] === "string") lb.appendChild(el("span","auto", npAuto["c"+i]));
       corpsSO.appendChild(l);
@@ -570,8 +621,21 @@ function vueMachine(root, m){
   var c3 = el("div","carte");
   c3.appendChild(el("h2",null,"Mesures"));
   var g3 = el("div","g2"); c3.appendChild(g3);
-  var autres = t.mes.filter(function(f){ return !estEssentielle(m.tech, f.k) && !estMasquee(m.tech, f.k); });
-  t.mes.filter(function(f){ return estEssentielle(m.tech, f.k); }).forEach(function(f){ poserMesure(g3, f); });
+  var estFrigo = function(f){ return typeof FRIGO !== "undefined" && FRIGO.indexOf(f.k) >= 0; };
+  var frigo  = t.mes.filter(function(f){ return estFrigo(f) && !estMasquee(m.tech, f.k); });
+  var autres = t.mes.filter(function(f){ return !estFrigo(f) && !estEssentielle(m.tech, f.k) && !estMasquee(m.tech, f.k); });
+  t.mes.filter(function(f){ return !estFrigo(f) && estEssentielle(m.tech, f.k); }).forEach(function(f){ poserMesure(g3, f); });
+  /* Le circuit frigorifique : Rémi en fait peu, et c'est là qu'il doute.
+     Le volet dit d'abord où brancher et où poser les sondes, selon le mode
+     d'essai, puis reçoit les mesures. Brancher, c'est ouvrir le circuit :
+     la fiche d'intervention se coche d'elle-même. */
+  if(frigo.length){
+    var nF = frigo.filter(function(f){ return f.type !== "calc" && txt(m.mes[f.k]) !== null; }).length;
+    var corpsF = bloc(c3, "Circuit frigorifique — où brancher, où mesurer", nF ? nF + " relevé" + (nF>1?"s":"") : null, false);
+    if(typeof aideReleveFrigo === "function") corpsF.appendChild(aideReleveFrigo(m));
+    var gF = el("div","g2"); corpsF.appendChild(gF);
+    frigo.forEach(function(f){ poserMesure(gF, f); });
+  }
   if(autres.length){
     var corpsA = bloc(c3, "Autres mesures", String(autres.length), false);
     var gA = el("div","g2"); corpsA.appendChild(gA);
@@ -625,6 +689,7 @@ function vueMachine(root, m){
     var cc = el("div","carte");
     var hcf = el("h2",null,"Fluide frigorigène");
     if(cerfaRequis(m)) hcf.appendChild(el("span","cpt mal","CERFA dû"));
+    else hcf.appendChild(el("span","cpt","pas de fiche due"));
     cc.appendChild(hcf);
 
     /* Ce que l'appli sait déjà, avant toute saisie. */
@@ -642,8 +707,16 @@ function vueMachine(root, m){
     var gN = el("div","g2"); gN.style.marginTop = "8px"; cc.appendChild(gN);
     champ(gN, cf, "nature", "Nature de l'intervention", {plein:true, type:"liste", suffixe:m.mid+"_cf",
       opts: NATURES_CERFA.map(function(x){ return x.l; }),
-      aide:"la fiche est due à chaque manipulation de fluide ET à chaque contrôle d'étanchéité, sans seuil de charge",
-      auMaj:function(){ sauver(); rendre(); }});
+      aide:"la fiche est due dès qu'on recherche une fuite ou qu'on touche au gaz, sans seuil de charge ; un simple entretien ne la déclenche pas",
+      auMaj:function(){
+        /* Sur une maintenance, on ne touche pas au gaz dans l'immense
+           majorité des cas : les quantités partent à zéro d'office, Rémi
+           corrige les rares fois où il a chargé ou récupéré. */
+        if(cf.nature === "Maintenance"){
+          ["vierge","recycle","regenere","traitement","reutil"].forEach(function(k){ if(txt(cf[k]) === null) cf[k] = "0"; });
+        }
+        sauver(); rendre();
+      }});
 
     /* Les quantités : en grammes, comme sur le terrain et comme dans Notion. */
     var corpsQ = bloc(cc, "Quantités manipulées", quantiteManipulee(m) ? fmtKg(quantiteManipulee(m)) + " kg" : null, false);
@@ -666,7 +739,20 @@ function vueMachine(root, m){
     /* Étanchéité : le détecteur, puis la fuite s'il y en a une. */
     var corpsE = bloc(cc, "Contrôle d'étanchéité", null, false);
     var gE = el("div","g2"); corpsE.appendChild(gE);
-    champ(gE, cf, "detecteur", "Détecteur manuel utilisé", {suffixe:m.mid+"_cf", ph:"marque, modèle, n° de série"});
+    champ(gE, cf, "recherche", "Recherche de fuite effectuée", {type:"liste", opts:["non","oui"],
+      suffixe:m.mid+"_cf",
+      aide:"elle rend la fiche due même si elle ne trouve rien : c'est la recherche qui est l'acte, pas son résultat",
+      auMaj:function(){ sauver(); rendre(); }});
+    champ(gE, cf, "mano", "Manomètre branché sur le circuit", {type:"liste", opts:["non","oui"],
+      suffixe:m.mid+"_cf",
+      aide:"brancher, c'est ouvrir le circuit : la fiche d'intervention devient due. Un entretien sans branchement ni recherche de fuite ne la déclenche pas",
+      auMaj:function(){ sauver(); rendre(); }});
+    /* Le détecteur vient de la caisse à outils (Réglages) : repris tel quel,
+       modifiable ici si Rémi en a emprunté un autre ce jour-là. */
+    if(txt(cf.detecteur) === null && txt((cfg.outils||{}).detecteur_repere)) cf.detecteur = cfg.outils.detecteur_repere;
+    if(txt(cf.detecteurLe) === null && txt((cfg.outils||{}).detecteur_controle)) cf.detecteurLe = cfg.outils.detecteur_controle;
+    champ(gE, cf, "detecteur", "Détecteur manuel utilisé", {suffixe:m.mid+"_cf", ph:"repère ou n° de série",
+      aide:"repris de « Ma caisse à outils » dans les Réglages"});
     champ(gE, cf, "detecteurLe", "Détecteur contrôlé le", {type:"date", suffixe:m.mid+"_cf"});
     champ(gE, cf, "detectionPerm", "Système permanent de détection de fuites", {type:"liste", opts:["non","oui"],
       suffixe:m.mid+"_cf", aide:"quand il y en a un, la période entre deux contrôles est doublée",
