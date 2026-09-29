@@ -290,6 +290,25 @@ function avantEnvoi(suite){
       lm.appendChild(bm);
       tx.appendChild(lm);
     }
+    /* Des points non contrôlés motivés partent tels quels au client, Make ne
+       les retient plus (28/09/2026). Alors on les remet sous les yeux, et on
+       demande un oui explicite avant d'envoyer. */
+    var nc = (typeof nonControlesDe === "function") ? nonControlesDe(m).filter(function(x){ return txt(x.motif); }) : [];
+    if(nc.length){
+      V.confNC = V.confNC || {};
+      var bnc = el("div","alerte att conf-nc");
+      bnc.appendChild(el("div","t2", nc.length + (nc.length>1 ? " points non contrôlés" : " point non contrôlé") + " — ils figureront tels quels sur le document remis au client :"));
+      var ul = el("ul");
+      nc.forEach(function(x){ ul.appendChild(el("li","", x.lib + " — " + x.motif)); });
+      bnc.appendChild(ul);
+      var lc = el("label","conf-nc-oui");
+      var cbc = el("input"); cbc.type = "checkbox"; cbc.checked = !!V.confNC[m.mid];
+      cbc.onchange = function(){ V.confNC[m.mid] = cbc.checked; sauver(); majBoutonEnvoi(); };
+      lc.appendChild(cbc);
+      lc.appendChild(el("span","", " J'ai relu, le document peut partir avec ces points non contrôlés"));
+      bnc.appendChild(lc);
+      tx.appendChild(bnc);
+    }
     /* La facture au forfait : proposée cochée, Rémi décoche s'il facture à la main. */
     var ff = (typeof forfaitEntretien === "function") ? forfaitEntretien(m) : null;
     if(ff){
@@ -342,6 +361,16 @@ function motifsManquants(){
   if(typeof nonControlesSansMotif !== "function") return 0;
   return fichesCochees().reduce(function(a, m){ return a + nonControlesSansMotif(m).length; }, 0);
 }
+/* Fiches cochées qui portent des points non contrôlés motivés et que Rémi
+   n'a pas encore confirmés d'un coup de doigt. */
+function confirmationsManquantes(){
+  if(typeof nonControlesDe !== "function") return 0;
+  V.confNC = V.confNC || {};
+  return fichesCochees().filter(function(m){
+    var nc = nonControlesDe(m).filter(function(x){ return txt(x.motif); });
+    return nc.length && !V.confNC[m.mid];
+  }).length;
+}
 function majBoutonEnvoi(){
   var b = document.getElementById("bEnvoiGo");
   if(!b) return;
@@ -349,6 +378,12 @@ function majBoutonEnvoi(){
   var mm = motifsManquants();
   if(mm && n){
     b.textContent = "Motif manquant sur " + mm + (mm>1 ? " points" : " point");
+    b.classList.remove("att"); b.disabled = true;
+    return;
+  }
+  var cm = confirmationsManquantes();
+  if(cm && n){
+    b.textContent = "Coche « J'ai relu » pour envoyer";
     b.classList.remove("att"); b.disabled = true;
     return;
   }
