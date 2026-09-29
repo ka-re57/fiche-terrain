@@ -334,3 +334,9 @@ dialog.plein{width:min(96vw,1100px); max-width:96vw}
 .t2.mal{color:var(--mal); font-weight:600}
 .aide.mal{color:var(--mal); font-weight:600}
 .aide.att{color:var(--att); font-weight:600}
+.conf-nc{margin-top:8px; margin-bottom:4px}
+.conf-nc .t2{color:inherit; font-weight:600; margin:0}
+.conf-nc ul{margin:4px 0 6px; padding-left:18px; font-size:12.5px}
+.conf-nc li{margin:2px 0}
+.conf-nc-oui{display:flex; align-items:flex-start; gap:8px; font-size:13.5px; font-weight:600; cursor:pointer}
+.conf-nc-oui input[type=checkbox]{width:22px; height:22px; margin-top:0; flex:0 0 auto}
