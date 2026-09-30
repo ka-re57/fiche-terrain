@@ -11,11 +11,11 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="KA-RÉ">
-<link rel="stylesheet" href="app.css?v=3.22">
+<link rel="stylesheet" href="app.css?v=3.23">
 </head>
 <body>
 <div class="barre">
-  <img class="logo" src="logo.png?v=3.22" alt="KA-RÉ">
+  <img class="logo" src="logo.png?v=3.23" alt="KA-RÉ">
   <span class="pastille" id="pEtat">—</span>
   <span class="pastille" id="pReseau">—</span>
   <span class="pastille noprint" id="pFile" hidden>0 en attente</span>
@@ -182,6 +182,9 @@
       <div class="g2">
         <div class="champ"><label for="cfgAnalyseurMarque">Analyseur de combustion — marque</label><input id="cfgAnalyseurMarque" type="text" placeholder="Sauermann" autocomplete="off"></div>
         <div class="champ"><label for="cfgAnalyseurRef">Analyseur — référence</label><input id="cfgAnalyseurRef" type="text" placeholder="Si-CA 130" autocomplete="off"><div class="aide">marque et référence sont exigées sur l'attestation chaudière</div></div>
+        <div class="champ"><label for="cfgUniteTirage">Analyseur — unité du tirage affichée</label>
+          <select id="cfgUniteTirage"><option value="Pa">Pa (pascal)</option><option value="mbar">mbar (millibar)</option><option value="hPa">hPa (hectopascal)</option></select>
+          <div class="aide" id="cfgUniteTirageAide">le champ « tirage » des chaudières se saisit dans cette unité, telle que lue sur l'appareil ; le repère usuel est converti (1 mbar = 1 hPa = 100 Pa)</div></div>
         <div class="champ"><label for="cfgDetecteurRepere">Détecteur de fuite — n° de série ou repère</label><input id="cfgDetecteurRepere" type="text" placeholder="ex. LINSTRUMENT LT-100-PRO2 n° LD23120463" autocomplete="off"></div>
         <div class="champ"><label for="cfgDetecteurControle">Détecteur — dernier contrôle le</label><input id="cfgDetecteurControle" type="date"><div class="aide" id="cfgDetecteurEcheance">les deux sont exigés sur la fiche d'intervention fluides (CERFA 15497*04). Le contrôle du détecteur se fait tous les 12 mois</div></div>
         <div class="champ"><label for="cfgMesureMarque">Appareil de mesure frigorifique — marque</label><input id="cfgMesureMarque" type="text" placeholder="Testo" autocomplete="off"></div>
@@ -215,24 +218,24 @@
   <div class="dlg-pied"><button type="button" class="btn p" data-fermer>Fermer</button></div>
 </dialog>
 
-<script src="fiches.js?v=3.22"></script>
-<script src="cerfa.js?v=3.22"></script>
-<script src="app/30-catalogue.js?v=3.22"></script>
-<script src="app/40-noyau.js?v=3.22"></script>
-<script src="app/42-fluides.js?v=3.22"></script>
-<script src="app/43-aide-frigo.js?v=3.22"></script>
-<script src="app/44-ventilation.js?v=3.22"></script>
-<script src="app/45-vues.js?v=3.22"></script>
-<script src="app/47-signature-client.js?v=3.22"></script>
-<script src="app/48-photos.js?v=3.22"></script>
-<script src="app/49-facture.js?v=3.22"></script>
-<script src="app/50-transport.js?v=3.22"></script>
-<script src="app/52-maj.js?v=3.22"></script>
-<script src="app/55-document.js?v=3.22"></script>
-<script src="app/56-pdf.js?v=3.22"></script>
-<script src="app/57-doc-pdf.js?v=3.22"></script>
-<script src="app/58-cerfa.js?v=3.22"></script>
-<script src="app/59-cerfa-pdf.js?v=3.22"></script>
-<script src="app/60-boot.js?v=3.22"></script>
+<script src="fiches.js?v=3.23"></script>
+<script src="cerfa.js?v=3.23"></script>
+<script src="app/30-catalogue.js?v=3.23"></script>
+<script src="app/40-noyau.js?v=3.23"></script>
+<script src="app/42-fluides.js?v=3.23"></script>
+<script src="app/43-aide-frigo.js?v=3.23"></script>
+<script src="app/44-ventilation.js?v=3.23"></script>
+<script src="app/45-vues.js?v=3.23"></script>
+<script src="app/47-signature-client.js?v=3.23"></script>
+<script src="app/48-photos.js?v=3.23"></script>
+<script src="app/49-facture.js?v=3.23"></script>
+<script src="app/50-transport.js?v=3.23"></script>
+<script src="app/52-maj.js?v=3.23"></script>
+<script src="app/55-document.js?v=3.23"></script>
+<script src="app/56-pdf.js?v=3.23"></script>
+<script src="app/57-doc-pdf.js?v=3.23"></script>
+<script src="app/58-cerfa.js?v=3.23"></script>
+<script src="app/59-cerfa-pdf.js?v=3.23"></script>
+<script src="app/60-boot.js?v=3.23"></script>
 </body>
 </html>
