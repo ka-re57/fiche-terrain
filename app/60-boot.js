@@ -28,6 +28,7 @@ function ouvrirReglages(){
   $("#cfgAppareils").value = cfg.appareils || "";
   OUTILS_CHAMPS.forEach(function(x){ var e = $("#"+x[0]); if(e) e.value = (cfg.outils||{})[x[1]] || ""; });
   majEcheanceDetecteur();
+  var ut = $("#cfgUniteTirage"); if(ut) ut.value = uniteTirage();
   $("#cfgMode").value = cfg.modeControles || "declare";
   $("#cfgFactureAuto").value = cfg.factureAuto || "non";
   $("#cfgSignClient").value = cfg.signClient || "oui";
@@ -184,6 +185,11 @@ function cabler(){
     e.addEventListener("input", function(){ cfg.outils = cfg.outils || {}; cfg.outils[x[1]] = this.value.trim(); sauverCfg(); majEcheanceDetecteur(); });
   });
   $("#cfgSignClient").addEventListener("change", function(){ cfg.signClient=this.value; sauverCfg(); });
+  var cut = $("#cfgUniteTirage");
+  if(cut) cut.addEventListener("change", function(){
+    changerUniteTirage(this.value); sauverTout(); rendre();
+    toast("Tirage en " + uniteTirage() + " — les valeurs de la visite en cours sont converties");
+  });
   $("#cfgMode").addEventListener("change", function(){
     cfg.modeControles = this.value; sauverCfg(); recalerControles(); sauverTout(); rendre();
     toast(this.value==="aFaire" ? "Mode liste à faire" : "Mode déclaration");
@@ -378,6 +384,7 @@ window.KARE = {
   circuitOuvert: circuitOuvert, natureDeclencheFiche: natureDeclencheFiche,
   nonControlesDe: nonControlesDe, nonControlesSansMotif: nonControlesSansMotif, appareilsPour: appareilsPour, techDe: techDe,
   detecteurPerime: detecteurPerime, OUTILS_DEFAUT: OUTILS_DEFAUT, majEcheanceDetecteur: majEcheanceDetecteur,
+  uniteTirage: uniteTirage, changerUniteTirage: changerUniteTirage, appliquerUniteTirage: appliquerUniteTirage, UNITES_TIRAGE: UNITES_TIRAGE,
   tSaturation: tSaturation, aideReleveFrigo: aideReleveFrigo,
   forfaitEntretien: forfaitEntretien, payloadFacture: payloadFacture, decisionFacture: decisionFacture,
   cerfaPDF: cerfaPDF, cerfaPDFAsync: cerfaPDFAsync, cerfaValeurs: cerfaValeurs, cerfaBase: cerfaBase, nomCERFA: nomCERFA,
