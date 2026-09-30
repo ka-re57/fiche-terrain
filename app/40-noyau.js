@@ -1,5 +1,5 @@
 "use strict";
-var VERSION = "3.22";
+var VERSION = "3.23";
 
 /* ============ stockage ============ */
 var CLE_VISITE = "kare.visite.v1", CLE_CFG = "kare.cfg.v1", CLE_PARC = "kare.parc.v1", CLE_FILE = "kare.file.v1";
@@ -66,6 +66,56 @@ Object.keys(OUTILS_DEFAUT).forEach(function(k){
   if(!cfg.outilsPreremplis && !txt(cfg.outils[k])) cfg.outils[k] = OUTILS_DEFAUT[k];
 });
 if(!cfg.outilsPreremplis){ cfg.outilsPreremplis = true; ecrire(CLE_CFG, cfg); }
+
+/* ---- Unité du tirage (dépression du conduit) ------------------------------
+   L'analyseur de Rémi affiche le tirage en mbar, les repères de métier sont
+   en Pa. Plutôt qu'une conversion de tête sur le chantier, l'unité se choisit
+   dans Ma caisse à outils : les champs « tirage » de toutes les chaudières
+   prennent cette unité, leur plage usuelle est convertie, et la valeur est
+   enregistrée et imprimée telle que lue sur l'appareil. Changer d'unité
+   convertit les valeurs déjà saisies sur la visite en cours.
+   1 mbar = 1 hPa = 100 Pa.                                                  */
+var UNITES_TIRAGE = {Pa:1, mbar:100, hPa:100};   /* nombre de Pa dans une unité */
+function uniteTirage(){
+  var u = (cfg.outils || {}).unite_tirage;
+  return UNITES_TIRAGE[u] ? u : "Pa";
+}
+function champsTirage(){
+  var out = [];
+  Object.keys(TECHNOS).forEach(function(k){
+    (TECHNOS[k].mes || []).forEach(function(f){ if(f.k === "tirage") out.push(f); });
+  });
+  return out;
+}
+function appliquerUniteTirage(){
+  var u = uniteTirage(), fac = UNITES_TIRAGE[u];
+  champsTirage().forEach(function(f){
+    if(!f.refPa) f.refPa = {min:f.ref && f.ref.min, max:f.ref && f.ref.max, note:f.ref && f.ref.note};
+    f.u = u;
+    f.ref = {min: estNb(f.refPa.min) ? f.refPa.min / fac : undefined,
+             max: estNb(f.refPa.max) ? f.refPa.max / fac : undefined,
+             note: f.refPa.note};
+    f.dec = fac > 1 ? 2 : 0;
+    f.aide = "telle que lue sur l'analyseur, en " + u + (u === "Pa" ? "" : " (1 " + u + " = 100 Pa)") +
+             " — signe indifférent, on compare la valeur absolue. L'unité se change dans Réglages → Ma caisse à outils";
+  });
+}
+/* Rémi change d'unité dans les Réglages : les valeurs déjà relevées sur la
+   visite en cours suivent, pour ne pas laisser un « −8 » devenir « −8 mbar ». */
+function changerUniteTirage(nouvelle){
+  if(!UNITES_TIRAGE[nouvelle]) return;
+  var ancienne = uniteTirage();
+  if(ancienne !== nouvelle){
+    var fac = UNITES_TIRAGE[ancienne] / UNITES_TIRAGE[nouvelle];
+    (V.machines || []).forEach(function(m){
+      var v = nb((m.mes || {}).tirage);
+      if(estNb(v)) m.mes.tirage = String(Math.round(v * fac * 1000) / 1000);
+    });
+  }
+  cfg.outils = cfg.outils || {}; cfg.outils.unite_tirage = nouvelle; sauverCfg();
+  appliquerUniteTirage();
+}
+appliquerUniteTirage();
 /* Le contrôle du détecteur vaut 12 mois. Vrai si, à la date donnée, il est
    dépassé ; null quand la date de contrôle manque. */
 function detecteurPerime(dateCtrl, dateJour){
@@ -667,7 +717,8 @@ function plageRef(champ, m){
   if(!r || (!estNb(r.min) && !estNb(r.max))) return null;
   return r;
 }
-function bornerTexte(v, u){ return fmt(v, v%1 ? 1 : 0) + (u ? " "+u : ""); }
+/* 0,03 mbar ne doit pas s'afficher « 0,0 » : deux décimales sous l'unité. */
+function bornerTexte(v, u){ return fmt(v, v%1 ? (Math.abs(v) < 1 ? 2 : 1) : 0) + (u ? " "+u : ""); }
 function texteRef(champ, m){
   var r = plageRef(champ, m); if(!r) return "";
   var u = champ.u || "";
@@ -735,7 +786,7 @@ function anomaliesDe(m){
     var ch=t.mes[i], val = ch.type==="calc" ? valeurCalc(m,ch) : nb(m.mes[ch.k]);
     var v = verdict(ch, val, m);
     /* Une plage usuelle n'est pas un seuil : elle ne part pas chez le client. */
-    if(v && v.k!=="ok" && !v.indicatif) out.push({type:"mesure", lib:ch.l+" : "+fmt(val,1)+(ch.u?" "+ch.u:"")+" — "+v.t, grave:v.k==="mal"});
+    if(v && v.k!=="ok" && !v.indicatif) out.push({type:"mesure", lib:ch.l+" : "+fmt(val, estNb(ch.dec) ? ch.dec : 1)+(ch.u?" "+ch.u:"")+" — "+v.t, grave:v.k==="mal"});
   }
   return out;
 }
