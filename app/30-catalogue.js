@@ -471,6 +471,7 @@ TECHNOS.chaudiere_gaz = {
      opts:["A+++","A++","A+","A","B","C","D","E","F","G","étiquette absente ou illisible"],
      opt:true, horsDoc:true,
      aide:"à renseigner pour les appareils mis sur le marché après septembre 2015 : la classe ne se calcule plus, elle est écrite sur l'étiquette énergie collée sur l'appareil ou sur sa notice. Elle vient alors se porter d'office sur l'attestation."},
+    /* Unité choisie dans Ma caisse à outils (Pa, mbar ou hPa) : voir appliquerUniteTirage. Plage en Pa ici. */
     {k:"tirage", l:"Dépression / tirage du conduit", u:"Pa", type:"num", nature:"professionnel",
      ref:{min:3, max:20, note:"en valeur absolue"}, absRef:true},
     {k:"pcirc", l:"Pression du circuit à l'arrivée", u:"bar", type:"num", ref:{min:1, max:1.5}, nature:"professionnel", aide:"telle que trouvée, à froid, avant toute intervention"},
@@ -633,7 +634,7 @@ TECHNOS.chaudiere_fioul = {
      opt:true, horsDoc:true,
      aide:"à renseigner pour les appareils mis sur le marché après septembre 2015 : la classe ne se calcule plus, elle est écrite sur l'étiquette énergie collée sur l'appareil ou sur sa notice. Elle vient alors se porter d'office sur l'attestation."},
     {k:"ppulv", l:"Pression de pulvérisation", u:"bar", type:"num", ref:{min:10, max:14, note:"12 bar en sortie d'usine"}, nature:"professionnel", aide:"suivre d'abord la plaque du brûleur et le tableau du gicleur"},
-    {k:"tirage", l:"Dépression au foyer / tirage", u:"Pa", type:"num", ref:{min:10, max:30}, nature:"professionnel"},
+    {k:"tirage", l:"Dépression au foyer / tirage", u:"Pa", type:"num", ref:{min:10, max:30, note:"en valeur absolue"}, absRef:true, nature:"professionnel"},
     {k:"pcirc", l:"Pression du circuit à l'arrivée", u:"bar", type:"num", ref:{min:1, max:2}, nature:"professionnel", aide:"telle que trouvée, à froid, avant toute intervention"},
     {k:"pcirc_fin", l:"Pression du circuit après intervention", u:"bar", type:"num", ref:{min:1, max:2}, nature:"professionnel", opt:true, aide:"seulement si tu as fait un appoint ou une purge"},
     {k:"pvase", l:"Pression de gonflage du vase à l'arrivée", u:"bar", type:"num", ref:{min:0.5, max:1, note:"souvent 0,7 bar sortie d'usine"}, nature:"professionnel"},
