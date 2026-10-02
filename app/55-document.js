@@ -148,6 +148,27 @@ function modeleDocument(m, idx){
     var alerte = !!(v && v.k!=="ok" && !v.indicatif);
     s4.push({kk:f.k, k:f.l, v:aff + (f.u?" "+f.u:""), alerte:alerte, verdict:alerte ? v.t : null});
   });
+  /* Quatre lignes de pressions, c'était lourd à lire (Rémi, 02/10/2026) :
+       Pression du circuit à l'arrivée 1,2 bar
+       Pression du circuit après intervention 1,5 bar
+       Pression de gonflage du vase à l'arrivée 0,7 bar
+       Pression de gonflage du vase après regonflage 1 bar
+     Choix de Rémi : le client ne voit que l'état dans lequel l'installation
+     est laissée — la valeur « après » quand il y en a une, sinon la valeur
+     trouvée (rien n'a été touché, c'est donc aussi celle laissée). La valeur
+     à l'arrivée reste dans la fiche, dans le relevé envoyé à Notion et dans
+     le mail interne. La saisie sur la tablette ne change pas. */
+  [["pcirc","pcirc_fin","Pression du circuit de chauffage"],
+   ["pvase","pvase_fin","Pression de gonflage du vase d'expansion"]]
+  .forEach(function(paire){
+    var iA = -1, iF = -1;
+    s4.forEach(function(l, i){ if(l.kk === paire[0]) iA = i; if(l.kk === paire[1]) iF = i; });
+    if(iA < 0 && iF < 0) return;
+    var garde = iF >= 0 ? s4[iF] : s4[iA];
+    var ligne = {kk:paire[0], k:paire[2], v:garde.v, alerte:garde.alerte, verdict:garde.verdict};
+    s4[iA >= 0 ? iA : iF] = ligne;
+    if(iA >= 0 && iF >= 0) s4.splice(iF, 1);
+  });
   /* Sur une chaudière à condensation, le rendement évalué et le rendement de
      référence sortent de la même formule d'annexe 2 : deux lignes, le même
      nombre. Sur un document client ça ressemble à une erreur de saisie. On
