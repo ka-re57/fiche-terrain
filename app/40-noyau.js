@@ -1,5 +1,5 @@
 "use strict";
-var VERSION = "3.23";
+var VERSION = "3.24";
 
 /* ============ stockage ============ */
 var CLE_VISITE = "kare.visite.v1", CLE_CFG = "kare.cfg.v1", CLE_PARC = "kare.parc.v1", CLE_FILE = "kare.file.v1";
@@ -166,6 +166,26 @@ function visiteVierge(){
 }
 var V = lire(CLE_VISITE, null);
 if(!V || !Array.isArray(V.machines)) V = visiteVierge();
+
+/* 3.24 : sur la chaudière gaz, l'option « ballon (anode à vérifier) » devient
+   « ballon ». Une visite en cours ou un profil de machine enregistrés avec
+   l'ancien libellé le garderaient dans un menu qui ne le propose plus — et
+   l'imprimeraient encore. On les ramène au nouveau libellé, une fois pour
+   toutes. Strictement cette valeur, strictement cette technologie : le fioul
+   a ses propres options « ballon intégré » / « ballon séparé ». */
+var ECS_ANCIEN = "ballon (anode à vérifier)";
+function normaliserEcs(tech, ident){
+  if(tech === "chaudiere_gaz" && ident && txt(ident.ecs) === ECS_ANCIEN){ ident.ecs = "ballon"; return true; }
+  return false;
+}
+(function(){
+  var touche = false;
+  V.machines.forEach(function(m){ if(normaliserEcs(m.tech, m.ident)) touche = true; });
+  if(touche) ecrire(CLE_VISITE, V);
+  var profils = lire("kare.profils.v1", {}), modif = false;
+  Object.keys(profils).forEach(function(c){ var p = profils[c]; if(p && normaliserEcs(p.tech, p.ident)) modif = true; });
+  if(modif) ecrire("kare.profils.v1", profils);
+})();
 
 var minuteur=null, dernierEtat="";
 function sauver(){
