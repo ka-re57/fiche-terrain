@@ -372,8 +372,11 @@ TECHNOS.chaudiere_gaz = {
      aide:"norme NF EN 1749. B = l'air de combustion est pris dans la pièce ; C = circuit étanche (ventouse). B1 a un coupe-tirage, B2 n'en a pas : B22 ventilateur en aval de la chambre de combustion, B23 en amont (brûleur prémix). Le suffixe P signale un conduit en surpression. Renseigné une fois, repris ensuite : c'est lui qui fait disparaître les points sans objet (VMC gaz, CO d'ambiance sur étanche)."},
     {k:"annee", l:"Année de fabrication", type:"num", aide:"sert au calcul du rendement forfaitaire"},
     {k:"mes", l:"Date de mise en service", type:"date"},
-    {k:"ecs", l:"Production ECS", type:"liste", opts:["instantanée","micro-accumulée","ballon (anode à vérifier)","aucune"],
-     aide:"« aucune » retire le point sur le ballon à accumulation"},
+    /* 3.24 : l'option s'appelait « ballon (anode à vérifier) » et la parenthèse
+       sortait telle quelle sur l'attestation, dans la ligne Production ECS.
+       Le rappel sur l'anode a sa place dans l'aide, pas sur le document. */
+    {k:"ecs", l:"Production ECS", type:"liste", opts:["instantanée","micro-accumulée","ballon","aucune"],
+     aide:"« ballon » active le point « Ballon à accumulation : vérification des anodes » ; « instantanée », « micro-accumulée » et « aucune » le retirent"},
     {k:"ramonage", l:"Date du dernier ramonage", type:"date", opt:true},
     {k:"dernier", l:"Date du dernier entretien connu", type:"date"}
   ],
