@@ -146,7 +146,8 @@ function modeleDocument(m, idx){
     if(aff===null) return;
     var v = verdict(f, estNb(val)?val:NaN, m);
     var alerte = !!(v && v.k!=="ok" && !v.indicatif);
-    s4.push({kk:f.k, k:f.l, v:aff + (f.u?" "+f.u:""), alerte:alerte, verdict:alerte ? v.t : null});
+    s4.push({kk:f.k, k:f.l, v:aff + (f.u?" "+f.u:""), alerte:alerte, verdict:alerte ? v.t : null,
+             ok: !!(v && v.k === "ok")});
   });
   /* Quatre lignes de pressions, c'était lourd à lire (Rémi, 02/10/2026) :
        Pression du circuit à l'arrivée 1,2 bar
@@ -157,7 +158,11 @@ function modeleDocument(m, idx){
      est laissée — la valeur « après » quand il y en a une, sinon la valeur
      trouvée (rien n'a été touché, c'est donc aussi celle laissée). La valeur
      à l'arrivée reste dans la fiche, dans le relevé envoyé à Notion et dans
-     le mail interne. La saisie sur la tablette ne change pas. */
+     le mail interne. La saisie sur la tablette ne change pas.
+     03/10 : « si la pression est bonne, on peut pas juste dire ok ? » — dans
+     la plage usuelle, la ligne dit « ok », la valeur entre parenthèses : c'est
+     elle qui fait foi si un jour on discute de l'état dans lequel
+     l'installation a été laissée. Hors plage, la valeur reste seule, nue. */
   [["pcirc","pcirc_fin","Pression du circuit de chauffage"],
    ["pvase","pvase_fin","Pression de gonflage du vase d'expansion"]]
   .forEach(function(paire){
@@ -165,7 +170,8 @@ function modeleDocument(m, idx){
     s4.forEach(function(l, i){ if(l.kk === paire[0]) iA = i; if(l.kk === paire[1]) iF = i; });
     if(iA < 0 && iF < 0) return;
     var garde = iF >= 0 ? s4[iF] : s4[iA];
-    var ligne = {kk:paire[0], k:paire[2], v:garde.v, alerte:garde.alerte, verdict:garde.verdict};
+    var ligne = {kk:paire[0], k:paire[2], v:(garde.ok ? "ok (" + garde.v + ")" : garde.v),
+                 alerte:garde.alerte, verdict:garde.verdict};
     s4[iA >= 0 ? iA : iF] = ligne;
     if(iA >= 0 && iF >= 0) s4.splice(iF, 1);
   });
