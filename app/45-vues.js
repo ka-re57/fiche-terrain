@@ -90,6 +90,30 @@ function champ(parent, obj, cle, libelle, o){
     });
     d.appendChild(wr);
   }
+  /* Un constat à la place d'un nombre : « Vase d'expansion HS », « Remplissage
+     impossible ». Le champ numérique ne sait pas afficher du texte, la puce
+     enfoncée le dit à sa place ; retaper un chiffre efface le constat. */
+  if(o.etats && o.etats.length && o.type === "num"){
+    var we = el("div","chips petit"); we.style.marginTop = "4px";
+    var repeindre = function(){
+      var cour = String(obj[cle]||"");
+      we.querySelectorAll("button").forEach(function(b){ b.setAttribute("aria-pressed", b.textContent === cour ? "true" : "false"); });
+    };
+    o.etats.forEach(function(e){
+      var be = el("button","chip mini etat", e.l); be.type = "button";
+      be.onclick = function(){
+        var deja = String(obj[cle]||"") === e.l;
+        obj[cle] = deja ? "" : e.l; i.value = "";
+        repeindre();
+        if(!deja && o.surEtat) o.surEtat(e);
+        if(o.auMaj) o.auMaj(); sauver();
+      };
+      we.appendChild(be);
+    });
+    i.addEventListener("input", repeindre);
+    repeindre();
+    d.appendChild(we);
+  }
   /* La plage usuelle s'affiche AVANT de saisir : c'est à ce moment-là
      qu'elle sert. « dans la plage » après coup, c'est trop tard pour
      savoir si on tient la bonne valeur. */
@@ -596,7 +620,11 @@ function vueMachine(root, m){
     so.onclick = function(){ basculerSansObjet(m, f.k); sauver(); rendre(); };
     slot.appendChild(so);
     var entree = champ(parent, m.mes, f.k, f.l, {type:f.type, opts:f.opts, u:f.u, suffixe:m.mid, slot:slot,
-      aide: f.aide || "", plage: texteRef(f, m),
+      aide: f.aide || "", plage: texteRef(f, m), etats: f.etats,
+      /* Un constat posé d'un appui se reporte aussitôt dans « Défauts
+         constatés » et « À prévoir » : la carte des défauts est plus bas, on
+         redessine pour que Rémi le voie écrit. */
+      surEtat:function(e){ noterConstat(m, e); sauver(); rendre(); toast("Constat noté dans les défauts et dans « À prévoir »", "ok"); },
       auMaj:function(){ rafraichir(); majs.forEach(function(fn){fn();}); appliquerLiens(m); rendreOnglets(); }});
     /* La plage usuelle dépend souvent de l'appareil : condensation ou non,
        brûleur atmosphérique ou non. Changer la technologie ou le brûleur
