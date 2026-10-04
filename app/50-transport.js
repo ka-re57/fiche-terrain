@@ -187,6 +187,11 @@ function payloadMachine(m, idx, total){
     photos_nb: (m.photos||[]).length,
     ecarts: ecarts,
     danger: ecarts.some(function(e){ return e.indexOf("[DANGER]")===0; }),
+    /* Constats posés d'un appui sur une mesure (vase HS, remplissage
+       impossible) : ce sont des défauts à chiffrer, pas des écarts de mesure.
+       Ils ne bloquent ni l'attestation ni la facture ; ils sont déjà dans
+       « anomalies » et « a_prevoir », on les donne aussi à part pour Notion. */
+    constats: (typeof constatsDe === "function") ? constatsDe(m) : [],
     application: "fiche-terrain KA-RÉ v"+VERSION,
     resume: propre(resumeTexte(m, idx))
   };
