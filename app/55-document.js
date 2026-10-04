@@ -142,6 +142,10 @@ function modeleDocument(m, idx){
       /* Rémi tape « 91.4 » au pavé numérique de la tablette. À côté d'un
          « 92,4 » calculé, le point fait tache sur un document français. */
       if(f.type === "num" && estNb(val)) aff = aff.replace(".", ",");
+      /* Un constat à la place du nombre (vase HS, remplissage impossible) :
+         il s'imprime en toutes lettres, sans unité, et en défaut. */
+      var etat = (typeof etatDe === "function") ? etatDe(f, aff) : null;
+      if(etat){ s4.push({kk:f.k, k:f.l, v:etat.l, alerte:true, verdict:null, etat:true}); return; }
     }
     if(aff===null) return;
     var v = verdict(f, estNb(val)?val:NaN, m);
@@ -172,6 +176,10 @@ function modeleDocument(m, idx){
     var garde = iF >= 0 ? s4[iF] : s4[iA];
     var ligne = {kk:paire[0], k:paire[2], v:(garde.ok ? "ok (" + garde.v + ")" : garde.v),
                  alerte:garde.alerte, verdict:garde.verdict};
+    /* Constat sur la valeur finale (« Remplissage impossible ») : la pression
+       trouvée reste écrite, puisqu'elle est aussi celle laissée. Constat sur la
+       valeur à l'arrivée (« Vase HS ») : il n'y a rien d'autre à dire. */
+    if(garde.etat && iF >= 0 && iA >= 0 && !s4[iA].etat) ligne.v = s4[iA].v + " à l'arrivée — " + garde.v;
     s4[iA >= 0 ? iA : iF] = ligne;
     if(iA >= 0 && iF >= 0) s4.splice(iF, 1);
   });
