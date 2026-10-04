@@ -1,5 +1,5 @@
 "use strict";
-var VERSION = "3.25";
+var VERSION = "3.26";
 
 /* ============ stockage ============ */
 var CLE_VISITE = "kare.visite.v1", CLE_CFG = "kare.cfg.v1", CLE_PARC = "kare.parc.v1", CLE_FILE = "kare.file.v1";
@@ -555,6 +555,30 @@ function appliquerProfil(m){
     if(txt(m.ident[k]) === null){ m.ident[k] = p.ident[k]; m.identRepris = m.identRepris || {}; m.identRepris[k] = p.le || 1; }
   });
   appliquerLiens(m);
+}
+
+/* ============ constats sur une mesure ============
+   Un champ numérique peut porter, à la place d'un nombre, un constat du
+   catalogue (« Vase d'expansion HS (membrane percée) »). etatDe() le reconnaît ;
+   noterConstat() le reporte dans « Défauts constatés » et met la pièce dans
+   « À prévoir », sans jamais écrire deux fois la même chose. */
+function etatDe(champ, v){
+  var s = txt(v); if(s === null || !champ || !champ.etats) return null;
+  for(var i = 0; i < champ.etats.length; i++) if(champ.etats[i].l === s) return champ.etats[i];
+  return null;
+}
+function noterConstat(m, e){
+  if(!m || !e) return;
+  if(e.defaut){ var a = txt(m.anomalies) || ""; if(a.indexOf(e.defaut) < 0) m.anomalies = a ? a + " · " + e.defaut : e.defaut; }   /* « · » : le PDF aplatit les retours à la ligne */
+  if(e.prevoir){ var p = txt(m.prochaine) || ""; if(p.indexOf(e.prevoir) < 0) m.prochaine = p ? p + " · " + e.prevoir : e.prevoir; }
+}
+/* Les constats posés sur les mesures, en clair : pour le relevé envoyé à
+   Make (Notion, mail interne) et pour qui veut les compter. */
+function constatsDe(m){
+  var t = techDe(m); if(!t) return [];
+  var out = [];
+  t.mes.forEach(function(f){ var e = etatDe(f, (m.mes||{})[f.k]); if(e) out.push(e.l); });
+  return out;
 }
 
 function horsPlage(m){
