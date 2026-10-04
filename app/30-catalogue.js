@@ -2,6 +2,30 @@
 var RAPPELS = ["Prévoir plus de temps","Matériel à emporter","Pièce à commander",
                "Devis à faire","Accès difficile","Prévenir le client avant"];
 
+/* « Et si le vase est HS, ou la vanne de remplissage HS ? » (Rémi, 04/10/2026).
+   Une pression qu'on ne peut pas corriger n'est pas un chiffre : c'est un
+   constat. Sur un champ numérique, un appui pose le constat à la place de la
+   valeur ; il s'imprime tel quel sur l'attestation (en défaut), s'ajoute aux
+   « Défauts constatés » et met la pièce à remplacer dans « À prévoir » —
+   c'est ce qui fait partir le devis. La valeur trouvée à l'arrivée, elle,
+   reste chiffrée. */
+var ETATS_VASE = [
+  {l:"Vase d'expansion HS (membrane percée)",
+   defaut:"Vase d'expansion HS : membrane percée, eau à la valve de gonflage — regonflage impossible",
+   prevoir:"Remplacer le vase d'expansion"},
+  {l:"Vase d'expansion HS (ne tient pas la pression)",
+   defaut:"Vase d'expansion HS : ne tient pas la pression de gonflage",
+   prevoir:"Remplacer le vase d'expansion"}
+];
+var ETATS_REMPLISSAGE = [
+  {l:"Remplissage impossible (vanne de remplissage HS)",
+   defaut:"Vanne de remplissage HS : appoint du circuit impossible, pression laissée telle que trouvée",
+   prevoir:"Remplacer la vanne de remplissage"},
+  {l:"Remplissage impossible (disconnecteur HS)",
+   defaut:"Disconnecteur HS : appoint du circuit impossible, pression laissée telle que trouvée",
+   prevoir:"Remplacer le disconnecteur"}
+];
+
 /* Mesures mises en avant sur l'écran machine : celles qu'on relève à chaque
    visite. Les autres restent accessibles, repliées sous « Autres mesures ».
    Une technologie absente de cette table affiche tout, à plat. */
@@ -276,8 +300,8 @@ TECHNOS.pac_air_eau = {
     {k:"ue_souf", l:"Unité extérieure — air soufflé", u:"°C", type:"num", aide:"au centre du flux du ventilateur"},
     {k:"dt_ue", l:"Écart d'air sur l'unité extérieure", u:"K", type:"calc", calc:"absdiff:ue_rep,ue_souf", ref:refDtUE, nature:"professionnel", aide:"en chaud l'air ressort plus froid, en froid plus chaud. Trop faible : batterie encrassée, ventilateur, ou machine à bas régime — pousser la consigne. Trop fort : débit d'air insuffisant"},
     {k:"pcirc", l:"Pression du circuit à l'arrivée", u:"bar", type:"num", ref:{min:1, max:2}, nature:"professionnel", aide:"telle que trouvée, avant toute intervention"},
-    {k:"pcirc_fin", l:"Pression du circuit après intervention", u:"bar", type:"num", ref:{min:1, max:2}, nature:"professionnel", opt:true, aide:"à renseigner seulement si tu as fait un appoint ou une purge"},
-    {k:"pvase", l:"Pression de gonflage du vase à l'arrivée", u:"bar", type:"num", ref:{min:0.8, max:1.5}, nature:"professionnel", aide:"pression statique moins 0,3 bar, vase isolé et vidé côté eau"},
+    {k:"pcirc_fin", l:"Pression du circuit après intervention", u:"bar", type:"num", etats:ETATS_REMPLISSAGE, ref:{min:1, max:2}, nature:"professionnel", opt:true, aide:"à renseigner seulement si tu as fait un appoint ou une purge"},
+    {k:"pvase", l:"Pression de gonflage du vase à l'arrivée", u:"bar", type:"num", etats:ETATS_VASE, ref:{min:0.8, max:1.5}, nature:"professionnel", aide:"pression statique moins 0,3 bar, vase isolé et vidé côté eau"},
     {k:"pvase_fin", l:"Pression de gonflage du vase après regonflage", u:"bar", type:"num", ref:{min:0.8, max:1.5}, nature:"professionnel", opt:true, aide:"seulement si tu as regonflé"},
     {k:"bp", l:"Pression BP", u:"bar", type:"num", aide:"relative, lue au manifold. Le cas échéant : ne jamais percer un circuit scellé"},
     {k:"hp", l:"Pression HP", u:"bar", type:"num", aide:"relative, lue au manifold. Le cas échéant"},
@@ -478,8 +502,8 @@ TECHNOS.chaudiere_gaz = {
     {k:"tirage", l:"Dépression / tirage du conduit", u:"Pa", type:"num", nature:"professionnel",
      ref:{min:3, max:20, note:"en valeur absolue"}, absRef:true},
     {k:"pcirc", l:"Pression du circuit à l'arrivée", u:"bar", type:"num", ref:{min:1, max:1.5}, nature:"professionnel", aide:"telle que trouvée, à froid, avant toute intervention"},
-    {k:"pcirc_fin", l:"Pression du circuit après intervention", u:"bar", type:"num", ref:{min:1, max:1.5}, nature:"professionnel", opt:true, aide:"seulement si tu as fait un appoint ou une purge"},
-    {k:"pvase", l:"Pression de gonflage du vase à l'arrivée", u:"bar", type:"num", ref:{min:0.5, max:1, note:"souvent 0,7 bar sortie d'usine"}, nature:"professionnel", aide:"régler 0,2 à 0,5 bar sous la pression de remplissage à froid, vase isolé et vidangé côté eau. Règle : hauteur d'eau au-dessus du vase divisée par 10, minimum 0,5 bar"},
+    {k:"pcirc_fin", l:"Pression du circuit après intervention", u:"bar", type:"num", etats:ETATS_REMPLISSAGE, ref:{min:1, max:1.5}, nature:"professionnel", opt:true, aide:"seulement si tu as fait un appoint ou une purge"},
+    {k:"pvase", l:"Pression de gonflage du vase à l'arrivée", u:"bar", type:"num", etats:ETATS_VASE, ref:{min:0.5, max:1, note:"souvent 0,7 bar sortie d'usine"}, nature:"professionnel", aide:"régler 0,2 à 0,5 bar sous la pression de remplissage à froid, vase isolé et vidangé côté eau. Règle : hauteur d'eau au-dessus du vase divisée par 10, minimum 0,5 bar"},
     {k:"pvase_fin", l:"Pression de gonflage du vase après regonflage", u:"bar", type:"num", ref:{min:0.5, max:1}, nature:"professionnel", opt:true, aide:"seulement si tu as regonflé"},
     {k:"emboue", l:"Embouement constaté", type:"liste", opts:["non","léger","marqué"], nature:"réglementaire"},
     {k:"isol", l:"Isolation des réseaux hors volume chauffé", type:"liste", opts:["présente et en bon état","dégradée","absente","sans objet"], nature:"réglementaire"},
@@ -639,8 +663,8 @@ TECHNOS.chaudiere_fioul = {
     {k:"ppulv", l:"Pression de pulvérisation", u:"bar", type:"num", ref:{min:10, max:14, note:"12 bar en sortie d'usine"}, nature:"professionnel", aide:"suivre d'abord la plaque du brûleur et le tableau du gicleur"},
     {k:"tirage", l:"Dépression au foyer / tirage", u:"Pa", type:"num", ref:{min:10, max:30, note:"en valeur absolue"}, absRef:true, nature:"professionnel"},
     {k:"pcirc", l:"Pression du circuit à l'arrivée", u:"bar", type:"num", ref:{min:1, max:2}, nature:"professionnel", aide:"telle que trouvée, à froid, avant toute intervention"},
-    {k:"pcirc_fin", l:"Pression du circuit après intervention", u:"bar", type:"num", ref:{min:1, max:2}, nature:"professionnel", opt:true, aide:"seulement si tu as fait un appoint ou une purge"},
-    {k:"pvase", l:"Pression de gonflage du vase à l'arrivée", u:"bar", type:"num", ref:{min:0.5, max:1, note:"souvent 0,7 bar sortie d'usine"}, nature:"professionnel"},
+    {k:"pcirc_fin", l:"Pression du circuit après intervention", u:"bar", type:"num", etats:ETATS_REMPLISSAGE, ref:{min:1, max:2}, nature:"professionnel", opt:true, aide:"seulement si tu as fait un appoint ou une purge"},
+    {k:"pvase", l:"Pression de gonflage du vase à l'arrivée", u:"bar", type:"num", etats:ETATS_VASE, ref:{min:0.5, max:1, note:"souvent 0,7 bar sortie d'usine"}, nature:"professionnel"},
     {k:"pvase_fin", l:"Pression de gonflage du vase après regonflage", u:"bar", type:"num", ref:{min:0.5, max:1}, nature:"professionnel", opt:true, aide:"seulement si tu as regonflé"},
     {k:"tdep", l:"Température de départ d'eau", u:"°C", type:"num"},
     {k:"tret", l:"Température de retour d'eau", u:"°C", type:"num", aide:"en condensation, un retour au-delà de 55 °C empêche la condensation"},
