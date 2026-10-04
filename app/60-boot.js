@@ -349,7 +349,7 @@ window.KARE = {
   set parc(x){ parc = x; ecrire(CLE_PARC, parc); },
   ajouterMachine: ajouterMachine, aller: aller, rendre: rendre,
   valeurCalc: valeurCalc, verdict: verdict, verdictCO: verdictCO,
-  anomaliesDe: anomaliesDe, avancement: avancement,
+  anomaliesDe: anomaliesDe, avancement: avancement, etatDe: etatDe, noterConstat: noterConstat, constatsDe: constatsDe,
   payloadMachine: payloadMachine, resumeTexte: resumeTexte, parcProps: parcProps,
   fileLire: fileLire, fileEcrire: fileEcrire, viderFile: viderFile,
   envoyer: envoyer, sauverTout: sauverTout, sauverCfg: sauverCfg,
