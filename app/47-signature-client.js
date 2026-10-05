@@ -236,18 +236,31 @@ function avantEnvoi(suite){
   if(!d){ suite(); return; }
   _sansMail = false;
 
-  /* la date */
+  /* la date.
+     05/10/2026 : l'attestation DELON est partie datée du 01/10 — la fiche
+     vierge avait été créée ce jour-là, après l'envoi précédent, et l'alerte
+     orange n'a pas suffi. Sur un document réglementaire la date fait foi :
+     tant qu'elle n'est pas celle du jour, l'envoi attend un choix explicite,
+     « mettre au jour » ou « je confirme cette date ». */
   var zd = document.getElementById("envoiDate");
   zd.innerHTML = "";
   if(dateDepassee()){
-    var a = el("div","alerte att");
-    a.appendChild(el("span","", "Cette visite est datée du " + dateFr(V.date) + ", pas d'aujourd'hui. "));
+    if(V.dateConfirmee !== V.date) V.dateConfirmee = "";
+    var a = el("div","alerte " + (V.dateConfirmee ? "att" : "mal"));
+    a.appendChild(el("div","", "Cette visite est datée du " + dateFr(V.date) + ", pas d'aujourd'hui (" + dateFr(aujourdhui()) + "). C'est cette date qui s'imprime sur l'attestation et qui part dans Notion."));
     var bj = el("button","btn mini p","Mettre à la date du jour"); bj.type="button";
     bj.style.marginTop = "6px"; bj.style.display = "block";
-    bj.onclick = function(){ V.date = aujourdhui(); sauver(); avantEnvoi(_suiteEnvoi || suite); rendre(); };
+    bj.onclick = function(){ V.date = aujourdhui(); V.dateConfirmee = ""; sauver(); avantEnvoi(_suiteEnvoi || suite); rendre(); };
     a.appendChild(bj);
+    var lc = el("label","choix-fiche"); lc.style.marginTop = "6px";
+    var cb = el("input"); cb.type = "checkbox"; cb.checked = !!V.dateConfirmee;
+    cb.onchange = function(){ V.dateConfirmee = cb.checked ? V.date : ""; sauver(); majBoutonEnvoi(); };
+    lc.appendChild(cb);
+    lc.appendChild(el("span","", " La visite a bien eu lieu le " + dateFr(V.date) + ", je confirme cette date"));
+    a.appendChild(lc);
     zd.appendChild(a);
   } else {
+    V.dateConfirmee = "";
     zd.appendChild(el("div","mini","Visite du " + dateFr(V.date)));
   }
 
@@ -384,6 +397,11 @@ function majBoutonEnvoi(){
   var cm = confirmationsManquantes();
   if(cm && n){
     b.textContent = "Coche « J'ai relu » pour envoyer";
+    b.classList.remove("att"); b.disabled = true;
+    return;
+  }
+  if(dateDepassee() && V.dateConfirmee !== V.date && n){
+    b.textContent = "Date à vérifier avant d'envoyer";
     b.classList.remove("att"); b.disabled = true;
     return;
   }
