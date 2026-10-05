@@ -1,5 +1,5 @@
 "use strict";
-var VERSION = "3.26";
+var VERSION = "3.27";
 
 /* ============ stockage ============ */
 var CLE_VISITE = "kare.visite.v1", CLE_CFG = "kare.cfg.v1", CLE_PARC = "kare.parc.v1", CLE_FILE = "kare.file.v1";
@@ -166,6 +166,21 @@ function visiteVierge(){
 }
 var V = lire(CLE_VISITE, null);
 if(!V || !Array.isArray(V.machines)) V = visiteVierge();
+
+/* 3.27 : une fiche vierge porte la date du jour où elle a été créée — souvent
+   la fin de la visite précédente, parfois plusieurs jours avant qu'on la
+   remplisse (DELON, 05/10/2026 : attestation datée du 01/10). Tant que rien
+   n'y est saisi, la remettre à la date du jour ne peut rien écraser. Dès
+   qu'un client ou une machine y figure, la date appartient à Rémi. */
+function visiteEstVierge(v){
+  return !!v && !txt(v.client) && !txt(v.adresse) && !txt(v.present) && !txt(v.email)
+         && (!v.machines || v.machines.length === 0) && !v.signClient;
+}
+function remettreDateAuJour(){
+  if(visiteEstVierge(V) && txt(V.date) !== aujourdhui()){ V.date = aujourdhui(); V.dateConfirmee = ""; ecrire(CLE_VISITE, V); return true; }
+  return false;
+}
+remettreDateAuJour();
 
 /* 3.24 : sur la chaudière gaz, l'option « ballon (anode à vérifier) » devient
    « ballon ». Une visite en cours ou un profil de machine enregistrés avec
