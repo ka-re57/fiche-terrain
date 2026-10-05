@@ -231,7 +231,9 @@ function cabler(){
 
   window.addEventListener("online",  function(){ majReseau(); viderFile(false); });
   window.addEventListener("offline", majReseau);
-  document.addEventListener("visibilitychange", function(){ if(!document.hidden){ majReseau(); viderFile(false); } });
+  /* Une tablette qu'on rouvre le lendemain : si la fiche est encore vierge,
+     sa date suit le jour. */
+  document.addEventListener("visibilitychange", function(){ if(!document.hidden){ majReseau(); viderFile(false); if(remettreDateAuJour()) rendre(); } });
   window.addEventListener("beforeunload", sauverTout);
   setInterval(function(){ viderFile(false); }, 60000);
 }
@@ -350,6 +352,7 @@ window.KARE = {
   ajouterMachine: ajouterMachine, aller: aller, rendre: rendre,
   valeurCalc: valeurCalc, verdict: verdict, verdictCO: verdictCO,
   anomaliesDe: anomaliesDe, avancement: avancement, etatDe: etatDe, noterConstat: noterConstat, constatsDe: constatsDe,
+  visiteEstVierge: visiteEstVierge, remettreDateAuJour: remettreDateAuJour, dateDepassee: dateDepassee,
   payloadMachine: payloadMachine, resumeTexte: resumeTexte, parcProps: parcProps,
   fileLire: fileLire, fileEcrire: fileEcrire, viderFile: viderFile,
   envoyer: envoyer, sauverTout: sauverTout, sauverCfg: sauverCfg,
