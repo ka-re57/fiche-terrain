@@ -136,7 +136,12 @@ function payloadMachine(m, idx, total){
     client: {
       nom: propre(V.client), adresse: propre(V.adresse), ville: propre(V.ville),
       email: propre(V.email), tel: propre(V.tel),
-      contact: propre(V.contact), present: propre(V.present)
+      contact: propre(V.contact), present: propre(V.present),
+      /* Make facture sur « client.axonaut » (filtre « Société identifiée ») et
+         ne retombait que sur la recherche par nom, qui a échoué le 10/10 chez
+         DAL CORSO (« & » dans l'appli, « ET » dans Axonaut) : l'ID choisi
+         dans la liste des clients, ou repris du parc, part maintenant ici. */
+      axonaut: propre(V.axonaut) || propre(m.axonaut)
     },
     /* De quoi créer la fiche équipement quand la machine n'est pas encore au
        parc. Sans ça, rien ne se déclenche : pas de ligne d'intervention, pas
