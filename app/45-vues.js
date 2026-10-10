@@ -70,6 +70,13 @@ function champ(parent, obj, cle, libelle, o){
   }
   i.id = lab.htmlFor;
   i.value = (obj[cle]===undefined||obj[cle]===null) ? "" : obj[cle];
+  /* Un <input type="number"> n'affiche pas « 1,3 » : la case paraît vide alors
+     que la valeur est là (10/10/2026, fiche préparée DAL CORSO). On la montre
+     avec un point, et on la range ainsi, comme une saisie au clavier. */
+  if(o.type==="num" && /^\s*-?\d+,\d+\s*$/.test(String(obj[cle]||""))){
+    obj[cle] = String(obj[cle]).trim().replace(",", ".");
+    i.value = obj[cle];
+  }
   if(o.ph) i.placeholder = o.ph;
   i.addEventListener("input", function(){ obj[cle]=i.value; if(o.auMaj) o.auMaj(); sauver(); });
   d.appendChild(i);
