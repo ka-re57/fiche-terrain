@@ -121,11 +121,51 @@ function ouvrirReglages(){
   $("#dlgReglages").showModal();
 }
 
+/* ============ fiche préparée à distance ============
+   10/10/2026, chez DAL CORSO : « tu me demandes les valeurs, et une fois
+   qu'on est bon tu pousses tout dans l'appli ». Claude prépare la visite
+   complète (client, machine, relevés, points de contrôle) dans l'atelier,
+   l'envoie en fichier ; Rémi l'importe ici, relit, fait signer, envoie.
+   Le fichier est celui que l'appli sait écrire : {"kare":"fiche-terrain",
+   "visite":{…}}. On ne devine rien : ids neufs, date du jour sauf si le
+   fichier en porte une, et jamais d'écrasement silencieux d'une visite
+   commencée. */
+function importerFichePreparee(d){
+  var v = d.visite;
+  if(!v || !Array.isArray(v.machines)){ toast("Fiche préparée illisible : pas de visite dedans", "mal"); return false; }
+  if(!visiteEstVierge(V)){
+    var ok = confirm("Une visite est déjà commencée sur cette tablette (" + (txt(V.client) || "sans nom") + ", " + V.machines.length + " machine(s)).\n\nLa remplacer par la fiche préparée « " + (txt(v.client) || "sans nom") + " » ?");
+    if(!ok){ toast("Import annulé, la visite en cours est conservée", "att"); return false; }
+  }
+  var neuve = visiteVierge();
+  Object.keys(v).forEach(function(k){ if(k !== "id" && k !== "envoye" && k !== "aEnvoyer" && k !== "confNC") neuve[k] = v[k]; });
+  neuve.date = txt(v.date) || aujourdhui();
+  neuve.dateConfirmee = "";
+  neuve.machines = v.machines.map(function(m){
+    m.mid = idUnique("m");
+    if(!m.ctrl) m.ctrl = {}; if(!m.mes) m.mes = {}; if(!m.ident) m.ident = {};
+    m.ctrlManuel = m.ctrlManuel || {}; m.na = m.na || {}; m.naAuto = m.naAuto || {}; m.conseils = m.conseils || {};
+    m.sous = m.sous || []; m.photos = []; m.preparee = d.preparee || "atelier";
+    return m;
+  });
+  V = neuve;
+  /* les libellés mémorisés protègent les cases si le catalogue a bougé entre
+     l'atelier et la tablette ; migrerMachine réaligne au besoin */
+  V.machines.forEach(function(m){ if(!m.libCtrl) m.libCtrl = libellesCtrl(m); migrerMachine(m); appliquerNP(m); });
+  sauverTout(); vue = "visite"; rendre(); window.scrollTo(0, 0);
+  toast("Fiche préparée chargée : " + (txt(V.client) || "") + " — relis tout avant de signer", "ok");
+  return true;
+}
 function importerConfig(fichier){
   var r = new FileReader();
   r.onload = function(){
     try{
       var d = JSON.parse(r.result);
+      if(d && d.kare === "fiche-terrain" && d.visite){
+        var dlg = $("#dlgReglages"); if(dlg && dlg.open) dlg.close();
+        importerFichePreparee(d);
+        return;
+      }
       var n = 0;
       if(d.webhook){ cfg.webhook = d.webhook; n++; }
       if(d.majUrl){ cfg.majUrl = d.majUrl; n++; }
@@ -194,7 +234,7 @@ function cabler(){
     cfg.modeControles = this.value; sauverCfg(); recalerControles(); sauverTout(); rendre();
     toast(this.value==="aFaire" ? "Mode liste à faire" : "Mode déclaration");
   });
-  $("#cfgFichier").addEventListener("change", function(){ if(this.files && this.files[0]) importerConfig(this.files[0]); });
+  $("#cfgFichier").addEventListener("change", function(){ if(this.files && this.files[0]) importerConfig(this.files[0]); this.value = ""; });
 
   $("#bTester").onclick = function(){
     if(!cfg.webhook){ toast("Adresse d'envoi non renseignée","mal"); return; }
@@ -353,6 +393,7 @@ window.KARE = {
   valeurCalc: valeurCalc, verdict: verdict, verdictCO: verdictCO,
   anomaliesDe: anomaliesDe, avancement: avancement, etatDe: etatDe, noterConstat: noterConstat, constatsDe: constatsDe,
   visiteEstVierge: visiteEstVierge, remettreDateAuJour: remettreDateAuJour, dateDepassee: dateDepassee,
+  importerFichePreparee: importerFichePreparee, importerConfig: importerConfig,
   payloadMachine: payloadMachine, resumeTexte: resumeTexte, parcProps: parcProps,
   fileLire: fileLire, fileEcrire: fileEcrire, viderFile: viderFile,
   envoyer: envoyer, sauverTout: sauverTout, sauverCfg: sauverCfg,
