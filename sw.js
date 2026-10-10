@@ -2,8 +2,8 @@
    La page elle-même : réseau d'abord, cache en secours -> on a toujours la dernière version,
    et ça marche quand même hors connexion.
    Les icônes et le manifeste : cache d'abord, ils ne changent presque jamais. */
-var CACHE = "kare-fiche-v3-28";
-var FICHIERS = ["./","./index.html","./app.css?v=3.28","./fiches.js?v=3.28","./cerfa.js?v=3.28","./logo.png?v=3.28","./manifest.webmanifest","./icon-192.png","./icon-512.png","./icon-maskable-512.png","./app/30-catalogue.js?v=3.28","./app/40-noyau.js?v=3.28","./app/42-fluides.js?v=3.28","./app/43-aide-frigo.js?v=3.28","./app/44-ventilation.js?v=3.28","./app/45-vues.js?v=3.28","./app/47-signature-client.js?v=3.28","./app/48-photos.js?v=3.28","./app/49-facture.js?v=3.28","./app/50-transport.js?v=3.28","./app/52-maj.js?v=3.28","./app/55-document.js?v=3.28","./app/56-pdf.js?v=3.28","./app/57-doc-pdf.js?v=3.28","./app/58-cerfa.js?v=3.28","./app/59-cerfa-pdf.js?v=3.28","./app/60-boot.js?v=3.28"];
+var CACHE = "kare-fiche-v3-29";
+var FICHIERS = ["./","./index.html","./app.css?v=3.29","./fiches.js?v=3.29","./cerfa.js?v=3.29","./logo.png?v=3.29","./manifest.webmanifest","./icon-192.png","./icon-512.png","./icon-maskable-512.png","./app/30-catalogue.js?v=3.29","./app/40-noyau.js?v=3.29","./app/42-fluides.js?v=3.29","./app/43-aide-frigo.js?v=3.29","./app/44-ventilation.js?v=3.29","./app/45-vues.js?v=3.29","./app/47-signature-client.js?v=3.29","./app/48-photos.js?v=3.29","./app/49-facture.js?v=3.29","./app/50-transport.js?v=3.29","./app/52-maj.js?v=3.29","./app/55-document.js?v=3.29","./app/56-pdf.js?v=3.29","./app/57-doc-pdf.js?v=3.29","./app/58-cerfa.js?v=3.29","./app/59-cerfa-pdf.js?v=3.29","./app/60-boot.js?v=3.29"];
 
 self.addEventListener("install", function(e){
   e.waitUntil(
