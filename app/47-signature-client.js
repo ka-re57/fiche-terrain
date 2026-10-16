@@ -18,18 +18,39 @@ function ouvrirSignatureClient(){
   var dlg = document.getElementById("dlgSignClient");
   var corps = document.getElementById("signClientCorps");
   corps.innerHTML = "";
+  dlg.classList.add("plein");
+
+  /* 3.30 (16/10/2026, demande de Rémi) : comme dans l'appli PV, le client lit
+     LE DOCUMENT — pas un résumé — avant de signer. Chaque fiche cochée pour
+     l'envoi s'affiche telle qu'elle sera imprimée ; la signature vient en bas. */
+  var aSigner = (typeof fichesCochees === "function") ? fichesCochees() : V.machines;
+  if(!aSigner.length) aSigner = V.machines;
+  var lire = el("div","sc-lire");
+  var lt = el("div","sc-lire-t");
+  lt.appendChild(el("b",null,"Merci de lire le document ci-dessous"));
+  lt.appendChild(document.createTextNode(aSigner.length > 1 ? " (" + aSigner.length + " documents), puis de signer en bas de page." : ", puis de signer en bas de page."));
+  lire.appendChild(lt);
+  lire.appendChild(el("div","sc-mention",
+    "Votre signature vaut réception du document tel que présenté. Elle ne vaut pas approbation des constatations techniques."));
+  var bAller = el("button","btn mini","Aller à la signature ↓"); bAller.type="button";
+  lire.appendChild(bAller);
+  corps.appendChild(lire);
+
+  var zoneDoc = el("div","sc-doc");
+  aSigner.forEach(function(m){
+    var i = V.machines.indexOf(m);
+    try{ zoneDoc.appendChild(documentMachine(m, i < 0 ? 0 : i)); }
+    catch(e){ zoneDoc.appendChild(el("div","alerte mal","Le document n'a pas pu être affiché : " + (e && e.message ? e.message : e))); }
+  });
+  corps.appendChild(zoneDoc);
 
   var intro = el("div","sc-intro");
-  intro.appendChild(el("div","sc-t","Vous allez signer pour :"));
-  var ul = el("div","sc-liste");
-  texteEngagement().forEach(function(l){ ul.appendChild(el("div",null,"• "+l)); });
-  intro.appendChild(ul);
+  intro.appendChild(el("div","sc-t","Signature du client"));
   intro.appendChild(el("div","sc-t2",
-    "réalisés le " + (V.date||"") + " par " + (cfg.technicien||"Rémi KATA") + " — SARL KA-RÉ" +
+    texteEngagement().join(" · ") + " — réalisé le " + dateFr(V.date||"") + " par " + (cfg.technicien||"Rémi KATA") + " — SARL KA-RÉ" +
     (txt(V.adresse) ? ", à " + V.adresse : "")));
-  intro.appendChild(el("div","sc-mention",
-    "Votre signature vaut réception des documents ci-dessus. Elle ne vaut pas approbation des constatations techniques."));
   corps.appendChild(intro);
+  bAller.onclick = function(){ intro.scrollIntoView({behavior:"smooth", block:"start"}); };
 
   /* Neuf fois sur dix c'est le propriétaire qui signe. On propose son nom
      d'office, et on dit d'où il vient pour que Rémi pense à le corriger
@@ -84,8 +105,9 @@ function ouvrirSignatureClient(){
     V.signClient = rognerToile(toile, ctx, 520);
     V.signRefus = 0;
     if(!txt(V.signQui)) V.signQui = txt(V.present) || txt(V.client) || "";
+    poserVerrou();
     sauverTout(); dlg.close();
-    toast("Signature enregistrée","ok");
+    toast("Signature enregistrée — fiche verrouillée","ok");
     rendre();
   };
   barre.appendChild(bEff); barre.appendChild(bAbs); barre.appendChild(bOk);
@@ -112,6 +134,58 @@ function rognerToile(toile, ctx, largeur){
   out.width = Math.round(w*ech); out.height = Math.round(h*ech);
   out.getContext("2d").drawImage(toile, x0,y0,w,h, 0,0,out.width,out.height);
   return out.toDataURL("image/png");
+}
+
+/* ============ verrou après signature ============
+   16/10/2026, demande de Rémi : « une fois signé, le document ne peut plus
+   être modifié, à part peut-être avec un code — je pense au jour où je laisse
+   l'application à un employé ». Ce que le client a signé est ce qui part :
+   après la signature, la fiche se lit mais ne se modifie plus. Déverrouiller
+   demande le code des Réglages s'il y en a un, et EFFACE la signature — un
+   document modifié après signature n'est plus celui qui a été signé, le
+   client doit resigner. Les déverrouillages sont consignés dans la fiche.
+   Restent possibles sur une fiche verrouillée : envoyer, imprimer, le PDF,
+   refaire signer (même document), les photos, le client suivant. */
+function verrouille(){ return !!(V.verrou && V.signClient); }
+function poserVerrou(){
+  V.verrou = {le: new Date().toISOString(), qui: txt(V.signQui) || txt(V.present) || txt(V.client) || ""};
+}
+function heureFr(iso){
+  var d = new Date(iso); if(isNaN(d)) return "";
+  var p = function(n){ return (n<10?"0":"")+n; };
+  return p(d.getDate())+"/"+p(d.getMonth()+1)+"/"+d.getFullYear()+" à "+p(d.getHours())+"h"+p(d.getMinutes());
+}
+function deverrouiller(){
+  if(!verrouille()) return;
+  var code = txt(cfg.codeVerrou);
+  if(code){
+    var saisi = prompt("Fiche signée et verrouillée.\nCode de déverrouillage :");
+    if(saisi === null) return;
+    if(saisi.trim() !== code){ toast("Code incorrect — la fiche reste verrouillée","mal"); return; }
+  }
+  var qui = V.verrou.qui || "le client";
+  if(!confirm("Le document a été signé par " + qui + " le " + heureFr(V.verrou.le) + ".\n\nLe déverrouiller EFFACE cette signature : une fois la fiche modifiée, le client devra signer à nouveau le document.\n\nDéverrouiller ?")) return;
+  V.deverrouillages = (V.deverrouillages || []).concat([{signeLe: V.verrou.le, qui: qui, deverrouilleLe: new Date().toISOString(), code: !!code}]);
+  V.signClient = ""; V.signRefus = 0; V.verrou = null;
+  sauverTout(); rendre();
+  toast("Fiche déverrouillée — signature effacée, à refaire signer avant l'envoi","att");
+}
+/* Rend l'écran courant en lecture seule : bandeau + tout désactivé, sauf ce
+   qui est marqué data-verrou-ok (signature, photos). */
+function appliquerVerrou(root){
+  if(!root || !verrouille()) return;
+  root.classList.add("verrou");
+  var b = el("div","alerte info verrou-bandeau");
+  b.setAttribute("data-verrou-ok","1");
+  b.appendChild(el("div","verrou-t", "🔒 Document signé par " + (V.verrou.qui || "le client") + " le " + heureFr(V.verrou.le) + " — la fiche est verrouillée : elle se lit, s'envoie et s'imprime, mais ne se modifie plus."));
+  var bt = el("button","btn mini","Modifier quand même…"); bt.type="button";
+  bt.onclick = deverrouiller;
+  b.appendChild(bt);
+  root.insertBefore(b, root.firstChild);
+  root.querySelectorAll("input, select, textarea, button").forEach(function(e){
+    if(e.closest("[data-verrou-ok]")) return;
+    e.disabled = true;
+  });
 }
 
 /* ============ garde-fou avant de sortir le document ============
@@ -251,6 +325,7 @@ function avantEnvoi(suite){
     var bj = el("button","btn mini p","Mettre à la date du jour"); bj.type="button";
     bj.style.marginTop = "6px"; bj.style.display = "block";
     bj.onclick = function(){ V.date = aujourdhui(); V.dateConfirmee = ""; sauver(); avantEnvoi(_suiteEnvoi || suite); rendre(); };
+    if(verrouille()){ bj.disabled = true; a.appendChild(el("div","mini","Fiche signée et verrouillée : la date fait partie du document signé. Pour la changer, déverrouille la fiche (la signature sera à refaire) ; sinon confirme la date ci-dessous.")); }
     a.appendChild(bj);
     var lc = el("label","choix-fiche"); lc.style.marginTop = "6px";
     var cb = el("input"); cb.type = "checkbox"; cb.checked = !!V.dateConfirmee;
