@@ -22,6 +22,7 @@ function rendreOnglets(){
   var plus = el("button","ong","+"); plus.type="button";
   plus.setAttribute("aria-label","Ajouter une machine");
   plus.onclick = ouvrirChoixMachine;
+  if(typeof verrouille === "function" && verrouille()) plus.disabled = true;
   o.appendChild(plus);
 }
 function aller(v){ vue=v; rendre(); window.scrollTo(0,0); }
@@ -29,6 +30,8 @@ function rendre(){
   rendreOnglets();
   var a=$("#app"); a.innerHTML="";
   if(vue==="visite") vueVisite(a); else vueMachine(a, machineParId(vue));
+  /* 3.30 : une fiche signée par le client ne se modifie plus (voir 47-signature-client.js) */
+  if(typeof appliquerVerrou === "function") appliquerVerrou(a);
 }
 
 /* ============ champs ============ */
@@ -373,6 +376,7 @@ function vueVisite(root){
       b.appendChild(tx);
       if(an.length) b.appendChild(el("span","pastille "+(an.some(function(x){return x.grave;})?"mal":"att"), "!"+an.length));
       b.onclick = function(){ aller(m.mid); };
+      b.setAttribute("data-verrou-ok","1");   /* ouvrir la machine en lecture reste possible sur une fiche verrouillée */
       row.appendChild(b);
       var sup = el("button","oter","×"); sup.type="button"; sup.setAttribute("aria-label","Retirer");
       sup.onclick = function(){ retirerMachine(m.mid, sup); };
@@ -388,6 +392,7 @@ function vueVisite(root){
   /* --- signature du client --- */
   if(V.machines.length){
     var c5 = el("div","carte");
+    c5.setAttribute("data-verrou-ok", "1");   /* refaire signer reste possible sur une fiche verrouillée : le document ne change pas */
     c5.appendChild(el("h2",null,"Signature du client"));
     if(V.signClient){
       var vu = el("div","sc-vu");
@@ -404,7 +409,7 @@ function vueVisite(root){
       var bS = el("button","btn p","Faire signer le client"); bS.type="button"; bS.style.width="100%";
       bS.onclick = ouvrirSignatureClient;
       c5.appendChild(bS);
-      c5.appendChild(el("div","mini","Récapitulatif à l'écran, le client signe au doigt. S'il n'est pas là, un bouton le note."));
+      c5.appendChild(el("div","mini","Le document complet s'affiche à l'écran, le client le lit puis signe au doigt. S'il n'est pas là, un bouton le note. Une fois signée, la fiche se verrouille."));
     }
     root.appendChild(c5);
   }
