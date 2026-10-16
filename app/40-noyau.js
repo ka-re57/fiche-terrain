@@ -1,5 +1,5 @@
 "use strict";
-var VERSION = "3.29";
+var VERSION = "3.30";
 
 /* ============ stockage ============ */
 var CLE_VISITE = "kare.visite.v1", CLE_CFG = "kare.cfg.v1", CLE_PARC = "kare.parc.v1", CLE_FILE = "kare.file.v1";
@@ -157,6 +157,7 @@ function visiteVierge(){
     id: idUnique("visite"),
     client:"", adresse:"", ville:"", contact:"", present:"",
     signClient:"", signQui:"", signRefus:0,
+    verrou:null, deverrouillages:[],
     interv:"entretien",
     date: aujourdhui(),
     appareils:"",
