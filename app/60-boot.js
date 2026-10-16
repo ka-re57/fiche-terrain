@@ -32,6 +32,8 @@ function ouvrirReglages(){
   $("#cfgMode").value = cfg.modeControles || "declare";
   $("#cfgFactureAuto").value = cfg.factureAuto || "non";
   $("#cfgSignClient").value = cfg.signClient || "oui";
+  var cv = $("#cfgCodeVerrou");
+  if(cv){ cv.value = cfg.codeVerrou || ""; cv.dataset.ancien = cfg.codeVerrou || ""; }
   if(window.__signatureInit) window.__signatureInit();
   var ip = $("#infoParc");
   if(parc && parc.length){
@@ -138,7 +140,7 @@ function importerFichePreparee(d){
     if(!ok){ toast("Import annulé, la visite en cours est conservée", "att"); return false; }
   }
   var neuve = visiteVierge();
-  Object.keys(v).forEach(function(k){ if(k !== "id" && k !== "envoye" && k !== "aEnvoyer" && k !== "confNC") neuve[k] = v[k]; });
+  Object.keys(v).forEach(function(k){ if(["id","envoye","aEnvoyer","confNC","verrou","deverrouillages","signClient","signQui","signRefus"].indexOf(k) < 0) neuve[k] = v[k]; });   /* une fiche préparée arrive ni signée ni verrouillée */
   neuve.date = txt(v.date) || aujourdhui();
   neuve.dateConfirmee = "";
   neuve.machines = v.machines.map(function(m){
@@ -225,6 +227,18 @@ function cabler(){
     e.addEventListener("input", function(){ cfg.outils = cfg.outils || {}; cfg.outils[x[1]] = this.value.trim(); sauverCfg(); majEcheanceDetecteur(); });
   });
   $("#cfgSignClient").addEventListener("change", function(){ cfg.signClient=this.value; sauverCfg(); });
+  /* Le code de déverrouillage : s'il y en a déjà un, on ne le change qu'en
+     donnant l'ancien — sinon un employé le remplacerait depuis ce même écran. */
+  var cvi = $("#cfgCodeVerrou");
+  if(cvi) cvi.addEventListener("change", function(){
+    var neuf = this.value.trim(), ancien = txt(cfg.codeVerrou);
+    if(ancien && neuf !== ancien){
+      var s = prompt("Un code existe déjà. Ancien code :");
+      if(s === null || s.trim() !== ancien){ this.value = ancien; toast("Ancien code incorrect — code inchangé","mal"); return; }
+    }
+    cfg.codeVerrou = neuf; sauverCfg();
+    toast(neuf ? "Code de déverrouillage enregistré" : "Plus de code : une confirmation suffira pour déverrouiller", neuf ? "ok" : "att");
+  });
   var cut = $("#cfgUniteTirage");
   if(cut) cut.addEventListener("change", function(){
     changerUniteTirage(this.value); sauverTout(); rendre();
@@ -384,6 +398,7 @@ window.KARE = {
   version: VERSION,
   TECHNOS: TECHNOS,
   get visite(){ return V; },
+  get cfg(){ return cfg; },
   set visite(x){ V = x; },
   get config(){ return cfg; },
   get parc(){ return parc; },
@@ -416,6 +431,7 @@ window.KARE = {
   get notice(){ return NOTICE_VENT; },
   initCtrl: initCtrl, appliquerNP: appliquerNP, recalerConseils: recalerConseils,
   relevesManquants: relevesManquants, avantEnvoi: avantEnvoi, fichesCochees: fichesCochees,
+  verrouille: verrouille, poserVerrou: poserVerrou, deverrouiller: deverrouiller,
   dateDepassee: dateDepassee, aujourdhui: aujourdhui,
   ouvrirFiche: ouvrirFiche, ficheDispo: ficheDispo, migrerMachine: migrerMachine,
   ouvrirSignatureClient: ouvrirSignatureClient,
