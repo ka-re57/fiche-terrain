@@ -287,6 +287,20 @@ body.mode-impression #zoneImpression{display:block}
 .doc-sign .absent{font-family:var(--ui); font-weight:700; font-size:8.4pt; letter-spacing:.05em;
   color:#9A5B00; background:#FCEEDA; padding:1.5mm 2mm; border-radius:1mm; margin-top:2mm; display:inline-block;
   -webkit-print-color-adjust:exact; print-color-adjust:exact}
+/* 3.30 — le client lit le document avant de signer ; fiche verrouillée après */
+#dlgSignClient.plein .dlg-corps{max-height:82vh}
+.sc-lire{border:1px solid var(--trait2); border-left:4px solid var(--marque); border-radius:8px; padding:10px 12px; margin-bottom:10px; background:var(--carte2)}
+.sc-lire-t{font-size:15px; line-height:1.45; margin-bottom:4px}
+.sc-lire .btn{margin-top:8px}
+.sc-doc{background:#fff; border:1px solid var(--trait2); border-radius:8px; padding:8px 12px; margin-bottom:14px; overflow:auto}
+.sc-doc .doc{max-width:100%; padding:2mm 0}
+.sc-doc .doc.saut{page-break-before:auto; break-before:auto; border-top:2px dashed #C9D6E2; margin-top:8mm; padding-top:6mm}
+.verrou-bandeau{display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; border-left:4px solid var(--marque)}
+.verrou-bandeau .verrou-t{flex:1 1 260px}
+#app.verrou .carte:not([data-verrou-ok]){opacity:.78}
+#app.verrou .carte:not([data-verrou-ok]) input:disabled,
+#app.verrou .carte:not([data-verrou-ok]) select:disabled,
+#app.verrou .carte:not([data-verrou-ok]) textarea:disabled{background:var(--carte2); color:var(--texte); opacity:1}
 .sc-intro{margin-bottom:12px}
 .sc-t{font-family:var(--ui); font-weight:700; font-size:14px; color:var(--marque); margin-bottom:6px}
 .sc-liste{font-size:14.5px; line-height:1.55; margin-bottom:8px}
