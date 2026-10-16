@@ -42,6 +42,7 @@ function ajouterPhoto(m, fichier, etiquette, apres){
 
 function carteMachinePhotos(root, m, connue){
   var c = el("div","carte");
+  c.setAttribute("data-verrou-ok","1");   /* les photos ne sont pas sur le document : on peut en ajouter après signature */
   var h = el("h2",null,"Photos");
   m.photos = m.photos || [];
   h.appendChild(el("span","cpt", m.photos.length+"/"+PHOTO_PAR_MACHINE));
