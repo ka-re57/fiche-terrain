@@ -197,6 +197,13 @@ function payloadMachine(m, idx, total){
        Ils ne bloquent ni l'attestation ni la facture ; ils sont déjà dans
        « anomalies » et « a_prevoir », on les donne aussi à part pour Notion. */
     constats: (typeof constatsDe === "function") ? constatsDe(m) : [],
+    /* 3.30 : trace de la signature et des déverrouillages (document modifié
+       après une première signature, resigné ensuite). */
+    signature: {
+      client: V.signClient ? "signee" : (V.signRefus ? "client absent" : "aucune"),
+      qui: propre(V.signQui), signe_le: (V.verrou && V.verrou.le) || null,
+      deverrouillages: (V.deverrouillages || []).length
+    },
     application: "fiche-terrain KA-RÉ v"+VERSION,
     resume: propre(resumeTexte(m, idx))
   };
