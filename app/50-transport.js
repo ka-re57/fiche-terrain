@@ -188,10 +188,20 @@ function payloadMachine(m, idx, total){
     conseils_donnes: conseils,
     precisions: propre(m.note),
     a_prevoir: propre(m.prochaine),
+    /* 3.31 : le devis à faire suite à la visite, décidé sur l'écran d'envoi →
+       Make ouvre une opportunité Axonaut « à chiffrer ». */
+    devis: (function(){ var d = (V.devis || {})[m.mid]; return {faire: !!(d && d.faire), objet: d ? propre(d.objet) : null}; })(),
     photos: (m.photos||[]).map(function(ph){ return {etiquette:ph.et}; }),
     photos_nb: (m.photos||[]).length,
     ecarts: ecarts,
     danger: ecarts.some(function(e){ return e.indexOf("[DANGER]")===0; }),
+    /* 3.31 : Rémi a relu les écarts sur la tablette et dit « envoyer au client
+       quand même » → Make laisse partir l'attestation et la facture (avec un
+       danger : mail DANGER spécifique, voir danger_confirme). */
+    ecarts_confirmes: (typeof ecartsConfirmes === "function") ? ecartsConfirmes(m) : false,
+    /* idem avec un danger : Rémi a informé le client et consigné l'appareil,
+       le mail DANGER peut partir. Lisible tel quel dans Make et Notion. */
+    danger_confirme: !!((typeof ecartsConfirmes === "function") && ecartsConfirmes(m) && ecarts.some(function(e){ return e.indexOf("[DANGER]")===0; })),
     /* Constats posés d'un appui sur une mesure (vase HS, remplissage
        impossible) : ce sont des défauts à chiffrer, pas des écarts de mesure.
        Ils ne bloquent ni l'attestation ni la facture ; ils sont déjà dans
