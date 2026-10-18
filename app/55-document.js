@@ -200,7 +200,9 @@ function modeleDocument(m, idx){
      constat de la visite, au même titre qu'une valeur relevée. */
   if(typeof ligneVentilation === "function"){
     var lv = ligneVentilation(m);
-    if(lv) s4.push({k:lv.k, v:lv.v, alerte:lv.alerte, verdict:lv.alerte ? "non conforme" : null});
+    /* 16/10/2026 (LEVY) : le libellé dit déjà « Non conforme — … », le verdict
+       accolé faisait doublon (« … — non conforme »). L'alerte suffit. */
+    if(lv) s4.push({k:lv.k, v:lv.v, alerte:lv.alerte, verdict:null});
   }
   if(t.sousMachines && m.sous.length){
     m.sous.forEach(function(l, k){
