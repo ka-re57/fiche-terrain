@@ -140,7 +140,7 @@ function importerFichePreparee(d){
     if(!ok){ toast("Import annulé, la visite en cours est conservée", "att"); return false; }
   }
   var neuve = visiteVierge();
-  Object.keys(v).forEach(function(k){ if(["id","envoye","aEnvoyer","confNC","verrou","deverrouillages","signClient","signQui","signRefus"].indexOf(k) < 0) neuve[k] = v[k]; });   /* une fiche préparée arrive ni signée ni verrouillée */
+  Object.keys(v).forEach(function(k){ if(["id","envoye","aEnvoyer","confNC","confEcarts","devis","verrou","deverrouillages","signClient","signQui","signRefus"].indexOf(k) < 0) neuve[k] = v[k]; });   /* une fiche préparée arrive ni signée ni verrouillée */
   neuve.date = txt(v.date) || aujourdhui();
   neuve.dateConfirmee = "";
   neuve.machines = v.machines.map(function(m){
@@ -431,7 +431,7 @@ window.KARE = {
   get notice(){ return NOTICE_VENT; },
   initCtrl: initCtrl, appliquerNP: appliquerNP, recalerConseils: recalerConseils,
   relevesManquants: relevesManquants, avantEnvoi: avantEnvoi, fichesCochees: fichesCochees,
-  verrouille: verrouille, poserVerrou: poserVerrou, deverrouiller: deverrouiller,
+  verrouille: verrouille, poserVerrou: poserVerrou, deverrouiller: deverrouiller, ecartsConfirmes: ecartsConfirmes, choixEcartsManquants: choixEcartsManquants,
   dateDepassee: dateDepassee, aujourdhui: aujourdhui,
   ouvrirFiche: ouvrirFiche, ficheDispo: ficheDispo, migrerMachine: migrerMachine,
   ouvrirSignatureClient: ouvrirSignatureClient,
