@@ -397,6 +397,70 @@ function avantEnvoi(suite){
       bnc.appendChild(lc);
       tx.appendChild(bnc);
     }
+    /* 16/10/2026 (LEVY) : un écart de mesure bloquait l'attestation ET la facture
+       au client, sans rien demander — Rémi l'apprenait par le mail interne et
+       devait tout renvoyer à la main. « Il faudrait demander de confirmer
+       l'envoi, et si je dis oui, envoyer l'attestation et la facture. » Les
+       écarts sont donc montrés ici, et le bouton d'envoi attend un choix :
+       envoyer au client quand même, ou garder en archive. Un DANGER ne se
+       confirme pas d'un appui : il reste à traiter à la main. */
+    var ecarts = anomaliesDe(m), graves = ecarts.filter(function(x){ return x.grave; });
+    if(ecarts.length){
+      V.confEcarts = V.confEcarts || {};
+      var bec = el("div","alerte " + (graves.length ? "mal" : "att") + " conf-ec");
+      bec.appendChild(el("div","t2", ecarts.length + (ecarts.length>1 ? " écarts de mesure" : " écart de mesure") + (graves.length ? " dont un DANGER" : "") + " :"));
+      var ule = el("ul");
+      ecarts.forEach(function(x){ ule.appendChild(el("li", x.grave ? "mal" : "", (x.grave ? "DANGER — " : "") + x.lib)); });
+      bec.appendChild(ule);
+      /* 16/10/2026 : un danger aussi se confirme — avec un mail client spécifique
+         (CO élevé, appareil arrêté et consigné, ne pas remettre en service) :
+         c'est l'information écrite immédiate que la réglementation demande, et
+         elle fait preuve. Le bouton engage Rémi sur ce qu'il a fait sur place. */
+      bec.appendChild(el("div","mini", graves.length
+        ? "Le client reçoit alors un mail DANGER : CO anormalement élevé, appareil arrêté et consigné, ne pas remettre en service avant la levée du défaut. Ne l'envoie que si c'est ce que tu as fait et dit sur place."
+        : "Le document les mentionne tel quel (section 5). Est-ce que le client le reçoit maintenant, avec la facture ?"));
+      var ch = el("div","chips petit"); ch.style.marginTop = "6px";
+      var choix = graves.length
+        ? [["oui","J'ai informé le client et consigné l'appareil — envoyer"],["non","Garder en archive, je gère"]]
+        : [["oui","Envoyer au client quand même"],["non","Garder en archive, je gère"]];
+      choix.forEach(function(o){
+        var bo = el("button","chip mini", o[1]); bo.type = "button";
+        bo.setAttribute("aria-pressed", V.confEcarts[m.mid] === o[0] ? "true" : "false");
+        bo.onclick = function(){
+          V.confEcarts[m.mid] = o[0]; sauver(); majBoutonEnvoi();
+          Array.prototype.forEach.call(ch.children, function(x){ x.setAttribute("aria-pressed", x === bo ? "true" : "false"); });
+        };
+        ch.appendChild(bo);
+      });
+      bec.appendChild(ch);
+      tx.appendChild(bec);
+    }
+    /* 16/10/2026 (LEVY) : « quand il y a des devis à faire suite à une
+       attestation, faut que ça apparaisse quelque part qu'on y pense ». Une
+       case, pré-cochée dès qu'il y a un écart ou un constat, avec l'objet
+       pré-rempli ; Make ouvre alors une opportunité Axonaut « à chiffrer »,
+       là où les devis à faire se ramassent déjà. */
+    var cons = (typeof constatsDe === "function") ? constatsDe(m) : [];
+    V.devis = V.devis || {};
+    var dv = V.devis[m.mid];
+    if(!dv){
+      var pieces = [];
+      t.mes && t.mes.forEach(function(f){ var e = (typeof etatDe === "function") ? etatDe(f, (m.mes||{})[f.k]) : null; if(e && e.prevoir) pieces.push(e.prevoir); });
+      ecarts.forEach(function(x){ if(!x.grave) pieces.push(x.lib.split(" : ")[0] === "Aération du local" ? "Créer une entrée d'air dans le local" : x.lib); });
+      dv = {faire: !!(ecarts.length || cons.length), objet: pieces.join(" · ")};
+      V.devis[m.mid] = dv;
+    }
+    var ldv = el("div","devis-ligne");
+    var cbd = el("input"); cbd.type = "checkbox"; cbd.checked = !!dv.faire;
+    var lbd = el("label"); lbd.appendChild(cbd); lbd.appendChild(el("span","", " Devis à faire suite à cette visite"));
+    ldv.appendChild(lbd);
+    var tad = el("textarea"); tad.value = dv.objet || ""; tad.placeholder = "quoi chiffrer : pièce, travaux, option…"; tad.rows = 2;
+    tad.hidden = !dv.faire;
+    tad.addEventListener("input", function(){ dv.objet = tad.value; sauver(); });
+    cbd.onchange = function(){ dv.faire = cbd.checked; tad.hidden = !dv.faire; sauver(); };
+    ldv.appendChild(tad);
+    ldv.appendChild(el("div","mini", "Coché : une opportunité « à chiffrer » s'ouvre dans Axonaut à l'envoi, avec ce texte. C'est elle qui te rappellera le devis."));
+    tx.appendChild(ldv);
     /* La facture au forfait : proposée cochée, Rémi décoche s'il facture à la main. */
     var ff = (typeof forfaitEntretien === "function") ? forfaitEntretien(m) : null;
     if(ff){
@@ -459,6 +523,18 @@ function confirmationsManquantes(){
     return nc.length && !V.confNC[m.mid];
   }).length;
 }
+/* Fiches cochées qui portent des écarts (danger compris) et pour lesquelles
+   Rémi n'a pas encore dit si le client reçoit le document. */
+function choixEcartsManquants(){
+  V.confEcarts = V.confEcarts || {};
+  return fichesCochees().filter(function(m){
+    return anomaliesDe(m).length && V.confEcarts[m.mid] !== "oui" && V.confEcarts[m.mid] !== "non";
+  }).length;
+}
+/* Ce qui part dans le relevé : vrai seulement si Rémi a choisi « envoyer ». */
+function ecartsConfirmes(m){
+  return !!(V.confEcarts && V.confEcarts[m.mid] === "oui" && anomaliesDe(m).length);
+}
 function majBoutonEnvoi(){
   var b = document.getElementById("bEnvoiGo");
   if(!b) return;
@@ -466,6 +542,12 @@ function majBoutonEnvoi(){
   var mm = motifsManquants();
   if(mm && n){
     b.textContent = "Motif manquant sur " + mm + (mm>1 ? " points" : " point");
+    b.classList.remove("att"); b.disabled = true;
+    return;
+  }
+  var ce = choixEcartsManquants();
+  if(ce && n){
+    b.textContent = "Écarts : dis si le client reçoit le document";
     b.classList.remove("att"); b.disabled = true;
     return;
   }
