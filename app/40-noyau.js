@@ -1,5 +1,5 @@
 "use strict";
-var VERSION = "3.31";
+var VERSION = "3.32";
 
 /* ============ stockage ============ */
 var CLE_VISITE = "kare.visite.v1", CLE_CFG = "kare.cfg.v1", CLE_PARC = "kare.parc.v1", CLE_FILE = "kare.file.v1";
