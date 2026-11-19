@@ -210,3 +210,77 @@ function majEtatMaj(t){
   var e = document.getElementById("majEtat");
   if(e) e.textContent = t || texteMaj();
 }
+
+/* ============ fiche préparée qui arrive toute seule (3.33) ============
+   19/11/2026, chez FURCI : « pourquoi tu mets pas direct dessus toi-même ? ».
+   Claude dépose la fiche préparée dans une boîte Make (data store, une seule
+   place, clé « tablette ») ; l'appli la lit à l'ouverture, au retour dans
+   l'appli et sur le bouton des Réglages. Lecture seule côté tablette : rien
+   n'est effacé chez Make, l'appli retient simplement les fiches déjà vues
+   pour ne jamais en recharger une deux fois d'elle-même.
+   Même clé partagée que la mise à jour du parc (cfg.secret). */
+var URL_FICHE_PREP = "https://hook.eu2.make.com/dyy6mjl71xwwrjv2bft9veuz342enjvk";
+var CLE_FICHES_VUES = "kare.fichesPrep.v1";
+var fichesVues = lire(CLE_FICHES_VUES, {});      /* id -> {etat:"chargee"|"refusee", le, client} */
+var dernierAppelFiche = 0;
+
+function noterFicheVue(id, etat, client){
+  fichesVues[id] = {etat: etat, le: new Date().toISOString(), client: client || ""};
+  var ids = Object.keys(fichesVues);
+  if(ids.length > 40){
+    ids.sort(function(a, b){ return (fichesVues[a].le < fichesVues[b].le) ? -1 : 1; });
+    ids.slice(0, ids.length - 40).forEach(function(k){ delete fichesVues[k]; });
+  }
+  ecrire(CLE_FICHES_VUES, fichesVues);
+}
+function etatFichePrep(t){
+  var e = document.getElementById("fichePrepEtat");
+  if(e) e.textContent = t;
+}
+/* manuel = true quand Rémi appuie sur le bouton : on lui dit tout, même
+   « rien en attente », et on propose de recharger une fiche déjà vue. */
+function chercherFichePreparee(manuel){
+  var cle = txt(cfg.secret);
+  if(!cle){ if(manuel) toast("Clé partagée absente dans les Réglages", "mal"); return; }
+  if(!navigator.onLine){ if(manuel) toast("Hors connexion : pas de fiche à chercher", "att"); return; }
+  if(!manuel && (Date.now() - dernierAppelFiche) < 60000) return;
+  dernierAppelFiche = Date.now();
+  if(manuel) etatFichePrep("recherche en cours…");
+
+  var minuteur = null, ctrl = (typeof AbortController === "function") ? new AbortController() : null;
+  if(ctrl) minuteur = setTimeout(function(){ ctrl.abort(); }, 25000);
+  fetch(URL_FICHE_PREP + "?k=" + encodeURIComponent(cle), {method:"GET", cache:"no-store", signal: ctrl ? ctrl.signal : undefined})
+    .then(function(r){ if(!r.ok) throw new Error("réponse " + r.status); return r.json(); })
+    .then(function(d){
+      clearTimeout(minuteur);
+      if(!d || d.ok !== true) throw new Error((d && d.m) || "réponse inattendue");
+      if(d.vide || !d.fiche){
+        etatFichePrep("aucune fiche en attente");
+        if(manuel) toast("Aucune fiche préparée en attente", "att");
+        return;
+      }
+      var id = txt(d.id) || "sans-id", client = txt(d.client) || txt(d.fiche.visite && d.fiche.visite.client) || "client sans nom";
+      var quand = txt(d.depose) ? " (déposée le " + d.depose.replace(/^(\d{4})-(\d\d)-(\d\d)/, "$3/$2/$1 à") + ")" : "";
+      etatFichePrep("en attente : " + client + quand);
+      var vue = fichesVues[id];
+      if(vue && !manuel) return;                    /* déjà chargée ou écartée : on ne réinsiste pas */
+      if(vue && manuel){
+        if(!confirm("La fiche « " + client + " »" + quand + " a déjà été " + (vue.etat === "chargee" ? "chargée" : "écartée") + " sur cet appareil.\n\nLa charger à nouveau ?")) return;
+      }
+      var vierge = visiteEstVierge(V);
+      if(!vierge && !(vue && manuel)){
+        if(!confirm("Fiche préparée reçue : « " + client + " »" + quand + ".\n\nLa charger maintenant ? La visite en cours (" + (txt(V.client) || "sans nom") + ") sera remplacée.")){
+          noterFicheVue(id, "refusee", client);
+          toast("Fiche « " + client + " » laissée de côté — Réglages pour la charger plus tard", "att");
+          return;
+        }
+      }
+      var dlg = document.getElementById("dlgReglages"); if(dlg && dlg.open) dlg.close();
+      if(importerFichePreparee(d.fiche, true)) noterFicheVue(id, "chargee", client);
+    })
+    .catch(function(e){
+      clearTimeout(minuteur);
+      etatFichePrep("échec : " + (e.name === "AbortError" ? "délai dépassé" : (e.message || "erreur")));
+      if(manuel) toast("Fiche préparée : " + (e.name === "AbortError" ? "délai dépassé" : (e.message || "échec")), "mal");
+    });
+}

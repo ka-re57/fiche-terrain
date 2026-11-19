@@ -132,10 +132,10 @@ function ouvrirReglages(){
    "visite":{…}}. On ne devine rien : ids neufs, date du jour sauf si le
    fichier en porte une, et jamais d'écrasement silencieux d'une visite
    commencée. */
-function importerFichePreparee(d){
+function importerFichePreparee(d, dejaConfirme){
   var v = d.visite;
   if(!v || !Array.isArray(v.machines)){ toast("Fiche préparée illisible : pas de visite dedans", "mal"); return false; }
-  if(!visiteEstVierge(V)){
+  if(!dejaConfirme && !visiteEstVierge(V)){
     var ok = confirm("Une visite est déjà commencée sur cette tablette (" + (txt(V.client) || "sans nom") + ", " + V.machines.length + " machine(s)).\n\nLa remplacer par la fiche préparée « " + (txt(v.client) || "sans nom") + " » ?");
     if(!ok){ toast("Import annulé, la visite en cours est conservée", "att"); return false; }
   }
@@ -287,7 +287,8 @@ function cabler(){
   window.addEventListener("offline", majReseau);
   /* Une tablette qu'on rouvre le lendemain : si la fiche est encore vierge,
      sa date suit le jour. */
-  document.addEventListener("visibilitychange", function(){ if(!document.hidden){ majReseau(); viderFile(false); if(remettreDateAuJour()) rendre(); } });
+  document.addEventListener("visibilitychange", function(){ if(!document.hidden){ majReseau(); viderFile(false); if(remettreDateAuJour()) rendre(); chercherFichePreparee(false); } });
+  $("#bFichePrep").addEventListener("click", function(){ chercherFichePreparee(true); });
   window.addEventListener("beforeunload", sauverTout);
   setInterval(function(){ viderFile(false); }, 60000);
 }
@@ -314,6 +315,8 @@ function demarrer(){
   majReseau(); majFile();
   /* Le parc et les clients se rafraîchissent tout seuls, en arrière-plan. */
   setTimeout(majAutomatique, 3000);
+  /* La fiche préparée par Claude arrive toute seule (3.33). */
+  setTimeout(function(){ chercherFichePreparee(false); }, 1500);
   majEtat(STOCK_OK ? "prêt" : "enregistrement indisponible", STOCK_OK ? "" : "mal");
   rendre();
   setTimeout(function(){ viderFile(false); }, 2000);
